@@ -31,7 +31,7 @@ object MonoTheme {
 
 @Composable
 fun MonoTheme(
-    darkTheme: Boolean = false,
+    darkTheme: Boolean = true,
     colors: MonoColors = if (darkTheme) MonoColors.dark() else MonoColors.light(),
     typography: MonoTypography = MonoTypography.default(),
     shapes: MonoShapes = MonoShapes.default(),

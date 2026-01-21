@@ -13,7 +13,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.theme.MonoTheme
 
@@ -23,7 +23,7 @@ fun MonoPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    leadingIcon: ImageVector? = null,
+    leadingIcon: Painter? = null,
 ) {
     val shape = RoundedCornerShape(MonoTheme.shapes.buttonRadius)
     Button(
@@ -37,12 +37,12 @@ fun MonoPrimaryButton(
             disabledContainerColor = MonoTheme.colors.disabledButtonBackground,
             disabledContentColor = MonoTheme.colors.disabledButtonText,
         ),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
     ) {
         if (leadingIcon != null) {
             MonoIcon(
-                imageVector = leadingIcon,
+                painter = leadingIcon,
                 contentDescription = null,
                 tint = MonoTheme.colors.primaryButtonText,
                 modifier = Modifier.size(18.dp),
@@ -62,7 +62,7 @@ fun MonoSecondaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    leadingIcon: ImageVector? = null,
+    leadingIcon: Painter? = null,
 ) {
     val shape = RoundedCornerShape(MonoTheme.shapes.buttonRadius)
     OutlinedButton(
@@ -81,7 +81,7 @@ fun MonoSecondaryButton(
     ) {
         if (leadingIcon != null) {
             MonoIcon(
-                imageVector = leadingIcon,
+                painter = leadingIcon,
                 contentDescription = null,
                 tint = MonoTheme.colors.secondaryButtonText,
                 modifier = Modifier.size(18.dp),

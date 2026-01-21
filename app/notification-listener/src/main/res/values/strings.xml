@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Mono-repo</string>
+    <string name="notification_listener_label">Notification History</string>
 </resources>

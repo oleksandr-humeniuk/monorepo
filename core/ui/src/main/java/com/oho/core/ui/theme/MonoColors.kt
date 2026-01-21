@@ -67,15 +67,15 @@ data class MonoColors(
     }
 
     companion object {
+
         fun light(): MonoColors {
-            // iOS-like clean light UI (cards on subtle surface) + blue CTA
             val accentBlue = Color(0xFF2F6BFF)
             val accentBlue2 = Color(0xFF5A8CFF)
 
             return MonoColors(
                 // Background
-                appBackground = Color(0xFFFFFFFF),
-                surfaceBackground = Color(0xFFF5F7FB),
+                appBackground = Color(0xFFF8FAFC),
+                surfaceBackground = Color(0xFFF1F5F9),
                 cardBackground = Color(0xFFFFFFFF),
                 modalBackground = Color(0xFFFFFFFF),
 
@@ -100,9 +100,9 @@ data class MonoColors(
                 accentIconColor = accentBlue,
 
                 // Borders / Dividers / Inputs
-                dividerColor = Color(0xFFE2E8F0),
-                cardBorderColor = Color(0xFFE9EEF7),
-                inputBorderColor = Color(0xFFD7E0EE),
+                dividerColor = Color(0xFFE5E7EB),
+                cardBorderColor = Color(0xFFE5E7EB),
+                inputBorderColor = Color(0xFFD1D9E6),
 
                 // Status
                 successColor = Color(0xFF16A34A),
@@ -117,30 +117,30 @@ data class MonoColors(
         }
 
         fun dark(): MonoColors {
-            val accentBlue = Color(0xFF4C7DFF)
-            val accentBlue2 = Color(0xFF79A0FF)
+            val accentBlue = Color(0xFF5B8DFF)
+            val accentBlue2 = Color(0xFF89AEFF)
 
             return MonoColors(
                 // Background
                 appBackground = Color(0xFF0B1220),
-                surfaceBackground = Color(0xFF0F172A),
-                cardBackground = Color(0xFF111C34),
-                modalBackground = Color(0xFF111C34),
+                surfaceBackground = Color(0xFF0E1628),
+                cardBackground = Color(0xFF151F38),
+                modalBackground = Color(0xFF121F3A),
 
                 // Text
                 primaryTextColor = Color(0xFFE5E7EB),
-                secondaryTextColor = Color(0xFFB6C2D1),
-                tertiaryTextColor = Color(0xFF7C8AA0),
-                inverseTextColor = Color(0xFF0B1220),
+                secondaryTextColor = Color(0xFFC7D2E1),
+                tertiaryTextColor = Color(0xFF8A9BB5),
+                inverseTextColor = Color(0xFFFFFFFF),
                 linkTextColor = accentBlue,
 
                 // Buttons
                 primaryButtonBackground = accentBlue,
-                primaryButtonText = Color(0xFF0B1220),
-                secondaryButtonBackground = Color(0xFF1A2A4A),
+                primaryButtonText = Color(0xFFFFFFFF),
+                secondaryButtonBackground = Color(0xFF1A2740),
                 secondaryButtonText = Color(0xFFE5E7EB),
                 disabledButtonBackground = Color(0xFF22324D),
-                disabledButtonText = Color(0xFF7C8AA0),
+                disabledButtonText = Color(0xFF8A9BB5),
 
                 // Icons
                 primaryIconColor = Color(0xFFE5E7EB),
@@ -148,8 +148,8 @@ data class MonoColors(
                 accentIconColor = accentBlue,
 
                 // Borders / Dividers / Inputs
-                dividerColor = Color(0xFF22324D),
-                cardBorderColor = Color(0xFF1A2740),
+                dividerColor = Color(0xFF2B4168),
+                cardBorderColor = Color(0xFF223255),
                 inputBorderColor = Color(0xFF2A3B5C),
 
                 // Status
@@ -164,6 +164,7 @@ data class MonoColors(
             )
         }
     }
+
 }
 
 internal val LocalMonoColors = staticCompositionLocalOf { MonoColors.light() }
