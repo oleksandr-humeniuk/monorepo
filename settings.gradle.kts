@@ -20,4 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Mono-repo"
-include(":app")
+include("app:notification-listener")
+include(":core:ui")
