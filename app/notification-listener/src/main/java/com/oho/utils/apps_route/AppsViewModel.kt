@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @Stable
@@ -25,9 +26,7 @@ class AppsViewModel(
 
     init {
         viewModelScope.launch {
-            db.appsDao().observeApps(
-                minPostedAt = null
-            ).collect { notifications ->
+            db.appsDao().observeApps().collect { notifications ->
                 if (notifications.isEmpty()) {
                     _state.value = AppsContract.UiState.Empty
                 } else {
@@ -42,7 +41,6 @@ class AppsViewModel(
                                     now = System.currentTimeMillis()
                                 ).orEmpty(),
                                 isPinned = appEntity.isPinned,
-                                isLastPreviewLocked = false, // implement locking logic
                                 totalCount = appEntity.totalCount
                             )
                         },
@@ -56,6 +54,58 @@ class AppsViewModel(
     fun onEvent(event: AppsContract.UiEvent) {
         when (event) {
             is AppsContract.UiEvent.SearchClicked -> {
+            }
+
+            is AppsContract.UiEvent.OpenAppSheet -> {
+                _state.update { current ->
+                    when (current) {
+                        is AppsContract.UiState.Content -> current.copy(
+                            sheetState = AppsContract.AppActionsSheetUi(
+                                packageName = event.packageName,
+                                isPinned = current.items.firstOrNull { it.packageName == event.packageName }?.isPinned
+                                    ?: false
+                            )
+                        )
+
+                        is AppsContract.UiState.Empty -> current
+                    }
+                }
+            }
+
+            is AppsContract.UiEvent.ActionsSheetDismissed -> {
+                _state.update { current ->
+                    when (current) {
+                        is AppsContract.UiState.Content -> current.copy(
+                            sheetState = null
+                        )
+
+                        is AppsContract.UiState.Empty -> current
+                    }
+                }
+            }
+
+            is AppsContract.UiEvent.Pin -> {
+                viewModelScope.launch {
+                    db.appsDao().setPinned(
+                        pkg = event.packageName,
+                        pinned = !event.pinned
+                    )
+                }
+            }
+
+            is AppsContract.UiEvent.Hide -> {
+                viewModelScope.launch {
+                    db.appsDao().setExcluded(
+                        pkg = event.packageName,
+                        excluded = true
+                    )
+                }
+            }
+
+            is AppsContract.UiEvent.Clear -> {
+                viewModelScope.launch {
+                    //TODO: implement clear notifications for app
+                }
             }
 
             else -> Unit

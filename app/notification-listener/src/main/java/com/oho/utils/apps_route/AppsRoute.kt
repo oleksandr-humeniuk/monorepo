@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -33,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -55,7 +58,6 @@ fun AppsRoute(
     openSettings: () -> Unit,
     openFilters: () -> Unit,
     openAppDetails: (packageName: String) -> Unit,
-    openNotificationListenerSettings: () -> Unit,
     onGoProClick: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
@@ -68,7 +70,6 @@ fun AppsRoute(
                 is AppsContract.UiEvent.OpenSettings -> openSettings()
                 is AppsContract.UiEvent.OpenFilters -> openFilters()
                 is AppsContract.UiEvent.OpenApp -> openAppDetails(ev.packageName)
-                is AppsContract.UiEvent.OpenNotificationAccess -> openNotificationListenerSettings()
                 is AppsContract.UiEvent.GoPro -> onGoProClick()
                 else -> viewModel.onEvent(ev)
             }
@@ -135,13 +136,37 @@ fun AppsScreen(
                 is AppsContract.UiState.Content -> {
                     AppsList(
                         state = state,
-                        onOpenApp = { onEvent(AppsContract.UiEvent.OpenApp(it)) },
-                        onGoPro = { onEvent(AppsContract.UiEvent.GoPro) },
+                        onEvent,
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
                     )
                 }
+            }
+        }
+        if (state is AppsContract.UiState.Content) {
+            val sheetState = state.sheetState
+            if (sheetState != null) {
+                AppActionsBottomSheet(
+                    ui = sheetState,
+                    onDismiss = {
+                        onEvent(AppsContract.UiEvent.ActionsSheetDismissed)
+                    },
+                    onTogglePin = {
+                        onEvent(
+                            AppsContract.UiEvent.Pin(
+                                packageName = sheetState.packageName,
+                                pinned = sheetState.isPinned
+                            )
+                        )
+                    },
+                    onExclude = {
+                        onEvent(AppsContract.UiEvent.Hide(sheetState.packageName))
+                    },
+                    onClearHistory = {
+                        onEvent(AppsContract.UiEvent.Clear(sheetState.packageName))
+                    },
+                )
             }
         }
     }
@@ -150,77 +175,41 @@ fun AppsScreen(
 @Composable
 private fun AppsList(
     state: AppsContract.UiState.Content,
-    onOpenApp: (String) -> Unit,
-    onGoPro: () -> Unit,
+    onEvent: (AppsContract.UiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val c = MonoTheme.colors
-
     val pinned = state.items.filter { it.isPinned }
     val rest = state.items.filterNot { it.isPinned }
 
-    LazyColumn(
-        modifier = modifier,
-    ) {
-        if (pinned.isNotEmpty()) {
-            item {
-                SectionHeader("ACTIVE & PINNED")
-                GroupCard {
-                    pinned.forEachIndexed { idx, item ->
-                        AppRow(
-                            item = item,
-                            onClick = { onOpenApp(item.packageName) },
-                        )
-                        if (idx != pinned.lastIndex) MonoDivider()
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-            }
-        }
+    LazyColumn(modifier = modifier) {
+
+        appsSection(
+            title = "ACTIVE & PINNED",
+            items = pinned,
+            keyPrefix = "pinned",
+            onEvent = onEvent,
+            bottomSpacer = 16.dp,
+        )
 
         if (state.showProNudge) {
-            item {
-                ProNudgeCard(onGoPro = onGoPro)
+            item(key = "pro_nudge") {
+                ProNudgeCard(onGoPro = {
+                    onEvent(AppsContract.UiEvent.GoPro)
+                })
                 Spacer(Modifier.height(16.dp))
             }
         }
 
-        if (rest.isNotEmpty()) {
-            item {
-                SectionHeader("RECENT ACTIVITY")
-                GroupCard {
-                    rest.forEachIndexed { idx, item ->
-                        AppRow(
-                            item = item,
-                            onClick = { onOpenApp(item.packageName) },
-                        )
-                        if (idx != rest.lastIndex) MonoDivider()
-                    }
-                }
-                Spacer(Modifier.height(14.dp))
-            }
-        }
-
-        if (pinned.isEmpty() && rest.isEmpty()) {
-            item {
-                // filtered-out state (search or filters) – keep it calm
-                MonoCard {
-                    MonoText(
-                        text = "No matching apps",
-                        style = MonoTextStyle.BodyPrimary,
-                        color = c.primaryTextColor,
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    MonoText(
-                        text = "Try clearing search or filters.",
-                        style = MonoTextStyle.BodySecondary,
-                        color = c.secondaryTextColor,
-                    )
-                }
-            }
-        }
+        appsSection(
+            title = "RECENT ACTIVITY",
+            items = rest,
+            keyPrefix = "recent",
+            onEvent = onEvent,
+            bottomSpacer = 14.dp,
+        )
     }
 }
+
 
 @Composable
 private fun SectionHeader(text: String) {
@@ -234,30 +223,9 @@ private fun SectionHeader(text: String) {
 }
 
 @Composable
-private fun GroupCard(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val c = MonoTheme.colors
-    val shape = RoundedCornerShape(MonoTheme.shapes.cardRadius)
-
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .border(1.dp, c.cardBorderColor, shape),
-        color = c.cardBackground,
-        tonalElevation = 0.dp,
-        shadowElevation = MonoTheme.elevation.card,
-    ) {
-        Column { content() }
-    }
-}
-
-@Composable
 private fun AppRow(
     item: AppsContract.AppItemUi,
-    onClick: () -> Unit,
+    onEvent: (AppsContract.UiEvent) -> Unit,
 ) {
     val c = MonoTheme.colors
     val d = MonoTheme.dimens
@@ -265,13 +233,15 @@ private fun AppRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(MonoTheme.shapes.cardRadius))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 role = Role.Button,
-                onClick = onClick,
+                onClick = {
+                    onEvent(AppsContract.UiEvent.OpenApp(item.packageName))
+                },
             )
-            .padding(horizontal = d.listItemPadding, vertical = 14.dp),
+            .padding(vertical = 14.dp)
+            .padding(start = d.listItemPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AppIcon(
@@ -297,7 +267,7 @@ private fun AppRow(
             Spacer(Modifier.height(2.dp))
 
             MonoText(
-                text = if (item.isLastPreviewLocked) "Limit reached" else item.lastPreview,
+                text = item.lastPreview,
                 style = MonoTextStyle.BodySecondary,
                 color = c.secondaryTextColor,
                 maxLines = 1,
@@ -323,20 +293,23 @@ private fun AppRow(
             Spacer(Modifier.height(6.dp))
 
             CountChip(count = item.totalCount)
-
-            if (item.isLastPreviewLocked) {
-                Spacer(Modifier.height(4.dp))
-                ProChip()
-            }
         }
 
-        Spacer(Modifier.width(8.dp))
 
         MonoIcon(
-            painter = painterResource(R.drawable.ic_chevron_right),
+            painter = painterResource(R.drawable.ic_more_vert),
             contentDescription = null,
             tint = c.secondaryIconColor,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {
+                        onEvent(AppsContract.UiEvent.OpenAppSheet(item.packageName))
+                    }
+                )
+                .padding(12.dp)
+                .size(18.dp),
         )
     }
 
@@ -371,14 +344,14 @@ fun AppIcon(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context)
-                .data(icon) // <- вже готовий Drawable
+                .data(icon) //
                 .crossfade(false)
                 .build(),
             contentDescription = null,
             modifier = Modifier.size(26.dp),
             contentScale = ContentScale.Fit,
-            error = painterResource(R.drawable.ic_android),
-            fallback = painterResource(R.drawable.ic_android),
+            error = painterResource(R.drawable.ic_shield),
+            fallback = painterResource(R.drawable.ic_shield),
         )
     }
 }
@@ -569,5 +542,79 @@ private fun SearchBar(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
+    }
+}
+
+private enum class GroupItemPos { Single, First, Middle, Last }
+
+@Composable
+private fun GroupCardItem(
+    pos: GroupItemPos,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val c = MonoTheme.colors
+    val r = MonoTheme.shapes.cardRadius
+
+    val shape = when (pos) {
+        GroupItemPos.Single -> RoundedCornerShape(r)
+        GroupItemPos.First -> RoundedCornerShape(topStart = r, topEnd = r)
+        GroupItemPos.Middle -> RoundedCornerShape(0.dp)
+        GroupItemPos.Last -> RoundedCornerShape(bottomStart = r, bottomEnd = r)
+    }
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape),
+        color = c.cardBackground,
+        tonalElevation = 0.dp,
+        shadowElevation = if (pos == GroupItemPos.Single || pos == GroupItemPos.First) MonoTheme.elevation.card else 0.dp,
+    ) {
+        content()
+    }
+}
+
+
+private fun LazyListScope.appsSection(
+    title: String,
+    items: List<AppsContract.AppItemUi>,
+    keyPrefix: String,
+    onEvent: (AppsContract.UiEvent) -> Unit,
+    bottomSpacer: Dp,
+) {
+    if (items.isEmpty()) return
+
+    item(key = "${keyPrefix}_header") {
+        SectionHeader(title)
+    }
+
+    itemsIndexed(
+        items = items,
+        key = { idx, it -> "${keyPrefix}_${it.packageName}" },
+    ) { idx, item ->
+        val pos = when {
+            items.size == 1 -> GroupItemPos.Single
+            idx == 0 -> GroupItemPos.First
+            idx == items.lastIndex -> GroupItemPos.Last
+            else -> GroupItemPos.Middle
+        }
+
+        GroupCardItem(pos = pos) {
+            Column {
+                AppRow(
+                    item = item,
+                    onEvent = onEvent,
+                )
+                // Divider only inside the row container for non-last items
+                if (idx != items.lastIndex) {
+                    MonoDivider(thickness = 0.5.dp)
+                }
+            }
+        }
+    }
+
+    item(key = "${keyPrefix}_spacer") {
+        Spacer(Modifier.height(bottomSpacer))
     }
 }

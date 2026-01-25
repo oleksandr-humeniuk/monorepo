@@ -16,11 +16,10 @@ interface AppsDao {
         SELECT packageName, appName, isExcluded, isPinned, lastPostedAt, lastTitle, lastText, totalCount
         FROM apps
         WHERE isExcluded = 0
-          AND (:minPostedAt IS NULL OR lastPostedAt >= :minPostedAt)
         ORDER BY isPinned DESC, lastPostedAt DESC
         """
     )
-    fun observeApps(minPostedAt: Long?): Flow<List<AppRow>>
+    fun observeApps(): Flow<List<AppRow>>
 
     @Query("SELECT * FROM apps WHERE packageName = :pkg LIMIT 1")
     suspend fun get(pkg: String): AppEntity?

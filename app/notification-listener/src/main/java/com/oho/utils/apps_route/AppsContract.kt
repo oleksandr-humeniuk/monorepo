@@ -11,6 +11,7 @@ object AppsContract {
         data class Content(
             val items: List<AppItemUi>,
             val showProNudge: Boolean,
+            val sheetState: AppActionsSheetUi? = null
         ) : UiState
     }
 
@@ -19,12 +20,17 @@ object AppsContract {
         data object OpenSettings : UiEvent
         data object OpenFilters : UiEvent
         data class OpenApp(val packageName: String) : UiEvent
-        data object OpenNotificationAccess : UiEvent
+        data class OpenAppSheet(val packageName: String) : UiEvent
+        data class Pin(val packageName: String, val pinned: Boolean) : UiEvent
+        data class Hide(val packageName: String) : UiEvent
+        data class Clear(val packageName: String) : UiEvent
         data object GoPro : UiEvent
+
+        data object ActionsSheetDismissed : UiEvent
     }
 
     sealed interface UiEffect {
-        // keep for later (snackbar, navigation, etc)
+
     }
 
     @Immutable
@@ -35,6 +41,11 @@ object AppsContract {
         val timeLabel: String,
         val isPinned: Boolean,
         val totalCount: Long,
-        val isLastPreviewLocked: Boolean,
+    )
+
+    @Immutable
+    data class AppActionsSheetUi(
+        val packageName: String,
+        val isPinned: Boolean,
     )
 }

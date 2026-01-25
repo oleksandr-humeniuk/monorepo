@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.dp
 import com.oho.core.ui.theme.MonoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,14 +31,18 @@ fun MonoModalSheet(
         shape = shape,
         containerColor = MonoTheme.colors.modalBackground,
         contentColor = MonoTheme.colors.primaryTextColor,
-        dragHandle = { BottomSheetDefaults.DragHandle(color = MonoTheme.colors.dividerColor) },
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(
+                color = MonoTheme.colors.dividerColor,
+                shape = MaterialTheme.shapes.large
+            )
+        },
         modifier = modifier,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MonoTheme.dimens.screenPadding)
-                .padding(bottom = 16.dp),
+                .padding(horizontal = MonoTheme.dimens.screenPadding),
             content = content,
         )
     }

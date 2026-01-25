@@ -55,7 +55,6 @@ fun AppNavRoot(
                         openSettings = {},
                         openFilters = {},
                         openAppDetails = {},
-                        openNotificationListenerSettings = {},
                         onGoProClick = {}
                     )
                 }
