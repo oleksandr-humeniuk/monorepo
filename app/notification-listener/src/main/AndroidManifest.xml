@@ -9,6 +9,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:name="NotificationListenerApp"
         android:theme="@style/Theme.Monorepo">
         <activity
             android:name=".MainActivity"
@@ -32,5 +33,11 @@
             </intent-filter>
         </service>
     </application>
-
+    <queries>
+        <!-- Дозволяє бачити встановлені LAUNCHER apps (YouTube, Telegram, etc.) -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 </manifest>

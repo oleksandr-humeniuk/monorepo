@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.oho.core.ui.utils.ObserveOnResume
+import com.oho.utils.apps_route.AppsRoute
 import com.oho.utils.permission.NotificationAccessRoute
 
 @Composable
@@ -49,7 +50,14 @@ fun AppNavRoot(
                 }
 
                 Routes.Home -> NavEntry(key) {
-                    HomeRoute(modifier = Modifier.Companion.fillMaxSize())
+                    AppsRoute(
+                        modifier = Modifier.Companion.fillMaxSize(),
+                        openSettings = {},
+                        openFilters = {},
+                        openAppDetails = {},
+                        openNotificationListenerSettings = {},
+                        onGoProClick = {}
+                    )
                 }
             }
         },
@@ -63,8 +71,4 @@ private fun rememberBackStack(backStack: List<Routes>) =
 
 @Composable
 private fun GateScreen() { /* optional splash/blank */
-}
-
-@Composable
-private fun HomeRoute(modifier: Modifier = Modifier) { /* TODO */
 }
