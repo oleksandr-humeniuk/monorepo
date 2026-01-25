@@ -19,6 +19,5 @@ data class AppEntity(
     val lastPostedAt: Long = 0L,
     val lastTitle: String? = null,
     val lastText: String? = null,
-
     val totalCount: Long = 0L,
 )

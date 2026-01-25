@@ -16,11 +16,10 @@ interface ConversationsDao {
         SELECT packageName, conversationKey, title, lastPostedAt, lastText, messageCount, isPinned, isMuted
         FROM conversations
         WHERE packageName = :pkg
-          AND (:minPostedAt IS NULL OR lastPostedAt >= :minPostedAt)
         ORDER BY isPinned DESC, lastPostedAt DESC
         """
     )
-    fun observeConversations(pkg: String, minPostedAt: Long?): Flow<List<ConversationRow>>
+    fun observeConversations(pkg: String): Flow<List<ConversationRow>>
 
     @Query(
         """

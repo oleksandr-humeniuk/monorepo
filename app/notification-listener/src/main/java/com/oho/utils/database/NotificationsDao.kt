@@ -14,14 +14,12 @@ interface NotificationsDao {
         SELECT *
         FROM notifications
         WHERE packageName = :pkg
-          AND (:minPostedAt IS NULL OR postedAt >= :minPostedAt)
         ORDER BY postedAt DESC
         LIMIT :limit
         """
     )
     fun observeAppNotifications(
         pkg: String,
-        minPostedAt: Long?,
         limit: Int,
     ): Flow<List<NotificationEntity>>
 
@@ -31,7 +29,6 @@ interface NotificationsDao {
         FROM notifications
         WHERE packageName = :pkg
           AND conversationKey = :ck
-          AND (:minPostedAt IS NULL OR postedAt >= :minPostedAt)
         ORDER BY postedAt DESC
         LIMIT :limit
         """
@@ -39,7 +36,6 @@ interface NotificationsDao {
     fun observeConversationNotifications(
         pkg: String,
         ck: String,
-        minPostedAt: Long?,
         limit: Int,
     ): Flow<List<NotificationEntity>>
 
@@ -48,7 +44,6 @@ interface NotificationsDao {
         SELECT *
         FROM notifications
         WHERE packageName = :pkg
-          AND (:minPostedAt IS NULL OR postedAt >= :minPostedAt)
           AND (
             (title IS NOT NULL AND title LIKE '%' || :q || '%') OR
             (text IS NOT NULL AND text LIKE '%' || :q || '%') OR
@@ -62,7 +57,7 @@ interface NotificationsDao {
         pkg: String,
         q: String,
         minPostedAt: Long?,
-        limit: Int = 200,
+        limit: Int = 100,
     ): List<NotificationEntity>
 
     @Query("SELECT COUNT(*) FROM notifications WHERE packageName = :pkg")
@@ -73,10 +68,9 @@ interface NotificationsDao {
         SELECT COUNT(*)
         FROM notifications
         WHERE packageName = :pkg
-          AND (:minPostedAt IS NULL OR postedAt >= :minPostedAt)
         """
     )
-    suspend fun countVisibleInApp(pkg: String, minPostedAt: Long?): Long
+    suspend fun countVisibleInApp(pkg: String): Long
 
     @Query("SELECT COUNT(*) FROM notifications WHERE packageName = :pkg AND conversationKey = :ck")
     suspend fun countAllInConversation(pkg: String, ck: String): Long
@@ -86,10 +80,9 @@ interface NotificationsDao {
         SELECT COUNT(*)
         FROM notifications
         WHERE packageName = :pkg AND conversationKey = :ck
-          AND (:minPostedAt IS NULL OR postedAt >= :minPostedAt)
         """
     )
-    suspend fun countVisibleInConversation(pkg: String, ck: String, minPostedAt: Long?): Long
+    suspend fun countVisibleInConversation(pkg: String, ck: String): Long
 
     @Insert
     suspend fun insert(entity: NotificationEntity): Long

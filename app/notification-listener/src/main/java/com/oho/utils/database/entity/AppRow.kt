@@ -10,4 +10,3 @@ data class AppRow(
     val lastText: String?,
     val totalCount: Long,
 )
-
