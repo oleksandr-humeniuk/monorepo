@@ -1,6 +1,5 @@
 package com.oho.utils.apps_route
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,7 +32,6 @@ class AppsViewModel(
                     _state.value = AppsContract.UiState.Empty
                 } else {
                     _state.value = AppsContract.UiState.Content(
-                        searchQuery = "",
                         items = notifications.map { appEntity ->
                             AppsContract.AppItemUi(
                                 packageName = appEntity.packageName,
@@ -57,7 +55,7 @@ class AppsViewModel(
 
     fun onEvent(event: AppsContract.UiEvent) {
         when (event) {
-            is AppsContract.UiEvent.SearchChanged -> {
+            is AppsContract.UiEvent.SearchClicked -> {
             }
 
             else -> Unit

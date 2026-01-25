@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -115,9 +114,11 @@ fun AppsScreen(
             if (state is AppsContract.UiState.Content) {
                 Spacer(Modifier.height(10.dp))
                 SearchBar(
-                    value = state.searchQueryOrEmpty(),
-                    onValueChange = { onEvent(AppsContract.UiEvent.SearchChanged(it)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    onClick = {
+                        onEvent(AppsContract.UiEvent.SearchClicked)
+                    }
                 )
                 Spacer(Modifier.height(14.dp))
             }
@@ -357,7 +358,7 @@ fun AppIcon(
         runCatching {
             pm.getApplicationInfo(trimmed, 0).loadIcon(pm)
         }.onFailure {
-            Log.d("ZXC","AppIcon: failed to load icon for package '$trimmed'", it)
+            Log.d("ZXC", "AppIcon: failed to load icon for package '$trimmed'", it)
         }.getOrNull()
     }
 
@@ -381,7 +382,6 @@ fun AppIcon(
         )
     }
 }
-
 
 
 @Composable
@@ -539,11 +539,9 @@ private fun EmptyState(
 
 @Composable
 private fun SearchBar(
-    value: String,
-    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
-    // Minimal placeholder; swap to your existing MonoTextField when you add it.
     val c = MonoTheme.colors
     val shape = RoundedCornerShape(14.dp)
     Row(
@@ -552,6 +550,7 @@ private fun SearchBar(
             .clip(shape)
             .background(c.surfaceBackground)
             .border(1.dp, c.cardBorderColor.copy(alpha = 0.45f), shape)
+            .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -563,44 +562,12 @@ private fun SearchBar(
         )
         Spacer(Modifier.width(10.dp))
         MonoText(
-            text = value.ifBlank { "Search history" },
+            text = "Search history",
             style = MonoTextStyle.BodySecondary,
-            color = if (value.isBlank()) c.secondaryTextColor.copy(alpha = 0.7f) else c.primaryTextColor,
+            color = c.secondaryTextColor.copy(alpha = 0.7f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
-        // If you want actual input now, replace with BasicTextField; keeping it simple for the first pass.
     }
-}
-
-@Composable
-private fun ListeningIndicator(modifier: Modifier = Modifier) {
-    val c = MonoTheme.colors
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(999.dp))
-            .background(c.surfaceBackground)
-            .border(1.dp, c.cardBorderColor.copy(alpha = 0.35f), RoundedCornerShape(999.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(c.successColor),
-        )
-        MonoText(
-            text = "Listening is ON",
-            style = MonoTextStyle.Caption,
-            color = c.secondaryTextColor,
-        )
-    }
-}
-
-private fun AppsContract.UiState.searchQueryOrEmpty(): String = when (this) {
-    AppsContract.UiState.Empty -> ""
-    is AppsContract.UiState.Content -> searchQuery
 }

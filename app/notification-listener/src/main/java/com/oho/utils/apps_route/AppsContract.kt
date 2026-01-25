@@ -5,21 +5,17 @@ import androidx.compose.runtime.Immutable
 object AppsContract {
 
     sealed interface UiState {
-        val searchQuery: String
 
-        data object Empty : UiState {
-            override val searchQuery: String = ""
-        }
+        data object Empty : UiState
 
         data class Content(
-            override val searchQuery: String,
             val items: List<AppItemUi>,
             val showProNudge: Boolean,
         ) : UiState
     }
 
     sealed interface UiEvent {
-        data class SearchChanged(val value: String) : UiEvent
+        data object SearchClicked : UiEvent
         data object OpenSettings : UiEvent
         data object OpenFilters : UiEvent
         data class OpenApp(val packageName: String) : UiEvent
