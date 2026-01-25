@@ -1,4 +1,22 @@
 <resources>
     <string name="app_name">Mono-repo</string>
     <string name="notification_listener_label">Notification History</string>
+    <string name="app_action_item_unpin">Unpin</string>
+    <string name="app_action_item_pin">Pin</string>
+    <string name="app_action_item_remove_from_pinned_section">Remove from pinned section</string>
+    <string name="app_action_item_keep_this_app_at_the_top">Keep this app at the top</string>
+    <string name="app_action_item_exclude">Exclude</string>
+    <string name="app_action_item_hide_this_app_from_the_list">Hide this app from the list</string>
+    <string name="app_action_item_clear_history">Clear history</string>
+    <string name="app_action_item_delete_captured_notifications_for_this_app">Delete captured notifications for this app</string>
+    <string name="apps_route_empty_title">No notifications yet</string>
+    <string name="apps_route_empty_message">We’ll show apps here after the first notification arrives</string>
+    <string name="apps_route_search_history">Search history</string>
+    <string name="apps_route_title">Apps</string>
+    <string name="apps_route_filter_desc">Filter</string>
+    <string name="apps_route_settings_desc">Settings</string>
+    <string name="apps_route_pinned_title"><![CDATA[ACTIVE & PINNED]]></string>
+    <string name="apps_route_recent_title">RECENT ACTIVITY</string>
+    <string name="title_unknown_app">Protected App</string>
+    <string name="item_unknown_preview_msg">Hidden title</string>
 </resources>

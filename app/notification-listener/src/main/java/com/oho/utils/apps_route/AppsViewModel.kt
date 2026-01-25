@@ -34,8 +34,8 @@ class AppsViewModel(
                         items = notifications.map { appEntity ->
                             AppsContract.AppItemUi(
                                 packageName = appEntity.packageName,
-                                appName = appEntity.appName ?: "Protected App",
-                                lastPreview = appEntity.lastTitle ?: "Hidden title",
+                                appName = appEntity.appName,
+                                lastPreview = appEntity.lastTitle,
                                 timeLabel = formatTimeLabel(
                                     lastPostedAt = appEntity.lastPostedAt,
                                     now = System.currentTimeMillis()

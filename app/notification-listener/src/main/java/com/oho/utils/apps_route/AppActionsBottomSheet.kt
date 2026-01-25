@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,8 +41,12 @@ fun AppActionsBottomSheet(
         // Pin / Unpin
         ActionRow(
             icon = R.drawable.ic_push_pin,
-            title = if (ui.isPinned) "Unpin" else "Pin",
-            subtitle = if (ui.isPinned) "Remove from pinned section" else "Keep this app at the top",
+            title = if (ui.isPinned) stringResource(com.oho.utils.R.string.app_action_item_unpin) else stringResource(
+                com.oho.utils.R.string.app_action_item_pin
+            ),
+            subtitle = if (ui.isPinned) stringResource(com.oho.utils.R.string.app_action_item_remove_from_pinned_section) else stringResource(
+                com.oho.utils.R.string.app_action_item_keep_this_app_at_the_top
+            ),
             isDestructive = false,
             onClick = {
                 onTogglePin()
@@ -53,8 +58,8 @@ fun AppActionsBottomSheet(
         // Exclude
         ActionRow(
             icon = R.drawable.ic_visibility_off,
-            title = "Exclude",
-            subtitle = "Hide this app from the list",
+            title = stringResource(com.oho.utils.R.string.app_action_item_exclude),
+            subtitle = stringResource(com.oho.utils.R.string.app_action_item_hide_this_app_from_the_list),
             isDestructive = false,
             onClick = {
                 onExclude()
@@ -66,8 +71,8 @@ fun AppActionsBottomSheet(
         // Clear history
         ActionRow(
             icon = R.drawable.ic_delete,
-            title = "Clear history",
-            subtitle = "Delete captured notifications for this app",
+            title = stringResource(com.oho.utils.R.string.app_action_item_clear_history),
+            subtitle = stringResource(com.oho.utils.R.string.app_action_item_delete_captured_notifications_for_this_app),
             isDestructive = true,
             onClick = {
                 onClearHistory()

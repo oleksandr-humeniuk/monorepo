@@ -36,8 +36,8 @@ object AppsContract {
     @Immutable
     data class AppItemUi(
         val packageName: String,
-        val appName: String,
-        val lastPreview: String,
+        val appName: String?,
+        val lastPreview: String?,
         val timeLabel: String,
         val isPinned: Boolean,
         val totalCount: Long,

@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -88,19 +89,19 @@ fun AppsScreen(
 
     MonoScaffold(
         modifier = modifier,
-        title = "Apps",
+        title = stringResource(com.oho.utils.R.string.apps_route_title),
         actions = {
             IconButton(onClick = { onEvent(AppsContract.UiEvent.OpenFilters) }) {
                 MonoIcon(
                     painter = painterResource(R.drawable.ic_filter),
-                    contentDescription = "Filter",
+                    contentDescription = stringResource(com.oho.utils.R.string.apps_route_filter_desc),
                     tint = c.accentIconColor,
                 )
             }
             IconButton(onClick = { onEvent(AppsContract.UiEvent.OpenSettings) }) {
                 MonoIcon(
                     painter = painterResource(R.drawable.ic_settings),
-                    contentDescription = "Settings",
+                    contentDescription = stringResource(com.oho.utils.R.string.apps_route_settings_desc),
                     tint = c.accentIconColor,
                 )
             }
@@ -180,11 +181,12 @@ private fun AppsList(
 ) {
     val pinned = state.items.filter { it.isPinned }
     val rest = state.items.filterNot { it.isPinned }
+    val context = LocalContext.current
 
     LazyColumn(modifier = modifier) {
 
         appsSection(
-            title = "ACTIVE & PINNED",
+            title = context.getString(com.oho.utils.R.string.apps_route_pinned_title),
             items = pinned,
             keyPrefix = "pinned",
             onEvent = onEvent,
@@ -201,7 +203,7 @@ private fun AppsList(
         }
 
         appsSection(
-            title = "RECENT ACTIVITY",
+            title = context.getString(com.oho.utils.R.string.apps_route_recent_title),
             items = rest,
             keyPrefix = "recent",
             onEvent = onEvent,
@@ -257,7 +259,7 @@ private fun AppRow(
             verticalArrangement = Arrangement.Center,
         ) {
             MonoText(
-                text = item.appName,
+                text = item.appName ?: stringResource(com.oho.utils.R.string.title_unknown_app),
                 style = MonoTextStyle.BodyPrimary,
                 color = c.primaryTextColor,
                 maxLines = 1,
@@ -267,7 +269,8 @@ private fun AppRow(
             Spacer(Modifier.height(2.dp))
 
             MonoText(
-                text = item.lastPreview,
+                text = item.lastPreview
+                    ?: stringResource(com.oho.utils.R.string.item_unknown_preview_msg),
                 style = MonoTextStyle.BodySecondary,
                 color = c.secondaryTextColor,
                 maxLines = 1,
@@ -492,7 +495,7 @@ private fun EmptyState(
         Spacer(Modifier.height(18.dp))
 
         MonoText(
-            text = "No notifications yet",
+            text = stringResource(com.oho.utils.R.string.apps_route_empty_title),
             style = MonoTextStyle.TitleMedium,
             color = c.primaryTextColor,
         )
@@ -500,7 +503,7 @@ private fun EmptyState(
         Spacer(Modifier.height(8.dp))
 
         MonoText(
-            text = "We’ll show apps here after the first notification arrives",
+            text = stringResource(com.oho.utils.R.string.apps_route_empty_message),
             style = MonoTextStyle.BodySecondary,
             color = c.secondaryTextColor,
             modifier = Modifier.padding(horizontal = 10.dp),
@@ -535,7 +538,7 @@ private fun SearchBar(
         )
         Spacer(Modifier.width(10.dp))
         MonoText(
-            text = "Search history",
+            text = stringResource(com.oho.utils.R.string.apps_route_search_history),
             style = MonoTextStyle.BodySecondary,
             color = c.secondaryTextColor.copy(alpha = 0.7f),
             maxLines = 1,
