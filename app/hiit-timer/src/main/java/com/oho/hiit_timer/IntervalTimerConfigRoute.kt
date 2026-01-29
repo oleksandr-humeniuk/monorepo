@@ -1,0 +1,356 @@
+package com.oho.hiit_timer
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.oho.core.ui.R
+
+@Composable
+fun IntervalTimerConfigRoute(
+    vm: IntervalTimerConfigViewModel = viewModel(),
+    onBack: () -> Unit = {},
+    onStart: (IntervalTimerConfigViewModel.UiState) -> Unit = {},
+) {
+    IntervalTimerConfigScreen(
+        state = vm.state,
+        onBackClicked = { onBack(); vm.onBackClicked() },
+        onMoreClicked = vm::onMoreClicked,
+        onSetsMinus = vm::onSetsMinus,
+        onSetsPlus = vm::onSetsPlus,
+        onWorkMinus = vm::onWorkMinus,
+        onWorkPlus = vm::onWorkPlus,
+        onRestMinus = vm::onRestMinus,
+        onRestPlus = vm::onRestPlus,
+        onStartClicked = { onStart(vm.state); vm.onStartClicked() },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IntervalTimerConfigScreen(
+    state: IntervalTimerConfigViewModel.UiState,
+    onBackClicked: () -> Unit,
+    onMoreClicked: () -> Unit,
+    onSetsMinus: () -> Unit,
+    onSetsPlus: () -> Unit,
+    onWorkMinus: () -> Unit,
+    onWorkPlus: () -> Unit,
+    onRestMinus: () -> Unit,
+    onRestPlus: () -> Unit,
+    onStartClicked: () -> Unit,
+) {
+    val page = MaterialTheme.colorScheme.background
+    val outline = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(page)
+    ) {
+        Column(Modifier.fillMaxSize()) {
+            TopAppBar(
+                modifier = Modifier.statusBarsPadding(),
+                title = { Text("Quick start") },
+                navigationIcon = {
+                },
+                actions = {
+                    IconButton(onClick = onMoreClicked) {
+                        Icon(
+                            painterResource(R.drawable.ic_more_vert),
+                            contentDescription = "More"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = page,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                )
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp, bottom = 120.dp),
+            ) {
+                SectionTitle("STRUCTURE")
+                SurfaceCard(
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    RowItem(
+                        label = "Sets",
+                        valueText = state.sets.toString(),
+                        onMinus = onSetsMinus,
+                        onPlus = onSetsPlus,
+                    )
+                }
+
+                Spacer(Modifier.height(18.dp))
+
+                SectionTitle("TIMING")
+                SurfaceCard(
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    RowItem(
+                        label = "Work",
+                        valueText = formatSec(state.workSec),
+                        onMinus = onWorkMinus,
+                        onPlus = onWorkPlus,
+                    )
+                    Divider(color = outline)
+                    RowItem(
+                        label = "Rest",
+                        valueText = formatSec(state.restSec),
+                        onMinus = onRestMinus,
+                        onPlus = onRestPlus,
+                    )
+                }
+            }
+        }
+
+        BottomBar(
+            totalText = formatSec(state.totalDurationSec),
+            onStartClicked = onStartClicked,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier.padding(horizontal = 6.dp, vertical = 10.dp),
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
+    )
+}
+
+@Composable
+private fun SurfaceCard(
+    shape: Shape = RoundedCornerShape(28.dp),
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = shape,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+        )
+    ) {
+        Column { content() }
+    }
+}
+
+@Composable
+private fun RowItem(
+    label: String,
+    valueText: String,
+    onMinus: () -> Unit,
+    onPlus: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RoundIconButton(
+                icon = { Icon(painterResource(R.drawable.ic_minus), contentDescription = null) },
+                contentDescription = "Decrease $label",
+                onClick = onMinus,
+            )
+
+            Spacer(Modifier.size(12.dp))
+
+            ValuePill(valueText)
+
+            Spacer(Modifier.size(12.dp))
+
+            RoundIconButton(
+                icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+                contentDescription = "Increase $label",
+                onClick = onPlus,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ValuePill(text: String) {
+    val cs = MaterialTheme.colorScheme
+
+    val pillBg = cs.primary.copy(alpha = 0.08f)
+    val pillBorder = cs.primary.copy(alpha = 0.18f)
+
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = pillBg,
+        border = BorderStroke(1.dp, pillBorder),
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+            style = MaterialTheme.typography.headlineSmall,
+            fontFamily = FontFamily.Monospace,
+            color = cs.onSurface,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun RoundIconButton(
+    icon: @Composable () -> Unit,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
+
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp),
+    ) {
+        Surface(
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.0f), // не фарбуємо, тільки хіт-таргет
+        ) {
+            icon()
+        }
+    }
+}
+
+@Composable
+private fun BottomBar(
+    totalText: String,
+    onStartClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.background.copy(alpha = 0.95f),
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(horizontal = 24.dp, vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "TOTAL DURATION",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.60f),
+                )
+                Spacer(Modifier.size(12.dp))
+
+                // плавний апдейт числа
+                AnimatedContent(
+                    targetState = totalText,
+                    transitionSpec = {
+                        (fadeIn(tween(120)) togetherWith fadeOut(tween(120)))
+                            .using(SizeTransform(clip = false))
+                    },
+                    label = "totalDuration",
+                ) { value ->
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            Button(
+                onClick = onStartClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = CircleShape,
+                contentPadding = PaddingValues(horizontal = 20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                )
+            ) {
+                Text("Start Workout", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+    }
+}
+
+private fun formatSec(totalSec: Int): String {
+    val sec = totalSec.coerceAtLeast(0)
+    val m = sec / 60
+    val s = sec % 60
+    return "%02d:%02d".format(m, s)
+}

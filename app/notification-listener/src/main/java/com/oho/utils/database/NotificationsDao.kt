@@ -56,7 +56,6 @@ interface NotificationsDao {
     suspend fun searchInApp(
         pkg: String,
         q: String,
-        minPostedAt: Long?,
         limit: Int = 100,
     ): List<NotificationEntity>
 
