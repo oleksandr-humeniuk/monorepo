@@ -1,11 +1,5 @@
 package com.oho.hiit_timer
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,10 +37,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oho.core.ui.R
+import com.oho.core.ui.components.AnimatedNumberText
 
 @Composable
 fun IntervalTimerConfigRoute(
@@ -124,7 +118,8 @@ fun IntervalTimerConfigScreen(
                 ) {
                     RowItem(
                         label = "Sets",
-                        valueText = state.sets.toString(),
+                        text = state.sets.toString(),
+                        value = state.sets,
                         onMinus = onSetsMinus,
                         onPlus = onSetsPlus,
                     )
@@ -138,14 +133,16 @@ fun IntervalTimerConfigScreen(
                 ) {
                     RowItem(
                         label = "Work",
-                        valueText = formatSec(state.workSec),
+                        text = formatSec(state.workSec),
+                        value = state.workSec,
                         onMinus = onWorkMinus,
                         onPlus = onWorkPlus,
                     )
                     Divider(color = outline)
                     RowItem(
                         label = "Rest",
-                        valueText = formatSec(state.restSec),
+                        text = formatSec(state.restSec),
+                        value = state.restSec,
                         onMinus = onRestMinus,
                         onPlus = onRestPlus,
                     )
@@ -154,7 +151,7 @@ fun IntervalTimerConfigScreen(
         }
 
         BottomBar(
-            totalText = formatSec(state.totalDurationSec),
+            totalTime = state.totalDurationSec,
             onStartClicked = onStartClicked,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
@@ -194,7 +191,8 @@ private fun SurfaceCard(
 @Composable
 private fun RowItem(
     label: String,
-    valueText: String,
+    text: String,
+    value: Int,
     onMinus: () -> Unit,
     onPlus: () -> Unit,
 ) {
@@ -220,7 +218,10 @@ private fun RowItem(
 
             Spacer(Modifier.size(12.dp))
 
-            ValuePill(valueText)
+            ValuePill(
+                value = value,
+                text = text
+            )
 
             Spacer(Modifier.size(12.dp))
 
@@ -234,7 +235,10 @@ private fun RowItem(
 }
 
 @Composable
-private fun ValuePill(text: String) {
+private fun ValuePill(
+    value: Int,
+    text: String
+) {
     val cs = MaterialTheme.colorScheme
 
     val pillBg = cs.primary.copy(alpha = 0.08f)
@@ -245,13 +249,13 @@ private fun ValuePill(text: String) {
         color = pillBg,
         border = BorderStroke(1.dp, pillBorder),
     ) {
-        Text(
+        AnimatedNumberText(
             text = text,
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
             style = MaterialTheme.typography.headlineSmall,
             fontFamily = FontFamily.Monospace,
             color = cs.onSurface,
-            textAlign = TextAlign.Center,
+            intRepresentation = value
         )
     }
 }
@@ -271,7 +275,7 @@ private fun RoundIconButton(
             modifier = Modifier
                 .size(24.dp)
                 .clip(CircleShape),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.0f), // не фарбуємо, тільки хіт-таргет
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.0f),
         ) {
             icon()
         }
@@ -280,7 +284,7 @@ private fun RoundIconButton(
 
 @Composable
 private fun BottomBar(
-    totalText: String,
+    totalTime: Int,
     onStartClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -310,22 +314,10 @@ private fun BottomBar(
                 )
                 Spacer(Modifier.size(12.dp))
 
-                // плавний апдейт числа
-                AnimatedContent(
-                    targetState = totalText,
-                    transitionSpec = {
-                        (fadeIn(tween(120)) togetherWith fadeOut(tween(120)))
-                            .using(SizeTransform(clip = false))
-                    },
-                    label = "totalDuration",
-                ) { value ->
-                    Text(
-                        text = value,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                }
+                AnimatedNumberText(
+                    text = formatSec(totalTime),
+                    intRepresentation = totalTime
+                )
             }
 
             Spacer(Modifier.height(16.dp))
