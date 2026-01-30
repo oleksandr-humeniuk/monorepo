@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,10 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,7 +29,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -41,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oho.core.ui.R
 import com.oho.core.ui.components.AnimatedNumberText
+import com.oho.core.ui.components.MonoPrimaryButton
+import com.oho.core.ui.components.RoundIconButton
 
 @Composable
 fun IntervalTimerConfigRoute(
@@ -214,6 +211,7 @@ private fun RowItem(
                 icon = { Icon(painterResource(R.drawable.ic_minus), contentDescription = null) },
                 contentDescription = "Decrease $label",
                 onClick = onMinus,
+                modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
             )
 
             Spacer(Modifier.size(12.dp))
@@ -229,6 +227,7 @@ private fun RowItem(
                 icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
                 contentDescription = "Increase $label",
                 onClick = onPlus,
+                modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
             )
         }
     }
@@ -257,28 +256,6 @@ private fun ValuePill(
             color = cs.onSurface,
             intRepresentation = value
         )
-    }
-}
-
-@Composable
-private fun RoundIconButton(
-    icon: @Composable () -> Unit,
-    contentDescription: String,
-    onClick: () -> Unit,
-) {
-
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp),
-    ) {
-        Surface(
-            modifier = Modifier
-                .size(24.dp)
-                .clip(CircleShape),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.0f),
-        ) {
-            icon()
-        }
     }
 }
 
@@ -322,20 +299,13 @@ private fun BottomBar(
 
             Spacer(Modifier.height(16.dp))
 
-            Button(
+            MonoPrimaryButton(
                 onClick = onStartClicked,
+                text = "Start Workout",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = CircleShape,
-                contentPadding = PaddingValues(horizontal = 20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                )
-            ) {
-                Text("Start Workout", style = MaterialTheme.typography.titleMedium)
-            }
+            )
         }
     }
 }

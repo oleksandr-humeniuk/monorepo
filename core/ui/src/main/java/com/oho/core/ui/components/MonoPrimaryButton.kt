@@ -14,6 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.theme.MonoTheme
 
@@ -26,8 +28,13 @@ fun MonoPrimaryButton(
     leadingIcon: Painter? = null,
 ) {
     val shape = RoundedCornerShape(MonoTheme.shapes.buttonRadius)
+    val haptics = LocalHapticFeedback.current
+
     Button(
-        onClick = onClick,
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.Confirm)
+            onClick()
+        },
         modifier = modifier.heightIn(min = 50.dp),
         enabled = enabled,
         shape = shape,
