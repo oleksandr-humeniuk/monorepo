@@ -40,6 +40,18 @@ class IntervalTimerConfigViewModel : ViewModel() {
     fun onRestMinus() = updateRest(state.restSec - TIME_STEP_SEC)
     fun onRestPlus() = updateRest(state.restSec + TIME_STEP_SEC)
 
+    fun onSetPillClicked() {
+
+    }
+
+    fun onWorkPillClicked() {
+
+    }
+
+    fun onRestPillClicked() {
+
+    }
+
     fun onSkipLastRestChanged(value: Boolean) {
         state = state.copy(skipLastRest = value)
     }

@@ -2,6 +2,7 @@ package com.oho.hiit_timer
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,9 @@ fun IntervalTimerConfigRoute(
         onRestMinus = vm::onRestMinus,
         onRestPlus = vm::onRestPlus,
         onStartClicked = { onStart(vm.state); vm.onStartClicked() },
+        onSetPillClicked = vm::onSetPillClicked,
+        onWorkPillClicked = vm::onWorkPillClicked,
+        onRestPillClicked = vm::onRestPillClicked,
     )
 }
 
@@ -72,6 +76,9 @@ fun IntervalTimerConfigScreen(
     onRestMinus: () -> Unit,
     onRestPlus: () -> Unit,
     onStartClicked: () -> Unit,
+    onSetPillClicked: () -> Unit,
+    onWorkPillClicked: () -> Unit,
+    onRestPillClicked: () -> Unit,
 ) {
     val page = MaterialTheme.colorScheme.background
     val outline = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
@@ -119,6 +126,7 @@ fun IntervalTimerConfigScreen(
                         value = state.sets,
                         onMinus = onSetsMinus,
                         onPlus = onSetsPlus,
+                        onPillClick = onSetPillClicked
                     )
                 }
 
@@ -134,6 +142,7 @@ fun IntervalTimerConfigScreen(
                         value = state.workSec,
                         onMinus = onWorkMinus,
                         onPlus = onWorkPlus,
+                        onPillClick = onWorkPillClicked
                     )
                     Divider(color = outline)
                     RowItem(
@@ -142,6 +151,7 @@ fun IntervalTimerConfigScreen(
                         value = state.restSec,
                         onMinus = onRestMinus,
                         onPlus = onRestPlus,
+                        onPillClick = onRestPillClicked
                     )
                 }
             }
@@ -192,6 +202,7 @@ private fun RowItem(
     value: Int,
     onMinus: () -> Unit,
     onPlus: () -> Unit,
+    onPillClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -218,7 +229,8 @@ private fun RowItem(
 
             ValuePill(
                 value = value,
-                text = text
+                text = text,
+                modifier = Modifier.clickable(onClick = onPillClick)
             )
 
             Spacer(Modifier.size(12.dp))
@@ -236,7 +248,8 @@ private fun RowItem(
 @Composable
 private fun ValuePill(
     value: Int,
-    text: String
+    text: String,
+    modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
 
@@ -244,6 +257,7 @@ private fun ValuePill(
     val pillBorder = cs.primary.copy(alpha = 0.18f)
 
     Surface(
+        modifier = modifier,
         shape = RoundedCornerShape(14.dp),
         color = pillBg,
         border = BorderStroke(1.dp, pillBorder),
