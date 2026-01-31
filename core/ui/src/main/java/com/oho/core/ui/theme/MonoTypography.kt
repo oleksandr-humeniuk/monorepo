@@ -17,6 +17,7 @@ data class MonoTypography(
     val caption: TextStyle,
     val buttonText: TextStyle,
     val label: TextStyle,
+    val displayLarge: TextStyle
 ) {
     fun toMaterial3Typography(): Typography {
         return Typography(
@@ -26,6 +27,7 @@ data class MonoTypography(
             bodyMedium = bodySecondary,
             labelLarge = buttonText,
             labelMedium = label,
+            displayLarge = displayLarge
         )
     }
 
@@ -76,6 +78,12 @@ data class MonoTypography(
                     fontSize = 12.sp,
                     lineHeight = 16.sp,
                 ),
+                displayLarge = TextStyle(
+                    fontFamily = fontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 57.sp,
+                    lineHeight = 64.sp,
+                )
             )
         }
     }

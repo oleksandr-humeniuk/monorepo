@@ -10,12 +10,14 @@ data class MonoElevation(
     val card: Dp,
     val modal: Dp,
     val floatingButton: Dp,
+    val large: Dp
 ) {
     companion object {
         fun default(): MonoElevation = MonoElevation(
             card = 1.dp,
             modal = 6.dp,
             floatingButton = 8.dp,
+            large = 16.dp
         )
     }
 }

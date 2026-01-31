@@ -28,6 +28,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -39,6 +44,8 @@ import com.oho.core.ui.R
 import com.oho.core.ui.components.AnimatedNumberText
 import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.RoundIconButton
+import com.oho.hiit_timer.ui.picker.HiitPickerSheet
+import com.oho.hiit_timer.ui.picker.SingleWheelPicker
 
 @Composable
 fun IntervalTimerConfigRoute(
@@ -230,7 +237,7 @@ private fun RowItem(
             ValuePill(
                 value = value,
                 text = text,
-                modifier = Modifier.clickable(onClick = onPillClick)
+                onPillClick = onPillClick
             )
 
             Spacer(Modifier.size(12.dp))
@@ -249,7 +256,7 @@ private fun RowItem(
 private fun ValuePill(
     value: Int,
     text: String,
-    modifier: Modifier = Modifier,
+    onPillClick: () -> Unit,
 ) {
     val cs = MaterialTheme.colorScheme
 
@@ -257,19 +264,24 @@ private fun ValuePill(
     val pillBorder = cs.primary.copy(alpha = 0.18f)
 
     Surface(
-        modifier = modifier,
+        modifier = Modifier,
         shape = RoundedCornerShape(14.dp),
         color = pillBg,
         border = BorderStroke(1.dp, pillBorder),
     ) {
-        AnimatedNumberText(
-            text = text,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
-            style = MaterialTheme.typography.headlineSmall,
-            fontFamily = FontFamily.Monospace,
-            color = cs.onSurface,
-            intRepresentation = value
-        )
+        Box(
+            modifier = Modifier
+                .clickable(onClick = onPillClick)
+        ) {
+            AnimatedNumberText(
+                text = text,
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+                style = MaterialTheme.typography.headlineSmall,
+                fontFamily = FontFamily.Monospace,
+                color = cs.onSurface,
+                intRepresentation = value
+            )
+        }
     }
 }
 
@@ -322,11 +334,4 @@ private fun BottomBar(
             )
         }
     }
-}
-
-private fun formatSec(totalSec: Int): String {
-    val sec = totalSec.coerceAtLeast(0)
-    val m = sec / 60
-    val s = sec % 60
-    return "%02d:%02d".format(m, s)
 }

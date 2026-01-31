@@ -23,6 +23,7 @@ fun MonoText(
         MonoTextStyle.Caption -> MonoTheme.typography.caption
         MonoTextStyle.Button -> MonoTheme.typography.buttonText
         MonoTextStyle.Label -> MonoTheme.typography.label
+        MonoTextStyle.DisplayLarge -> MonoTheme.typography.displayLarge
     }
     val resolvedColor = color ?: when (style) {
         MonoTextStyle.BodySecondary, MonoTextStyle.Caption, MonoTextStyle.Label -> MonoTheme.colors.secondaryTextColor
@@ -39,4 +40,4 @@ fun MonoText(
     )
 }
 
-enum class MonoTextStyle { TitleLarge, TitleMedium, BodyPrimary, BodySecondary, Caption, Button, Label }
+enum class MonoTextStyle { TitleLarge, TitleMedium, BodyPrimary, BodySecondary, Caption, Button, Label,DisplayLarge }

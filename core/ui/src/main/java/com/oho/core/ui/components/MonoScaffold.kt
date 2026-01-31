@@ -17,9 +17,7 @@ fun MonoScaffold(
     bottomBar: @Composable (() -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    Scaffold(
-        modifier = modifier,
-        containerColor = MonoTheme.colors.appBackground,
+    MonoScaffold(
         topBar = {
             if (title != null || onBackClick != null) {
                 MonoTopBar(
@@ -29,8 +27,30 @@ fun MonoScaffold(
                 )
             }
         },
+        floatingActionButton = floatingActionButton,
+        bottomBar = bottomBar,
+        content = content,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MonoScaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit,
+    floatingActionButton: @Composable (() -> Unit)? = null,
+    bottomBar: @Composable (() -> Unit)? = null,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    Scaffold(
+        modifier = modifier,
+        containerColor = MonoTheme.colors.appBackground,
+        topBar = {
+            topBar()
+        },
         floatingActionButton = { floatingActionButton?.invoke() },
         bottomBar = { bottomBar?.invoke() },
         content = content,
     )
 }
+

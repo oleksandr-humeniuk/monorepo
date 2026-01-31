@@ -8,14 +8,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.oho.core.ui.components.MonoScaffold
+import com.oho.core.ui.theme.HiitMonoPalettes
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.hiit_timer.count_down_screen.HiitRunRoute
 
 class HiitActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MonoTheme(darkTheme = true) {
+            MonoTheme(
+                darkTheme = true,
+                colors = HiitMonoPalettes.dark()
+            ) {
                 MonoScaffold(modifier = Modifier.fillMaxSize()) {
                     AppNavRoot()
                 }
@@ -26,5 +31,5 @@ class HiitActivity : ComponentActivity() {
 
 @Composable
 fun AppNavRoot() {
-    IntervalTimerConfigRoute()
+    HiitRunRoute()
 }
