@@ -81,7 +81,8 @@ private fun HiitRunScreen(
                 .background(c.appBackground)
         ) {
             val density = LocalDensity.current
-            val phaseTint = phaseCardBg.copy(alpha = 0.08f)
+            val gradientAlpha = if (MonoTheme.colors.isDarkTheme) 0.08f else 0.3f
+            val phaseTint = phaseCardBg.copy(alpha = gradientAlpha)
             val phaseGradient = remember(phaseTint, maxHeight) {
                 Brush.verticalGradient(
                     colors = listOf(phaseTint, Color.Transparent),

@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 
 @Immutable
 data class MonoColors(
+    val isDarkTheme: Boolean,
     // Background
     val appBackground: Color,
     val surfaceBackground: Color,
@@ -113,6 +114,7 @@ data class MonoColors(
                 // Accent
                 accentPrimary = accentBlue,
                 accentSecondary = accentBlue2,
+                isDarkTheme = false
             )
         }
 
@@ -161,6 +163,7 @@ data class MonoColors(
                 // Accent
                 accentPrimary = accentBlue,
                 accentSecondary = accentBlue2,
+                isDarkTheme = true
             )
         }
     }

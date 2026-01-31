@@ -31,7 +31,7 @@ object HiitMonoPalettes {
         // WORK: your direction was around #DB253B, but this mockup-style red reads cleaner on dark.
         val workRed = Color(0xFFDB253B)
         // REST: same “energy” as red; bright but not neon.
-        val restGreen = Color(0xFF1FAE6A)
+        val restGreen = Color(0xFF1B9E64)
 
         return MonoColors(
             // Background
@@ -74,6 +74,7 @@ object HiitMonoPalettes {
             // Accent
             accentPrimary = primaryBlue,
             accentSecondary = primaryBlue2,
+            isDarkTheme = true
         )
     }
 
@@ -143,6 +144,7 @@ object HiitMonoPalettes {
             // Accent
             accentPrimary = primaryBlue,
             accentSecondary = primaryBlue2,
+            isDarkTheme = false
         )
     }
 }
