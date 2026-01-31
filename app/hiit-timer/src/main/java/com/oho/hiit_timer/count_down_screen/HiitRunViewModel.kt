@@ -16,7 +16,7 @@ class HiitRunViewModel : ViewModel() {
             setIndex = 3,
             setsTotal = 8,
             nextLabel = "Work 00:45",
-            isPaused = true,
+            isPaused = false,
         )
     )
     val state: StateFlow<HiitRunUiState> = _state.asStateFlow()

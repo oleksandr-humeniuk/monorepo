@@ -32,6 +32,7 @@ import com.oho.core.ui.components.MonoCard
 import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.MonoScaffold
+import com.oho.core.ui.components.MonoSecondaryButton
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.components.RoundIconButton
@@ -98,25 +99,28 @@ private fun HiitRunScreen(
             )
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp),
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                RunTopBar(
-                    totalRemaining = state.totalRemaining,
-                    onClose = onClose,
-                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 24.dp)
+                ) {
+                    RunTopBar(
+                        totalRemaining = state.totalRemaining,
+                        onClose = onClose,
+                    )
 
-                Spacer(Modifier.height(56.dp))
+                    Spacer(Modifier.height(56.dp))
 
-                RunPhaseCard(
-                    state = state,
-                    cardBackground = phaseCardBg,
-                    onCardPrimary = onPhaseCardPrimary,
-                    onCardSecondary = onPhaseCardSecondary,
-                )
-
-                Spacer(Modifier.weight(1f))
+                    RunPhaseCard(
+                        state = state,
+                        cardBackground = phaseCardBg,
+                        onCardPrimary = onPhaseCardPrimary,
+                        onCardSecondary = onPhaseCardSecondary,
+                    )
+                }
 
                 RunControls(
                     isPaused = state.isPaused,
@@ -247,7 +251,6 @@ private fun RunControls(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
             .navigationBarsPadding(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -265,11 +268,23 @@ private fun RunControls(
             onClick = onPrevious,
             modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
         )
-
-        MonoPrimaryButton(
-            text = if (isPaused) "RESUME" else "PAUSE",
-            onClick = onPauseResume,
-        )
+        if (isPaused) {
+            MonoPrimaryButton(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
+                text = "RESUME",
+                onClick = onPauseResume,
+            )
+        } else {
+            MonoSecondaryButton(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
+                text = "PAUSE",
+                onClick = onPauseResume,
+            )
+        }
 
         RoundIconButton(
             icon = {
