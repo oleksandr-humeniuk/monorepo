@@ -11,7 +11,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.LocalTextStyle
@@ -92,7 +91,7 @@ private fun AnimatedDigit(
                 newCh.isDigit() && oldCh.isDigit() &&
                 newCh != oldCh
 
-    val offsetPx = with(LocalDensity.current) { 8.dp.roundToPx() }
+    val offsetPx = with(LocalDensity.current) { 12.dp.roundToPx() }
     val slideDur = 110
     val fadeDur = 90
 
@@ -114,13 +113,7 @@ private fun AnimatedDigit(
                         easing = LinearOutSlowInEasing,
                     )
                 )).togetherWith(
-                    slideOutVertically(
-                        animationSpec = tween(
-                            durationMillis = slideDur,
-                            easing = FastOutSlowInEasing,
-                        ),
-                        targetOffsetY = { -direction * offsetPx }
-                    ) + fadeOut(
+                    fadeOut(
                         animationSpec = tween(
                             durationMillis = fadeDur,
                             easing = FastOutLinearInEasing,
