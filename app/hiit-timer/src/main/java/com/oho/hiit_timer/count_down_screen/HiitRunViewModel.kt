@@ -148,8 +148,11 @@ class HiitRunViewModel : ViewModel() {
     }
 
     fun onClose() {
-        tickerJob?.cancel()
-        tickerJob = null
+        if (!runtime.isPaused) {
+            onPauseResume()
+        }
+
+        //TODO: exit flow
     }
 
     // ---------------------------
@@ -265,7 +268,10 @@ class HiitRunViewModel : ViewModel() {
      * For ms in (1..999) -> 1 sec.
      */
     private fun calcRemainingSec(nowElapsedMs: Long, endElapsedMs: Long): Int {
-        val ms = (endElapsedMs - nowElapsedMs).coerceAtLeast(0L)
+        if (nowElapsedMs >= endElapsedMs) return 0
+
+        val ms = endElapsedMs - nowElapsedMs
+
         return ((ms + 999L) / 1000L).toInt()
     }
 

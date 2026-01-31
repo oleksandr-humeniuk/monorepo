@@ -1,5 +1,9 @@
 package com.oho.hiit_timer.count_down_screen
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,13 +20,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,15 +79,31 @@ private fun HiitRunScreen(
     val c = MonoTheme.colors
 
     // WORK/REST state colors come from HiitMonoPalettes via MonoColors:
-    val phaseCardBg = when (state.phase) {
+    val targetPhaseCardBg = when (state.phase) {
         HiitPhase.Work -> c.errorColor      // red
         HiitPhase.Rest -> c.successColor    // green
         HiitPhase.Prepare -> c.accentPrimary
-        HiitPhase.Done -> c.accentPrimary // TODO("add done state color")
+        HiitPhase.Done -> c.accentPrimary // TODO
     }
+
+    val phaseCardBg by animateColorAsState(
+        targetValue = targetPhaseCardBg,
+        animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing),
+        label = "phaseCardBg",
+    )
+    var phasePopKey by remember { mutableIntStateOf(0) }
+    LaunchedEffect(state.phase) { phasePopKey++ }
+
+    val phasePopScale by animateFloatAsState(
+        targetValue = if (phasePopKey % 2 == 0) 1.0f else 1.02f,
+        animationSpec = tween(durationMillis = 120, easing = FastOutSlowInEasing),
+        label = "phasePopScale",
+    )
 
     val onPhaseCardPrimary = c.inverseTextColor
     val onPhaseCardSecondary = c.inverseTextColor.copy(alpha = 0.75f)
+
+    LaunchTimerHapticks(state)
 
     MonoScaffold { padding ->
         BoxWithConstraints(
@@ -86,13 +114,11 @@ private fun HiitRunScreen(
             val density = LocalDensity.current
             val gradientAlpha = if (MonoTheme.colors.isDarkTheme) 0.08f else 0.3f
             val phaseTint = phaseCardBg.copy(alpha = gradientAlpha)
-            val phaseGradient = remember(phaseTint, maxHeight) {
-                Brush.verticalGradient(
-                    colors = listOf(phaseTint, Color.Transparent),
-                    startY = 0f,
-                    endY = with(density) { maxHeight.toPx() * 0.55f },
-                )
-            }
+            val phaseGradient = Brush.verticalGradient(
+                colors = listOf(phaseTint, Color.Transparent),
+                startY = 0f,
+                endY = with(density) { maxHeight.toPx() * 0.55f },
+            )
 
             Box(
                 modifier = Modifier
@@ -121,6 +147,7 @@ private fun HiitRunScreen(
                         cardBackground = phaseCardBg,
                         onCardPrimary = onPhaseCardPrimary,
                         onCardSecondary = onPhaseCardSecondary,
+                        popScale = phasePopScale,
                     )
                 }
 
@@ -134,6 +161,35 @@ private fun HiitRunScreen(
                 Spacer(Modifier.height(32.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun LaunchTimerHapticks(state: HiitRunUiState) {
+    val haptics = LocalHapticFeedback.current
+
+    var prevPhase by remember { mutableStateOf(state.phase) }
+    var prevRemaining by remember { mutableIntStateOf(state.phaseRemaining) }
+
+    LaunchedEffect(state.phase, state.phaseRemaining) {
+        val phase = state.phase
+        val rem = state.phaseRemaining
+
+        // 1) Strong haptic on phase change
+        if (phase != prevPhase) {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress) // "strong"
+        } else {
+            // 2) Weak haptic on last 5..1 seconds (only once per second)
+            val isCountdownSecond =
+                rem in 1..5 && rem != prevRemaining
+
+            if (isCountdownSecond) {
+                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove) // "weak"
+            }
+        }
+
+        prevPhase = phase
+        prevRemaining = rem
     }
 }
 
@@ -193,11 +249,16 @@ private fun RunPhaseCard(
     cardBackground: Color,
     onCardPrimary: Color,
     onCardSecondary: Color,
+    popScale: Float,
 ) {
     MonoCard(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .graphicsLayer {
+                scaleX = popScale
+                scaleY = popScale
+            },
         backgroundColor = cardBackground,
         shadowElevation = MonoTheme.elevation.large,
     ) {

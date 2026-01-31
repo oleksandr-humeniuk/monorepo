@@ -81,8 +81,8 @@ data class MonoTypography(
                 displayLarge = TextStyle(
                     fontFamily = fontFamily,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 57.sp,
-                    lineHeight = 64.sp,
+                    fontSize = 90.sp,
+                    lineHeight = 944.sp,
                 )
             )
         }
