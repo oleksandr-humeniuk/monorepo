@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -214,34 +215,33 @@ private fun RunPhaseCard(
             )
 
             Spacer(Modifier.height(8.dp))
-
-            AnimatedNumberText(
-                intRepresentation = state.phaseRemaining,
-                text = formatSec(state.phaseRemaining),
-                style = MonoTheme.typography.displayLarge,
-                color = onCardPrimary,
-            )
+            key(state.phase) {
+                AnimatedNumberText(
+                    intRepresentation = state.phaseRemaining,
+                    text = formatSec(state.phaseRemaining),
+                    style = MonoTheme.typography.displayLarge,
+                    color = onCardPrimary,
+                )
+            }
 
             Spacer(Modifier.height(18.dp))
             MonoText(
                 text = when (state.phase) {
                     HiitPhase.Prepare -> ""
                     HiitPhase.Work -> "Set ${state.setIndex} of ${state.setsTotal}"
-                    HiitPhase.Rest -> "Rest ${state.setIndex} of ${state.setsTotal}"
+                    HiitPhase.Rest -> "Rest ${state.restIndex} of ${state.totalRest}"
                     HiitPhase.Done -> ""
                 },
                 style = MonoTextStyle.TitleMedium,
                 color = onCardPrimary,
             )
 
-            state.nextLabel?.let {
-                Spacer(Modifier.height(10.dp))
-                MonoText(
-                    text = "Next: $it",
-                    style = MonoTextStyle.BodyPrimary,
-                    color = onCardSecondary,
-                )
-            }
+            Spacer(Modifier.height(10.dp))
+            MonoText(
+                text = state.nextLabel?.let { "Next: $it" } ?: "",
+                style = MonoTextStyle.BodyPrimary,
+                color = onCardSecondary,
+            )
         }
     }
 }

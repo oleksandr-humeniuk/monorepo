@@ -1,15 +1,17 @@
 package com.oho.hiit_timer.count_down_screen.domain
 
 /**
- * Flatten workout into a linear list of segments: Prepare, (Work, Rest)*, Done
+ * Flatten workout into a linear list of segments:
+ * Prepare, (Work, Rest)*, Done
+ *
  * Rules:
- * - Prepare only once before entire workout.
- * - Rest after last set can be:
- *   - absent (hasRestAfterLastWork = false OR lastRestSec == 0)
- *   - default restSec
- *   - custom lastRestSec
+ * - Prepare only once before the entire workout.
+ * - For each exercise:
+ *   - After each WORK set except the last one -> always use restSec (if > 0)
+ *   - After the LAST work set -> apply restAfterLastWork policy
  */
 object HiitPlanner {
+
     fun plan(workout: HiitWorkout): List<HiitSegment> {
         val out = ArrayList<HiitSegment>(64)
 
@@ -17,38 +19,35 @@ object HiitPlanner {
             out += HiitSegment.Prepare(workout.prepareSec)
         }
 
-        workout.exercises.forEachIndexed { exIndex, ex ->
-            val setsTotal = ex.sets
+        workout.exercises.forEach { ex ->
+            val setsTotal = ex.sets.coerceAtLeast(0)
             for (setIdx in 1..setsTotal) {
                 out += HiitSegment.Work(
                     exerciseName = ex.name,
                     setIndex = setIdx,
                     setsTotal = setsTotal,
-                    durationSec = ex.workSec,
+                    durationSec = ex.workSec.coerceAtLeast(0),
                 )
 
                 val isLastSet = setIdx == setsTotal
-                val isLastExercise = exIndex == workout.exercises.lastIndex
-
-                val shouldHaveRest = ex.hasRestAfterLastWork && !(isLastExercise && isLastSet && (ex.lastRestSec == 0))
-                if (!shouldHaveRest) continue
-
-                val restDur = if (isLastSet) (ex.lastRestSec ?: ex.restSec) else ex.restSec
-                if (restDur <= 0) continue
-
-                val nextExerciseName = when {
-                    isLastSet && !isLastExercise -> workout.exercises[exIndex + 1].name
-                    else -> ex.name
+                val restDur = if (!isLastSet) {
+                    ex.restSec
+                } else {
+                    when (val p = ex.restAfterLastWork) {
+                        is RestAfterLastWorkPolicy.SameAsRegular -> ex.restSec
+                        is RestAfterLastWorkPolicy.None -> 0
+                        is RestAfterLastWorkPolicy.Custom -> p.seconds
+                    }
                 }
-                val nextIsWork = true
 
-                out += HiitSegment.Rest(
-                    nextExerciseName = nextExerciseName,
-                    nextIsWork = nextIsWork,
-                    setIndex = setIdx,
-                    setsTotal = setsTotal,
-                    durationSec = restDur,
-                )
+                if (restDur > 0) {
+                    out += HiitSegment.Rest(
+                        exerciseName = ex.name,
+                        setIndex = setIdx,
+                        setsTotal = setsTotal,
+                        durationSec = restDur,
+                    )
+                }
             }
         }
 
@@ -57,5 +56,5 @@ object HiitPlanner {
     }
 
     fun totalDurationSec(segments: List<HiitSegment>): Int =
-        segments.sumOf { it.durationSec }
+        segments.sumOf { it.durationSec.coerceAtLeast(0) }
 }
