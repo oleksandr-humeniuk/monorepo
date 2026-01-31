@@ -70,6 +70,7 @@ private fun HiitRunScreen(
         HiitPhase.Work -> c.errorColor      // red
         HiitPhase.Rest -> c.successColor    // green
         HiitPhase.Prepare -> c.accentPrimary
+        HiitPhase.Done -> c.accentPrimary // TODO("add done state color")
     }
 
     val onPhaseCardPrimary = c.inverseTextColor
@@ -222,9 +223,13 @@ private fun RunPhaseCard(
             )
 
             Spacer(Modifier.height(18.dp))
-
             MonoText(
-                text = "Set ${state.setIndex} of ${state.setsTotal}",
+                text = when (state.phase) {
+                    HiitPhase.Prepare -> ""
+                    HiitPhase.Work -> "Set ${state.setIndex} of ${state.setsTotal}"
+                    HiitPhase.Rest -> "Rest ${state.setIndex} of ${state.setsTotal}"
+                    HiitPhase.Done -> ""
+                },
                 style = MonoTextStyle.TitleMedium,
                 color = onCardPrimary,
             )

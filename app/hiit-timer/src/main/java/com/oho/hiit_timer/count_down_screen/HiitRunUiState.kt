@@ -14,4 +14,4 @@ data class HiitRunUiState(
     val isPaused: Boolean,
 )
 
-enum class HiitPhase { Prepare, Work, Rest }
+enum class HiitPhase { Prepare, Work, Rest, Done }
