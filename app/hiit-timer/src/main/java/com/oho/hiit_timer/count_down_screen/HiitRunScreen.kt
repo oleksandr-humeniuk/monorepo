@@ -4,18 +4,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -68,27 +74,37 @@ private fun HiitRunScreen(
     val onPhaseCardPrimary = c.inverseTextColor
     val onPhaseCardSecondary = c.inverseTextColor.copy(alpha = 0.75f)
 
-    MonoScaffold(
-        topBar = {
-            RunTopBar(
-                totalRemaining = state.totalRemaining,
-                onClose = onClose,
-            )
-        }
-    ) { padding ->
-
-        Box(
+    MonoScaffold { padding ->
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .background(c.appBackground)
-                .padding(padding)
         ) {
+            val density = LocalDensity.current
+            val phaseTint = phaseCardBg.copy(alpha = 0.08f)
+            val phaseGradient = remember(phaseTint, maxHeight) {
+                Brush.verticalGradient(
+                    colors = listOf(phaseTint, Color.Transparent),
+                    startY = 0f,
+                    endY = with(density) { maxHeight.toPx() * 0.55f },
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(phaseGradient)
+            )
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                RunTopBar(
+                    totalRemaining = state.totalRemaining,
+                    onClose = onClose,
+                )
 
                 Spacer(Modifier.height(56.dp))
 
@@ -122,36 +138,44 @@ private fun RunTopBar(
 ) {
     val c = MonoTheme.colors
 
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .statusBarsPadding()
+            .padding(bottom = 8.dp, top = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         MonoIcon(
             painter = painterResource(R.drawable.ic_close),
             contentDescription = "Close",
             tint = c.secondaryIconColor,
             modifier = Modifier
-                .align(Alignment.Start)
-                .padding(start = 16.dp)
                 .clickable { onClose() }
         )
 
-        MonoText(
-            text = "TOTAL REMAINING",
-            style = MonoTextStyle.Label,
-            color = c.secondaryTextColor,
-        )
+        Spacer(Modifier.weight(1f))
 
-        Spacer(Modifier.height(4.dp))
+        Column(
+            modifier = Modifier
+                .padding(end = 24.dp + 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            MonoText(
+                text = "TOTAL REMAINING",
+                style = MonoTextStyle.Label,
+                color = c.secondaryTextColor,
+            )
 
-        AnimatedNumberText(
-            text = formatSec(totalRemaining),
-            style = MonoTheme.typography.titleLarge,
-            color = c.primaryTextColor,
-            intRepresentation = totalRemaining
-        )
+            Spacer(Modifier.height(4.dp))
+
+            AnimatedNumberText(
+                text = formatSec(totalRemaining),
+                style = MonoTheme.typography.titleLarge,
+                color = c.primaryTextColor,
+                intRepresentation = totalRemaining
+            )
+        }
+        Spacer(Modifier.weight(1f))
     }
 }
 
@@ -222,7 +246,8 @@ private fun RunControls(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp)
+            .navigationBarsPadding(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

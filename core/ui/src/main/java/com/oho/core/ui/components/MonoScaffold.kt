@@ -44,7 +44,6 @@ fun MonoScaffold(
 ) {
     Scaffold(
         modifier = modifier,
-        containerColor = MonoTheme.colors.appBackground,
         topBar = {
             topBar()
         },
