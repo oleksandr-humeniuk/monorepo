@@ -33,12 +33,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oho.core.ui.R
 import com.oho.core.ui.components.AnimatedNumberText
 import com.oho.core.ui.components.MonoCard
@@ -54,7 +54,12 @@ import com.oho.hiit_timer.formatSec
 
 @Composable
 fun HiitRunRoute() {
-    val viewModel: HiitRunViewModel = viewModel()
+    val context = LocalContext.current
+    val viewModel: HiitRunViewModel = remember { //TODO: migate
+        HiitRunViewModel(
+            context
+        )
+    }
 
     val uiState = viewModel.state.collectAsStateWithLifecycle()
 

@@ -1,5 +1,6 @@
 package com.oho.hiit_timer.count_down_screen
 
+import android.content.Context
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import com.oho.hiit_timer.count_down_screen.domain.HiitSegment
 import com.oho.hiit_timer.count_down_screen.domain.HiitWorkout
 import com.oho.hiit_timer.count_down_screen.domain.RestAfterLastWorkPolicy
 import com.oho.hiit_timer.formatSec
+import com.oho.utils.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +20,26 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
-class HiitRunViewModel : ViewModel() {
+class HiitRunViewModel(
+    context: Context
+) : ViewModel() {
+
+    private val soundController = HiitSoundController(
+        context = context,
+        config = HiitSoundController.Config(
+            workStartRes = R.raw.boxing_bell,
+            restStartRes = R.raw.whistle,
+            workoutFinishedRes = R.raw.whistle,
+            volume = 0.8f,
+            enabled = true,
+            countdown = HiitSoundController.Config.Countdown(
+                beepRes = R.raw.countdown_beep,
+                seconds = setOf(3, 2, 1),
+                volumeMultiplier = 0.6f,
+                includePrepare = false,
+            )
+        )
+    )
 
     // --- Mock workout (Quick Start example)
     private val workout: HiitWorkout = mockWorkout()
@@ -193,8 +214,20 @@ class HiitRunViewModel : ViewModel() {
             val nextIndex = (r.index + 1).coerceAtMost(doneIndex)
             if (nextIndex == r.index) break
 
+            val prevIndex = r.index
+            val prevSeg = segments[prevIndex]
+
             val nextSeg = segments[nextIndex]
             val nextEnd = r.segmentEndElapsedMs + nextSeg.durationSec.coerceAtLeast(0) * 1000L
+
+
+            soundController.onSegmentChanged(
+                prevIndex = prevIndex,
+                prev = prevSeg,
+                nextIndex = nextIndex,
+                next = nextSeg,
+                isPaused = false,
+            )
 
             r = r.copy(
                 index = nextIndex,
@@ -212,7 +245,17 @@ class HiitRunViewModel : ViewModel() {
     private fun jumpToIndex(index: Int, now: Long) {
         val clamped = index.coerceIn(0, doneIndex)
         val seg = segments[clamped]
+        val prevIndex = runtime.index
+        val prevSeg = segments[clamped]
+        val nextSeg = seg
 
+        soundController.onSegmentChanged(
+            prevIndex = prevIndex,
+            prev = prevSeg,
+            nextIndex = clamped,
+            next = nextSeg,
+            isPaused = false,
+        )
         runtime = Runtime(
             index = clamped,
             segmentEndElapsedMs = now + seg.durationSec.coerceAtLeast(0) * 1000L,
@@ -237,6 +280,12 @@ class HiitRunViewModel : ViewModel() {
             r.isPaused -> r.pausedSegmentRemainingSec ?: 0
             else -> calcRemainingSec(now, r.segmentEndElapsedMs)
         }
+        soundController.onTick(
+            currentIndex = idx,
+            currentSegment = seg,
+            phaseRemainingSec = phaseRemaining,
+            isPaused = r.isPaused,
+        )
 
         val totalRemaining = if (isDone) {
             0
@@ -389,5 +438,10 @@ class HiitRunViewModel : ViewModel() {
                 ),
             )
         )
+    }
+
+    override fun onCleared() {
+        soundController.release()
+        super.onCleared()
     }
 }
