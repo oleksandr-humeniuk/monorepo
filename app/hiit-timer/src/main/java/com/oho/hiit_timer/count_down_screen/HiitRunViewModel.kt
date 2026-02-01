@@ -33,7 +33,7 @@ class HiitRunViewModel(
             volume = 0.8f,
             enabled = true,
             countdown = HiitSoundController.Config.Countdown(
-                beepRes = R.raw.countdown_beep,
+                beepRes = R.raw.countdown_tick,
                 seconds = setOf(3, 2, 1),
                 volumeMultiplier = 0.6f,
                 includePrepare = false,
