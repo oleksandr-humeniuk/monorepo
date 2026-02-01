@@ -1,4 +1,4 @@
-package com.oho.hiit_timer.count_down_screen.domain
+package com.oho.hiit_timer.domain
 
 data class HiitWorkout(
     val id: String,

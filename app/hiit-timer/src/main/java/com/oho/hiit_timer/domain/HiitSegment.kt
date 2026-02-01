@@ -1,4 +1,4 @@
-package com.oho.hiit_timer.count_down_screen.domain
+package com.oho.hiit_timer.domain
 
 /** Logical phase in the session timeline. */
 sealed class HiitSegment {

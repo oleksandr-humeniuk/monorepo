@@ -1,4 +1,4 @@
-package com.oho.hiit_timer.count_down_screen.domain
+package com.oho.hiit_timer.domain
 
 /**
  * Flatten workout into a linear list of segments:

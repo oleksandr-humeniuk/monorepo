@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.theme.HiitMonoPalettes
 import com.oho.core.ui.theme.MonoTheme
-import com.oho.hiit_timer.count_down_screen.HiitRunRoute
 
 class HiitActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,5 +30,5 @@ class HiitActivity : ComponentActivity() {
 
 @Composable
 fun AppNavRoot() {
-    HiitRunRoute()
+    IntervalTimerConfigRoute()
 }

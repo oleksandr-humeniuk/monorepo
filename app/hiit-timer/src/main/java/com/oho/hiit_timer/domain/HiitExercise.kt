@@ -1,4 +1,4 @@
-package com.oho.hiit_timer.count_down_screen.domain
+package com.oho.hiit_timer.domain
 
 /**
  * Policy for the rest phase after the LAST work set of an exercise.

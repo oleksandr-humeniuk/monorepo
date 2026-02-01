@@ -4,7 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
 import androidx.annotation.RawRes
-import com.oho.hiit_timer.count_down_screen.domain.HiitSegment
+import com.oho.hiit_timer.domain.HiitSegment
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

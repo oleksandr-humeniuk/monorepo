@@ -11,7 +11,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.oho.utils"
+        applicationId = "com.aoh.hiit.tabata.timer"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

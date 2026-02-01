@@ -4,11 +4,11 @@ import android.content.Context
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.oho.hiit_timer.count_down_screen.domain.HiitExercise
-import com.oho.hiit_timer.count_down_screen.domain.HiitPlanner
-import com.oho.hiit_timer.count_down_screen.domain.HiitSegment
-import com.oho.hiit_timer.count_down_screen.domain.HiitWorkout
-import com.oho.hiit_timer.count_down_screen.domain.RestAfterLastWorkPolicy
+import com.oho.hiit_timer.domain.HiitExercise
+import com.oho.hiit_timer.domain.HiitPlanner
+import com.oho.hiit_timer.domain.HiitSegment
+import com.oho.hiit_timer.domain.HiitWorkout
+import com.oho.hiit_timer.domain.RestAfterLastWorkPolicy
 import com.oho.hiit_timer.formatSec
 import com.oho.utils.R
 import kotlinx.coroutines.Job
