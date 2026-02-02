@@ -28,28 +28,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.oho.core.ui.R
 import com.oho.core.ui.components.AnimatedNumberText
 import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.RoundIconButton
-import com.oho.hiit_timer.ui.picker.HiitPickerSheet
-import com.oho.hiit_timer.ui.picker.SingleWheelPicker
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun IntervalTimerConfigRoute(
-    vm: IntervalTimerConfigViewModel = viewModel(),
+    vm: IntervalTimerConfigViewModel = koinViewModel(),
     onBack: () -> Unit = {},
     onStart: (IntervalTimerConfigViewModel.UiState) -> Unit = {},
 ) {
