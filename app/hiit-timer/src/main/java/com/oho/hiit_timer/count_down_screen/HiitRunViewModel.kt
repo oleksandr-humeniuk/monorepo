@@ -76,5 +76,5 @@ class HiitRunViewModel(
     fun onPauseResume() = controller?.send(HiitRunService.Cmd.PauseResume)
     fun onNext() = controller?.send(HiitRunService.Cmd.Next)
     fun onPrevious() = controller?.send(HiitRunService.Cmd.Previous)
-    fun onClose() = { controller?.send(HiitRunService.Cmd.Stop) }
+    fun onClose() = controller?.send(HiitRunService.Cmd.Stop)
 }

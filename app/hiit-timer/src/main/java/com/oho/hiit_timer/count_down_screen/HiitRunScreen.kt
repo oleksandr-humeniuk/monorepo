@@ -71,7 +71,7 @@ fun HiitRunRoute(
                     onNext = viewModel::onNext,
                     onPrevious = viewModel::onPrevious,
                     onClose = viewModel::onClose,
-                    modifier = Modifier.padding(it)
+                    modifier = Modifier
                 )
             }
         }
