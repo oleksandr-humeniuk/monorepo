@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -51,15 +50,13 @@ import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.components.RoundIconButton
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.formatSec
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HiitRunRoute() {
-    val context = LocalContext.current
-    val viewModel: HiitRunViewModel = remember { //TODO: migate
-        HiitRunViewModel(
-            context
-        )
-    }
+fun HiitRunRoute(
+    workoutId: String
+) {
+    val viewModel: HiitRunViewModel = koinViewModel()
 
     val uiState = viewModel.state.collectAsStateWithLifecycle()
 

@@ -28,12 +28,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oho.core.ui.R
 import com.oho.core.ui.components.AnimatedNumberText
 import com.oho.core.ui.components.MonoPrimaryButton
@@ -41,13 +44,25 @@ import com.oho.core.ui.components.RoundIconButton
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun IntervalTimerConfigRoute(
-    vm: IntervalTimerConfigViewModel = koinViewModel(),
+fun QuickStartTimerRoute(
+    vm: QuickStartTimerViewModel = koinViewModel(),
     onBack: () -> Unit = {},
-    onStart: (IntervalTimerConfigViewModel.UiState) -> Unit = {},
+    openWorkout: (workoutId: String) -> Unit = { _ -> }
 ) {
+    val state by vm.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        vm.events.collect { event ->
+            when (event) {
+                is QuickStartTimerViewModel.Event.OpenWorkout -> {
+                    openWorkout(event.workoutId)
+                }
+            }
+        }
+    }
+
     IntervalTimerConfigScreen(
-        state = vm.state,
+        state = state,
         onBackClicked = { onBack(); vm.onBackClicked() },
         onMoreClicked = vm::onMoreClicked,
         onSetsMinus = vm::onSetsMinus,
@@ -56,7 +71,7 @@ fun IntervalTimerConfigRoute(
         onWorkPlus = vm::onWorkPlus,
         onRestMinus = vm::onRestMinus,
         onRestPlus = vm::onRestPlus,
-        onStartClicked = { onStart(vm.state); vm.onStartClicked() },
+        onStartClicked = { vm.onStartClicked() },
         onSetPillClicked = vm::onSetPillClicked,
         onWorkPillClicked = vm::onWorkPillClicked,
         onRestPillClicked = vm::onRestPillClicked,
@@ -66,7 +81,7 @@ fun IntervalTimerConfigRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntervalTimerConfigScreen(
-    state: IntervalTimerConfigViewModel.UiState,
+    state: QuickStartTimerViewModel.UiState,
     onBackClicked: () -> Unit,
     onMoreClicked: () -> Unit,
     onSetsMinus: () -> Unit,

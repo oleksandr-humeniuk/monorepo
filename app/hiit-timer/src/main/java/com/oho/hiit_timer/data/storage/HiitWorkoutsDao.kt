@@ -18,6 +18,10 @@ interface HiitWorkoutsDao {
     @Query("SELECT * FROM hiit_workouts WHERE id = :id LIMIT 1")
     suspend fun getWorkout(id: String): WorkoutWithExercises?
 
+    @Transaction
+    @Query("SELECT * FROM hiit_workouts WHERE id = :id LIMIT 1")
+    fun observeWorkout(id: String): Flow<WorkoutWithExercises?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertWorkout(workout: WorkoutEntity)
 

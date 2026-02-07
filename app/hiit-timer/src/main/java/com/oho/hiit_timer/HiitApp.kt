@@ -2,12 +2,18 @@ package com.oho.hiit_timer
 
 import android.app.Application
 import androidx.room.Room
+import com.oho.hiit_timer.count_down_screen.HiitRunViewModel
+import com.oho.hiit_timer.data.HiitWorkoutsRepository
+import com.oho.hiit_timer.data.HiitWorkoutsRepositoryImpl
+import com.oho.hiit_timer.data.QuickStartRepository
 import com.oho.hiit_timer.data.storage.HiitDatabase
 import org.koin.android.ext.koin.androidContext
 import org.koin.androix.startup.KoinStartup
 import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.KoinConfiguration
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 @OptIn(KoinExperimentalAPI::class)
@@ -33,6 +39,15 @@ private val appModule = module {
         get<HiitDatabase>().hiitWorkoutDao()
     }
 
-    viewModelOf(::IntervalTimerConfigViewModel)
+    viewModelOf(::QuickStartTimerViewModel)
+    viewModelOf(::HiitRunViewModel)
+    factory {
+        HiitWorkoutsRepositoryImpl(
+            dao = get(),
+            nowMs = { System.currentTimeMillis() },
+        )
+    } bind HiitWorkoutsRepository::class
+
+    factoryOf(::QuickStartRepository)
 
 }
