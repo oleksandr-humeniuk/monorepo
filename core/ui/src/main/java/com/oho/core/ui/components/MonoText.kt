@@ -3,6 +3,7 @@ package com.oho.core.ui.components
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.oho.core.ui.theme.MonoTheme
 
@@ -14,6 +15,7 @@ fun MonoText(
     color: androidx.compose.ui.graphics.Color? = null,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Clip,
+    textAlign: TextAlign? = null
 ) {
     val resolvedStyle = when (style) {
         MonoTextStyle.TitleLarge -> MonoTheme.typography.titleLarge
@@ -37,6 +39,7 @@ fun MonoText(
         maxLines = maxLines,
         overflow = overflow,
         modifier = modifier,
+        textAlign = textAlign
     )
 }
 
