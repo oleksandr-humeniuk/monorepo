@@ -51,22 +51,32 @@ import com.oho.core.ui.components.RoundIconButton
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.formatSec
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun HiitRunRoute(
     workoutId: String
 ) {
-    val viewModel: HiitRunViewModel = koinViewModel()
+    val viewModel: HiitRunViewModel = koinViewModel { parametersOf(workoutId) }
 
-    val uiState = viewModel.state.collectAsStateWithLifecycle()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    MonoScaffold(Modifier.fillMaxSize()) {
+        when (val state = uiState) {
+            ViewState.Idle -> {}
 
-    HiitRunScreen(
-        state = uiState.value,
-        onPauseResume = viewModel::onPauseResume,
-        onNext = viewModel::onNext,
-        onPrevious = viewModel::onPrevious,
-        onClose = viewModel::onClose,
-    )
+            is ViewState.Loaded -> {
+                HiitRunScreen(
+                    state = state.runUiState,
+                    onPauseResume = viewModel::onPauseResume,
+                    onNext = viewModel::onNext,
+                    onPrevious = viewModel::onPrevious,
+                    onClose = viewModel::onClose,
+                    modifier = Modifier.padding(it)
+                )
+            }
+        }
+    }
+
 }
 
 
@@ -77,6 +87,7 @@ private fun HiitRunScreen(
     onNext: () -> Unit,
     onPrevious: () -> Unit,
     onClose: () -> Unit,
+    modifier: Modifier,
 ) {
     val c = MonoTheme.colors
 
@@ -107,61 +118,59 @@ private fun HiitRunScreen(
 
     LaunchTimerHapticks(state)
 
-    MonoScaffold { padding ->
-        BoxWithConstraints(
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .background(c.appBackground)
+    ) {
+        val density = LocalDensity.current
+        val gradientAlpha = if (MonoTheme.colors.isDarkTheme) 0.08f else 0.3f
+        val phaseTint = phaseCardBg.copy(alpha = gradientAlpha)
+        val phaseGradient = Brush.verticalGradient(
+            colors = listOf(phaseTint, Color.Transparent),
+            startY = 0f,
+            endY = with(density) { maxHeight.toPx() * 0.55f },
+        )
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(c.appBackground)
+                .background(phaseGradient)
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            val density = LocalDensity.current
-            val gradientAlpha = if (MonoTheme.colors.isDarkTheme) 0.08f else 0.3f
-            val phaseTint = phaseCardBg.copy(alpha = gradientAlpha)
-            val phaseGradient = Brush.verticalGradient(
-                colors = listOf(phaseTint, Color.Transparent),
-                startY = 0f,
-                endY = with(density) { maxHeight.toPx() * 0.55f },
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(phaseGradient)
-            )
             Column(
                 modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .weight(1f)
+                    .padding(horizontal = 24.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 24.dp)
-                ) {
-                    RunTopBar(
-                        totalRemaining = state.totalRemaining,
-                        onClose = onClose,
-                    )
-
-                    Spacer(Modifier.height(56.dp))
-
-                    RunPhaseCard(
-                        state = state,
-                        cardBackground = phaseCardBg,
-                        onCardPrimary = onPhaseCardPrimary,
-                        onCardSecondary = onPhaseCardSecondary,
-                        popScale = phasePopScale,
-                    )
-                }
-
-                RunControls(
-                    isPaused = state.isPaused,
-                    onPauseResume = onPauseResume,
-                    onNext = onNext,
-                    onPrevious = onPrevious,
+                RunTopBar(
+                    totalRemaining = state.totalRemaining,
+                    onClose = onClose,
                 )
 
-                Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(56.dp))
+
+                RunPhaseCard(
+                    state = state,
+                    cardBackground = phaseCardBg,
+                    onCardPrimary = onPhaseCardPrimary,
+                    onCardSecondary = onPhaseCardSecondary,
+                    popScale = phasePopScale,
+                )
             }
+
+            RunControls(
+                isPaused = state.isPaused,
+                onPauseResume = onPauseResume,
+                onNext = onNext,
+                onPrevious = onPrevious,
+            )
+
+            Spacer(Modifier.height(32.dp))
         }
     }
 }

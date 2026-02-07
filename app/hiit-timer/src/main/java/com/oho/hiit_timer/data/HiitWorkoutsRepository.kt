@@ -17,6 +17,8 @@ interface HiitWorkoutsRepository {
     suspend fun ensureQuickStart(defaultState: QuickStartTimerViewModel.UiState)
     fun observeWorkout(id: String): Flow<HiitWorkout?>
     suspend fun upsert(workout: HiitWorkout, source: Int)
+
+    suspend fun getWorkout(workoutId: String): HiitWorkout?
 }
 
 
@@ -60,6 +62,10 @@ class HiitWorkoutsRepositoryImpl(
         )
 
         dao.upsertWorkoutGraph(w, ex)
+    }
+
+    override suspend fun getWorkout(workoutId: String): HiitWorkout? {
+        return dao.getWorkout(workoutId)?.toDomain()
     }
 
 }

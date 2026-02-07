@@ -6,7 +6,7 @@ sealed class HiitSegment {
 
     data class Prepare(override val durationSec: Int) : HiitSegment()
     data class Work(
-        val exerciseName: String,
+        val exerciseName: String?,
         val setIndex: Int,
         val setsTotal: Int,
         override val durationSec: Int,

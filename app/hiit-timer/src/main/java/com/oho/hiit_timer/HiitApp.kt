@@ -39,6 +39,10 @@ private val appModule = module {
         get<HiitDatabase>().hiitWorkoutDao()
     }
 
+    single {
+        get<HiitDatabase>().hiitSessionDao()
+    }
+
     viewModelOf(::QuickStartTimerViewModel)
     viewModelOf(::HiitRunViewModel)
     factory {

@@ -14,7 +14,7 @@ object QuickStartMapper {
             exercises = listOf(
                 HiitExercise(
                     id = QUICK_EXERCISE_ID,
-                    name = "Interval",
+                    name = "Work",
                     sets = state.sets,
                     workSec = state.workSec,
                     restSec = state.restSec,
