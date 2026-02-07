@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,21 +28,20 @@ class HiitRunViewModel(
     private val _state: MutableStateFlow<ViewState> = MutableStateFlow(ViewState.Idle)
     val state: StateFlow<ViewState> = _state
 
-    private var service: HiitRunService? = null
+    private var controller: HiitRunService.HiitRunController? = null
     private var bound: Boolean = false
 
     private val conn = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-            val b = binder as? HiitRunService.LocalBinder ?: return
-            service = b.service()
+            controller = binder as? HiitRunService.HiitRunController
             bound = true
 
-            service?.send(HiitRunService.Cmd.Start(workoutId))
+            controller?.send(HiitRunService.Cmd.Start(workoutId))
 
             viewModelScope.launch {
-                val service = service
+                val service = controller
                 while (bound && service != null) {
-                    _state.value = ViewState.Loaded(service.state.value)
+                    _state.value = service.state.value
                     kotlinx.coroutines.delay(100L)
                 }
             }
@@ -51,7 +49,7 @@ class HiitRunViewModel(
 
         override fun onServiceDisconnected(name: ComponentName?) {
             bound = false
-            service = null
+            controller = null
         }
     }
 
@@ -61,7 +59,6 @@ class HiitRunViewModel(
 
     private fun startAndBind() {
         val i = Intent(application, HiitRunService::class.java)
-        Log.d("ZXC", "start service vm")
         // Foreground start
         androidx.core.content.ContextCompat.startForegroundService(application, i)
         // Bind
@@ -76,10 +73,8 @@ class HiitRunViewModel(
         super.onCleared()
     }
 
-    fun onPauseResume() = service?.send(HiitRunService.Cmd.PauseResume)
-    fun onNext() = service?.send(HiitRunService.Cmd.Next)
-    fun onPrevious() = service?.send(HiitRunService.Cmd.Previous)
-    fun onClose() = {
-        service?.send(HiitRunService.Cmd.Stop)
-    }
+    fun onPauseResume() = controller?.send(HiitRunService.Cmd.PauseResume)
+    fun onNext() = controller?.send(HiitRunService.Cmd.Next)
+    fun onPrevious() = controller?.send(HiitRunService.Cmd.Previous)
+    fun onClose() = { controller?.send(HiitRunService.Cmd.Stop) }
 }

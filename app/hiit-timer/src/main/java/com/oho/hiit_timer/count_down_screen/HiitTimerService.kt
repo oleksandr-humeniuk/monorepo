@@ -4,7 +4,8 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
+import com.oho.hiit_timer.HiitActivity
+import com.oho.hiit_timer.count_down_screen.NotificationHelper.Action
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.data.storage.HiitRunSessionDao
 import com.oho.hiit_timer.data.storage.HiitRunSessionEntity
@@ -15,6 +16,7 @@ import com.oho.hiit_timer.formatSec
 import com.oho.utils.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -32,12 +34,32 @@ class HiitRunService : Service(), KoinComponent {
     private val sessionDao: HiitRunSessionDao by inject()
 
     private val binder = LocalBinder()
-    override fun onBind(intent: Intent?): IBinder = binder
+    @Volatile
+    private var soundPreloaded = false
 
-    inner class LocalBinder : Binder() {
-        fun service(): HiitRunService = this@HiitRunService
+    private suspend fun ensureSoundsReady() {
+        if (soundPreloaded) return
+        soundController.preload()     // suspends until all required samples loaded
+        soundPreloaded = true
     }
 
+    override fun onBind(intent: Intent?): IBinder = binder
+
+    // ----------------------------
+    // Public API (bound clients)
+    // ----------------------------
+
+    interface HiitRunController {
+        val state: StateFlow<ViewState>
+        fun send(cmd: Cmd)
+    }
+
+    inner class LocalBinder : Binder(), HiitRunController {
+        override val state: StateFlow<ViewState>
+            get() = this@HiitRunService.state
+
+        override fun send(cmd: Cmd) = this@HiitRunService.send(cmd)
+    }
 
     sealed interface Cmd {
         data class Start(val workoutId: String) : Cmd
@@ -45,20 +67,38 @@ class HiitRunService : Service(), KoinComponent {
         data object Next : Cmd
         data object Previous : Cmd
         data object Stop : Cmd
+        data object Open : Cmd
     }
 
     fun send(cmd: Cmd) {
         commands.trySend(cmd)
     }
 
-    val state: StateFlow<HiitRunUiState> get() = _state
+    val state: StateFlow<ViewState> get() = _state
 
+    // ----------------------------
+    // Runtime (NO DB on ticks)
+    // ----------------------------
 
     private val svcJob = SupervisorJob()
     private val scope = CoroutineScope(svcJob + Dispatchers.Default)
-
     private val commands = Channel<Cmd>(capacity = Channel.BUFFERED)
 
+    private data class RuntimeSession(
+        val workoutId: String,
+        val segmentIndex: Int,
+        val segmentStartedAtEpochMs: Long,
+        val isPaused: Boolean,
+        val pausedAtEpochMs: Long?,
+        val accumulatedPausedMs: Long,
+        val isFinished: Boolean,
+        val createdAtEpochMs: Long,
+    )
+
+    @Volatile
+    private var runtime: RuntimeSession? = null
+
+    // Planned workout
     private var workout: HiitWorkout? = null
     private var segments: List<HiitSegment> = emptyList()
     private var doneIndex: Int = 0
@@ -87,28 +127,39 @@ class HiitRunService : Service(), KoinComponent {
         )
     }
 
-    private val _state = MutableStateFlow(
-        HiitRunUiState(
-            phase = HiitPhase.Rest,
-            totalRemaining = 0,
-            phaseLabel = "REST",
-            phaseRemaining = 0,
-            setIndex = 0,
-            setsTotal = 0,
-            nextLabel = null,
-            isPaused = false,
-        )
+    // --------------------------------
+    // UI state (avoid "blink" on open)
+    // --------------------------------
+
+    private val _state: MutableStateFlow<ViewState> = MutableStateFlow(
+        ViewState.Idle
     )
+
+    // ----------------------------
+    // Notification tick throttling
+    // ----------------------------
+
+    private var lastNotifiedSecond: Int = -1
+    private var isForegroundStarted = false
+
+    // ----------------------------
+    // Intents from notification
+    // ----------------------------
+
+    private companion object {
+        const val EXTRA_CMD = "extra_cmd"
+        const val CMD_PAUSE_RESUME = "pause_resume"
+        const val CMD_STOP = "stop"
+        const val CMD_OPEN = "open"
+    }
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("ZXC","create")
         NotificationHelper.ensureChannel(this)
 
         scope.launch {
-            restoreIfAny()
+            restoreIfAny()         // restore -> set runtime + render + foreground
             launch { commandLoop() }
-            launch { tickerLoop() }
         }
     }
 
@@ -119,15 +170,32 @@ class HiitRunService : Service(), KoinComponent {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // START_STICKY so system can recreate service. We'll restore from DB.
-        Log.d("ZXC","started")
-        scope.launch { restoreIfAny() }
+        when (intent?.getStringExtra(EXTRA_CMD)) {
+            CMD_PAUSE_RESUME -> send(Cmd.PauseResume)
+            CMD_STOP -> send(Cmd.Stop)
+            CMD_OPEN -> send(Cmd.Open)
+        }
         return START_STICKY
     }
 
+    // ---------------------------------------
+    // Restore / Start / Stop session clearing
+    // ---------------------------------------
+
+    /**
+     * When to clear session:
+     * - On STOP (user stops workout) => clear immediately.
+     * - On FINISH (Done reached) => keep for a short time OR clear immediately (choose).
+     *   To avoid "previous session blink" when entering run screen:
+     *   - Option A: clear immediately on finish.
+     *   - Option B: keep finished session but UI must treat it as Done with isPaused=true.
+     *
+     * We choose A: clear on finish after showing "Done" state + notification update.
+     */
     private suspend fun restoreIfAny() {
         val s = sessionDao.get() ?: return
         if (s.isFinished) {
+            // Clear old finished runs so they never "blink"
             sessionDao.clear()
             return
         }
@@ -136,14 +204,19 @@ class HiitRunService : Service(), KoinComponent {
             sessionDao.clear()
             return
         }
+
         applyWorkout(w)
+        ensureSoundsReady()
 
-        // Start foreground so it won’t die easily in background.
-        ensureForeground()
+        runtime = s.toRuntime()
+        renderFromRuntime(requireNotNull(runtime), nowEpochMs = System.currentTimeMillis())
 
-        // Render immediately from restored snapshot.
-        renderFromSession(s, nowEpochMs = System.currentTimeMillis())
+        ensureForeground() // must happen after render so notif text is correct
     }
+
+    // ---------------------------------------
+    // Command loop
+    // ---------------------------------------
 
     private suspend fun commandLoop() {
         for (cmd in commands) {
@@ -153,17 +226,22 @@ class HiitRunService : Service(), KoinComponent {
                 Cmd.Next -> handleNext(manual = true)
                 Cmd.Previous -> handlePrevious()
                 Cmd.Stop -> handleStop()
+                Cmd.Open -> openTimerUi()
             }
         }
     }
 
+    @Volatile
+    private var tickJob: Job? = null
     private suspend fun handleStart(workoutId: String) {
         val w = workoutsRepo.getWorkout(workoutId) ?: return
         applyWorkout(w)
+        ensureSoundsReady()
         soundController.resetForNewRun()
 
         val now = System.currentTimeMillis()
-        val entity = HiitRunSessionEntity(
+
+        val r = RuntimeSession(
             workoutId = workoutId,
             segmentIndex = 0,
             segmentStartedAtEpochMs = now,
@@ -172,176 +250,259 @@ class HiitRunService : Service(), KoinComponent {
             accumulatedPausedMs = 0L,
             isFinished = false,
             createdAtEpochMs = now,
-            updatedAtEpochMs = now,
         )
-        sessionDao.upsert(entity)
+        runtime = r
+        sessionDao.upsert(r.toEntity(updatedAt = now))
 
+        renderFromRuntime(r, nowEpochMs = now)
         ensureForeground()
-        renderFromSession(entity, nowEpochMs = now)
 
-        // segment start cue
+        // cue
         soundController.onSegmentChanged(
-            prevIndex = -1,
-            prev = null,
             nextIndex = 0,
             next = segments[0],
             isPaused = false,
         )
+        notifyIfNeeded(force = true)
+
+        tickJob?.cancel()
+        tickJob = scope.launch { tickerLoop() }
     }
 
     private suspend fun handlePauseResume() {
-        val s = sessionDao.get() ?: return
-        if (s.isFinished) return
+        val r0 = runtime ?: return
+        if (r0.isFinished) return
 
         val now = System.currentTimeMillis()
-
-        val updated = if (!s.isPaused) {
-            s.copy(
-                isPaused = true,
-                pausedAtEpochMs = now,
-                updatedAtEpochMs = now,
-            )
+        val r1 = if (!r0.isPaused) {
+            r0.copy(isPaused = true, pausedAtEpochMs = now)
         } else {
-            val pausedFor = max(0L, now - (s.pausedAtEpochMs ?: now))
-            s.copy(
+            val pausedFor = max(0L, now - (r0.pausedAtEpochMs ?: now))
+            r0.copy(
                 isPaused = false,
                 pausedAtEpochMs = null,
-                accumulatedPausedMs = s.accumulatedPausedMs + pausedFor,
-                updatedAtEpochMs = now,
+                accumulatedPausedMs = r0.accumulatedPausedMs + pausedFor
             )
         }
 
-        sessionDao.upsert(updated)
-        renderFromSession(updated, nowEpochMs = now)
-        updateNotification()
+        runtime = r1
+        sessionDao.upsert(r1.toEntity(updatedAt = now))
+
+        renderFromRuntime(r1, nowEpochMs = now)
+        notifyIfNeeded(force = true)
     }
 
     private suspend fun handleNext(manual: Boolean) {
-        val s = sessionDao.get() ?: return
-        if (s.isFinished) return
+        val r0 = runtime ?: return
+        if (r0.isFinished) return
 
-        val next = (s.segmentIndex + 1).coerceAtMost(doneIndex)
-        if (next == s.segmentIndex) return
+        val next = (r0.segmentIndex + 1).coerceAtMost(doneIndex)
+        if (next == r0.segmentIndex) return
 
         val now = System.currentTimeMillis()
-        val updated = s.copy(
+        val finished = next >= doneIndex || (segments.getOrNull(next) is HiitSegment.Done)
+
+        val r1 = r0.copy(
             segmentIndex = next,
             segmentStartedAtEpochMs = now,
             isPaused = false,
             pausedAtEpochMs = null,
             accumulatedPausedMs = 0L,
-            updatedAtEpochMs = now,
-            isFinished = (next >= doneIndex) || (segments.getOrNull(next) is HiitSegment.Done)
+            isFinished = finished,
         )
-        sessionDao.upsert(updated)
 
-        // sounds on transition
+        runtime = r1
+        sessionDao.upsert(r1.toEntity(updatedAt = now))
+
         soundController.onSegmentChanged(
-            prevIndex = s.segmentIndex,
-            prev = segments.getOrNull(s.segmentIndex),
             nextIndex = next,
             next = segments[next],
             isPaused = false,
         )
 
-        renderFromSession(updated, nowEpochMs = now)
-        updateNotification()
+        renderFromRuntime(r1, nowEpochMs = now)
+        notifyIfNeeded(force = true)
 
-        if (updated.isFinished) {
-            // Keep foreground notification as "Finished" or stop service (your choice).
-            updateNotification(finished = true)
+        if (finished) {
+            // show Done briefly in notification, then clear session to avoid next-open blink
+            NotificationHelper.notify(
+                ctx = this,
+                title = "HIIT Timer",
+                text = "Workout complete",
+                ongoing = false,
+                actions = listOf(Action.Open),
+            )
+            sessionDao.clear()
+            runtime = null
+            stopForeground(STOP_FOREGROUND_DETACH)
+            stopSelf()
         }
     }
 
     private suspend fun handlePrevious() {
-        val s = sessionDao.get() ?: return
-        if (s.isFinished) return
+        val r0 = runtime ?: return
+        if (r0.isFinished) return
 
-        val prev = (s.segmentIndex - 1).coerceAtLeast(0)
+        val prev = (r0.segmentIndex - 1).coerceAtLeast(0)
         val now = System.currentTimeMillis()
 
-        val updated = s.copy(
+        val r1 = r0.copy(
             segmentIndex = prev,
             segmentStartedAtEpochMs = now,
             isPaused = false,
             pausedAtEpochMs = null,
             accumulatedPausedMs = 0L,
-            updatedAtEpochMs = now,
         )
-        sessionDao.upsert(updated)
+
+        runtime = r1
+        sessionDao.upsert(r1.toEntity(updatedAt = now))
 
         soundController.onSegmentChanged(
-            prevIndex = s.segmentIndex,
-            prev = segments.getOrNull(s.segmentIndex),
             nextIndex = prev,
             next = segments[prev],
             isPaused = false,
         )
 
-        renderFromSession(updated, nowEpochMs = now)
-        updateNotification()
+        renderFromRuntime(r1, nowEpochMs = now)
+        notifyIfNeeded(force = true)
     }
 
     private suspend fun handleStop() {
         sessionDao.clear()
-        _state.value = _state.value.copy(
-            phase = HiitPhase.Done,
-            totalRemaining = 0,
-            phaseRemaining = 0,
-            nextLabel = null,
-            isPaused = true,
+        runtime = null
+
+        _state.value = ViewState.Loaded(
+            HiitRunUiState(
+                phase = HiitPhase.Done,
+                totalRemaining = 0,
+                phaseRemaining = 0,
+                nextLabel = null,
+                isPaused = true,
+                phaseLabel = "Done",
+                setIndex = 0,
+                setsTotal = 0,
+                phaseIndex = 0,
+                totalPhases = 0,
+                restIndex = 0,
+                totalRest = 0,
+            )
         )
+
+        NotificationHelper.notify(
+            ctx = this,
+            title = "HIIT Timer",
+            text = "Stopped",
+            ongoing = false,
+            actions = listOf(Action.Open),
+        )
+
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
-    private suspend fun CoroutineScope.tickerLoop() {
-        while (isActive) {
+    private fun openTimerUi() {
+        // Replace HiitRunActivity with your actual entry point.
+        val i = Intent(this, HiitActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        startActivity(i)
+    }
+
+    // ---------------------------------------
+    // Ticker loop (RAM-only)
+    // ---------------------------------------
+
+    private suspend fun tickerLoop() {
+        while (scope.isActive) {
             delay(100L)
 
-            val s = sessionDao.get() ?: continue
-            if (s.isFinished) continue
-            if (s.isPaused) {
-                // Still update UI to keep it “alive” if bound
-                renderFromSession(s, nowEpochMs = System.currentTimeMillis())
-                continue
-            }
+            val r = runtime ?: continue
+            if (r.isFinished) continue
+            if (segments.isEmpty()) continue
 
             val now = System.currentTimeMillis()
-            val remSec = remainingSec(s, now)
+            val remSec = remainingSec(r, now)
 
-            // countdown tick beeps
-            val idx = s.segmentIndex.coerceIn(0, segments.lastIndex)
-            val seg = segments[idx]
+            // countdown
+            val idx = r.segmentIndex.coerceIn(0, segments.lastIndex)
             soundController.onTick(
                 currentIndex = idx,
-                currentSegment = seg,
+                currentSegment = segments[idx],
                 phaseRemainingSec = remSec,
-                isPaused = false,
+                isPaused = r.isPaused,
             )
 
-            // auto-advance at boundary
-            if (remSec <= 0) {
+            if (!r.isPaused && remSec <= 0) {
                 handleNext(manual = false)
             } else {
-                renderFromSession(s, nowEpochMs = now)
+                renderFromRuntime(r, nowEpochMs = now)
+                notifyIfNeeded(force = false)
             }
         }
     }
 
     // ---------------------------------------
-    // Planning + UI mapping
+    // Notification update policy
+    // ---------------------------------------
+
+    /**
+     * Updating notification every 100ms is overkill.
+     * Update at most once per second (or when forced).
+     */
+    private fun notifyIfNeeded(force: Boolean) {
+        if (!isForegroundStarted) return
+
+        val s = (_state.value as? ViewState.Loaded)?.runUiState ?: return
+        val sec = s.phaseRemaining
+
+        if (!force && sec == lastNotifiedSecond) return
+        lastNotifiedSecond = sec
+
+        val actions = buildList {
+            add(Action.Open)
+            add(if (s.isPaused) Action.Resume else Action.Pause)
+            add(Action.Stop)
+        }
+
+        NotificationHelper.notify(
+            ctx = this,
+            title = "HIIT Timer",
+            text = "${s.phaseLabel}: ${formatSec(s.phaseRemaining)}",
+            ongoing = true,
+            actions = actions,
+        )
+    }
+
+    private fun ensureForeground() {
+        if (isForegroundStarted) return
+        val s = (_state.value as? ViewState.Loaded)?.runUiState ?: return
+
+        val actions = listOf(Action.Open, Action.Pause, Action.Stop)
+
+        val notif = NotificationHelper.build(
+            ctx = this,
+            title = "HIIT Timer",
+            text = "${s.phaseLabel}: ${formatSec(s.phaseRemaining)}",
+            ongoing = true,
+            actions = actions,
+        )
+        startForeground(NotificationHelper.NOTIF_ID, notif)
+        isForegroundStarted = true
+        lastNotifiedSecond = -1
+    }
+
+    // ---------------------------------------
+    // Planning + UI mapping (your logic, fixed)
     // ---------------------------------------
 
     private fun applyWorkout(w: HiitWorkout) {
         workout = w
         segments = HiitPlanner.plan(w)
 
-        doneIndex =
-            segments.indexOfLast { it is HiitSegment.Done }.takeIf { it >= 0 } ?: segments.lastIndex
+        doneIndex = segments.indexOfLast { it is HiitSegment.Done }
+            .takeIf { it >= 0 } ?: segments.lastIndex
         totalPhases = max(0, doneIndex)
 
-        // futureDurationSec[i] = sum of durations from i+1..doneIndex-1
         futureDurationSec = IntArray(segments.size) { 0 }
         var sum = 0
         for (i in (doneIndex - 1) downTo 0) {
@@ -349,7 +510,6 @@ class HiitRunService : Service(), KoinComponent {
             futureDurationSec[i] = sum
         }
 
-        // rest ordinals by exercise name
         restOrdinalInExercise = IntArray(segments.size) { 0 }
         val totals = HashMap<String, Int>()
         val cursors = HashMap<String, Int>()
@@ -366,15 +526,14 @@ class HiitRunService : Service(), KoinComponent {
         restTotalByExercise = totals
     }
 
-    private fun renderFromSession(s: HiitRunSessionEntity, nowEpochMs: Long) {
-        val idx = s.segmentIndex.coerceIn(0, segments.lastIndex)
+    private fun renderFromRuntime(r: RuntimeSession, nowEpochMs: Long) {
+        val idx = r.segmentIndex.coerceIn(0, segments.lastIndex)
         val seg = segments[idx]
         val isDone = seg is HiitSegment.Done || idx >= doneIndex
 
         val phaseRemaining = when {
             isDone -> 0
-            s.isPaused -> remainingSecPaused(s, nowEpochMs)
-            else -> remainingSec(s, nowEpochMs)
+            else -> remainingSec(r, nowEpochMs)
         }
 
         val totalRemaining = if (isDone) 0 else {
@@ -382,32 +541,26 @@ class HiitRunService : Service(), KoinComponent {
             (phaseRemaining + future).coerceAtLeast(0)
         }
 
-        _state.value = seg.toUi(
-            index = idx,
-            phaseRemainingSec = phaseRemaining,
-            totalRemainingSec = totalRemaining,
-            isPaused = if (isDone) true else s.isPaused,
-            next = segments.getOrNull((idx + 1).coerceAtMost(doneIndex)),
+        _state.value = ViewState.Loaded(
+            seg.toUi(
+                index = idx,
+                phaseRemainingSec = phaseRemaining,
+                totalRemainingSec = totalRemaining,
+                isPaused = if (isDone) true else r.isPaused,
+                next = segments.getOrNull((idx + 1).coerceAtMost(doneIndex)),
+            )
         )
     }
 
-    private fun remainingSecPaused(s: HiitRunSessionEntity, nowEpochMs: Long): Int {
-        val pauseAt = s.pausedAtEpochMs ?: nowEpochMs
-        return remainingSec(
-            s.copy(isPaused = false), // treat as running but stop at pauseAt
-            nowEpochMs = pauseAt
-        )
-    }
-
-    private fun remainingSec(s: HiitRunSessionEntity, nowEpochMs: Long): Int {
-        val idx = s.segmentIndex.coerceIn(0, segments.lastIndex)
+    private fun remainingSec(r: RuntimeSession, nowEpochMs: Long): Int {
+        val idx = r.segmentIndex.coerceIn(0, segments.lastIndex)
         val seg = segments[idx]
         val durMs = seg.durationSec.coerceAtLeast(0) * 1000L
 
-        val elapsedMs = max(0L, nowEpochMs - s.segmentStartedAtEpochMs - s.accumulatedPausedMs)
+        val stopAt = if (r.isPaused) (r.pausedAtEpochMs ?: nowEpochMs) else nowEpochMs
+        val elapsedMs = max(0L, stopAt - r.segmentStartedAtEpochMs - r.accumulatedPausedMs)
         val remMs = max(0L, durMs - elapsedMs)
 
-        // ceil-ish seconds: (1..999ms) => 1
         return if (remMs == 0L) 0 else ((remMs + 999L) / 1000L).toInt()
     }
 
@@ -439,7 +592,7 @@ class HiitRunService : Service(), KoinComponent {
 
             is HiitSegment.Work -> HiitRunUiState(
                 phase = HiitPhase.Work,
-                phaseLabel = exerciseName ?: "Work",
+                phaseLabel = exerciseName,
                 phaseRemaining = phaseRemainingSec,
                 totalRemaining = totalRemainingSec,
                 setIndex = setIndex,
@@ -493,21 +646,34 @@ class HiitRunService : Service(), KoinComponent {
         }
     }
 
-    private fun ensureForeground() {
-        val s = _state.value
-        val notif = NotificationHelper.build(
-            ctx = this,
-            title = "HIIT Timer",
-            text = "${s.phaseLabel}: ${formatSec(s.phaseRemaining)}",
-            ongoing = true
+    // ---------------------------------------
+    // Mapping entity <-> runtime
+    // ---------------------------------------
+
+    private fun HiitRunSessionEntity.toRuntime(): RuntimeSession {
+        return RuntimeSession(
+            workoutId = workoutId,
+            segmentIndex = segmentIndex,
+            segmentStartedAtEpochMs = segmentStartedAtEpochMs,
+            isPaused = isPaused,
+            pausedAtEpochMs = pausedAtEpochMs,
+            accumulatedPausedMs = accumulatedPausedMs,
+            isFinished = isFinished,
+            createdAtEpochMs = createdAtEpochMs,
         )
-        startForeground(NotificationHelper.NOTIF_ID, notif)
     }
 
-    private fun updateNotification(finished: Boolean = false) {
-        val s = _state.value
-        val text =
-            if (finished) "Workout complete" else "${s.phaseLabel}: ${formatSec(s.phaseRemaining)}"
-        NotificationHelper.notify(this, title = "HIIT Timer", text = text, ongoing = !finished)
+    private fun RuntimeSession.toEntity(updatedAt: Long): HiitRunSessionEntity {
+        return HiitRunSessionEntity(
+            workoutId = workoutId,
+            segmentIndex = segmentIndex,
+            segmentStartedAtEpochMs = segmentStartedAtEpochMs,
+            isPaused = isPaused,
+            pausedAtEpochMs = pausedAtEpochMs,
+            accumulatedPausedMs = accumulatedPausedMs,
+            isFinished = isFinished,
+            createdAtEpochMs = createdAtEpochMs,
+            updatedAtEpochMs = updatedAt,
+        )
     }
 }

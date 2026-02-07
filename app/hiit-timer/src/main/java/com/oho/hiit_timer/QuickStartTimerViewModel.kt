@@ -3,6 +3,7 @@ package com.oho.hiit_timer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oho.hiit_timer.data.QuickStartRepository
+import com.oho.hiit_timer.data.storage.HiitRunSessionDao
 import com.oho.hiit_timer.domain.QuickStartMapper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -15,6 +16,7 @@ import kotlin.math.max
 
 class QuickStartTimerViewModel(
     private val quickStartRepo: QuickStartRepository,
+    private val sessionDao: HiitRunSessionDao
 ) : ViewModel() {
 
     val state: MutableStateFlow<UiState> = MutableStateFlow(
@@ -76,6 +78,7 @@ class QuickStartTimerViewModel(
 
     fun onStartClicked() {
         viewModelScope.launch {
+            sessionDao.clear()
             quickStartRepo.save(state.value.coerceToBounds())
             events.emit(Event.OpenWorkout(QuickStartMapper.QUICK_START_ID))
         }

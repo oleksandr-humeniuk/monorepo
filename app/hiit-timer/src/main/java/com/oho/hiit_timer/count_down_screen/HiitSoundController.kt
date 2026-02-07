@@ -119,12 +119,9 @@ class HiitSoundController(
     /**
      * Call when the current segment index changes (auto-advance OR manual jump).
      *
-     * @param prev previous segment (nullable if unknown)
      * @param next next segment (non-null)
      */
     fun onSegmentChanged(
-        prevIndex: Int,
-        prev: HiitSegment?,
         nextIndex: Int,
         next: HiitSegment,
         isPaused: Boolean,
@@ -253,18 +250,5 @@ class HiitSoundController(
         } finally {
             soundPool.setOnLoadCompleteListener(null)
         }
-    }
-}
-
-object SoundControllerProvider {
-
-    fun create(
-        context: Context,
-        config: HiitSoundController.Config,
-    ): HiitSoundController {
-        return HiitSoundController(
-            context = context,
-            config = config,
-        )
     }
 }
