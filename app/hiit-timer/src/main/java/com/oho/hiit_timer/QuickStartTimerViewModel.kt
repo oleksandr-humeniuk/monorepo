@@ -107,6 +107,7 @@ class QuickStartTimerViewModel(
 
     fun onSkipLastRestChanged(value: Boolean) {
         state.update { it.copy(skipLastRest = value) }
+        schedulePersist()
     }
 
     private fun updateSets(newValue: Int) {
