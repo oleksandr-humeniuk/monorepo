@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.theme.MonoTheme
@@ -21,9 +22,9 @@ fun MonoCard(
     contentPadding: PaddingValues = PaddingValues(MonoTheme.dimens.cardPadding),
     backgroundColor: Color = MonoTheme.colors.cardBackground,
     shadowElevation: Dp = MonoTheme.elevation.card,
+    shape: Shape = RoundedCornerShape(MonoTheme.shapes.cardRadius),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = RoundedCornerShape(MonoTheme.shapes.cardRadius)
     Surface(
         modifier = modifier,
         color = backgroundColor,

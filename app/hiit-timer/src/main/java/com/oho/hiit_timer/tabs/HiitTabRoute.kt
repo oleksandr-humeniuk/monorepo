@@ -25,6 +25,7 @@ import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.QuickStartTimerRoute
+import com.oho.hiit_timer.workouts.add.CreateWorkoutRoute
 import com.oho.hiit_timer.workouts.list.WorkoutsRoute
 import org.koin.androidx.compose.koinViewModel
 
@@ -69,7 +70,7 @@ fun HiitTabHost(
                     }
 
                     HiitTabRoute.Challenges -> NavEntry(tab) {
-                        MockScreen("Settings")
+                        CreateWorkoutRoute()
                     }
 
                     HiitTabRoute.Workouts -> NavEntry(tab) {

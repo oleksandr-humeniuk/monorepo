@@ -8,6 +8,7 @@ import com.oho.hiit_timer.data.HiitWorkoutsRepositoryImpl
 import com.oho.hiit_timer.data.QuickStartRepository
 import com.oho.hiit_timer.data.storage.HiitDatabase
 import com.oho.hiit_timer.tabs.TabsViewModel
+import com.oho.hiit_timer.workouts.add.CreateWorkoutViewModel
 import com.oho.hiit_timer.workouts.list.WorkoutsListViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androix.startup.KoinStartup
@@ -49,6 +50,7 @@ private val appModule = module {
     viewModelOf(::HiitRunViewModel)
     viewModelOf(::TabsViewModel)
     viewModelOf(::WorkoutsListViewModel)
+    viewModelOf(::CreateWorkoutViewModel)
     factory {
         HiitWorkoutsRepositoryImpl(
             dao = get(),
@@ -59,3 +61,4 @@ private val appModule = module {
     factoryOf(::QuickStartRepository)
 
 }
+//TODO: reset min for rest and work to 0
