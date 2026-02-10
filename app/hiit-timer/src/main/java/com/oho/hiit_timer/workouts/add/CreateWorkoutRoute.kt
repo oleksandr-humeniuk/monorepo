@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,8 +40,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.oho.core.ui.R
 import com.oho.core.ui.components.AnimatedNumberText
 import com.oho.core.ui.components.MonoCard
@@ -50,16 +50,10 @@ import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.formatSec
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.max
+import sh.calvin.reorderable.ReorderableCollectionItemScope
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 /**
  * Create Workout screen (blocks builder):
@@ -68,6 +62,7 @@ import kotlin.math.max
  * - Bottom bar with total duration + start
  * - Route exposes callbacks via events
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateWorkoutRoute(
     vm: CreateWorkoutViewModel = koinViewModel(),
@@ -78,6 +73,16 @@ fun CreateWorkoutRoute(
     onOpenScreenMenu: () -> Unit = {},
 ) {
     val state by vm.state.collectAsState(initial = CreateWorkoutViewModel.UiState())
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false
+    )
+    BlockMenuBottomSheet(
+        sheetState = sheetState,
+        onDismiss = {},
+        onEdit = {},
+        onDuplicate = {},
+        onDelete = { },
+    )
 
     LaunchedEffect(Unit) {
         vm.events.collect { e ->
@@ -94,105 +99,11 @@ fun CreateWorkoutRoute(
         CreateWorkoutScreen(
             state = state,
             onBack = vm::onBackClicked,
-            onMore = vm::onMoreClicked,
             onAddBlock = vm::onAddBlockClicked,
             onBlockMore = vm::onBlockMoreClicked,
             onSave = vm::onStartClicked,
+            onReorder = vm::onReorderBlocks
         )
-    }
-}
-
-class CreateWorkoutViewModel : ViewModel() {
-
-    @Immutable
-    data class UiState(
-        val workoutId: String = "w_mock",
-        val title: String = "Create workout",
-        val blocks: List<WorkoutBlockUi> = emptyList(),
-        val totalDurationSec: Int = 0,
-        val isDebugMock: Boolean = false,
-    )
-
-    sealed interface Event {
-        data object Back : Event
-        data class Start(val workoutId: String) : Event
-        data class OpenBlockMenu(val blockId: String) : Event
-        data object OpenScreenMenu : Event
-    }
-
-    private val _state = MutableStateFlow(mockState())
-    val state: StateFlow<UiState> = _state.asStateFlow()
-
-    private val _events = Channel<Event>(capacity = Channel.BUFFERED)
-    val events: Flow<Event> = _events.receiveAsFlow()
-
-    fun onBackClicked() {
-        viewModelScope.launch { _events.send(Event.Back) }
-    }
-
-    fun onMoreClicked() {
-        viewModelScope.launch { _events.send(Event.OpenScreenMenu) }
-    }
-
-    fun onBlockMoreClicked(blockId: String) {
-        viewModelScope.launch { _events.send(Event.OpenBlockMenu(blockId)) }
-    }
-
-    fun onAddBlockClicked() {
-        // mocked in-memory mutation: append a new interval-like block
-        _state.update { cur ->
-            val idx = cur.blocks.size + 1
-            val newBlock = WorkoutBlockUi(
-                id = "b_added_$idx",
-                name = "New block $idx",
-                spec = WorkoutBlockSpec.Interval(sets = 6, workSec = 40, restSec = 20),
-            )
-            val blocks = cur.blocks + newBlock
-            cur.copy(
-                blocks = blocks,
-                totalDurationSec = blocks.sumOf { it.totalDurationSec }
-            )
-        }
-    }
-
-    fun onStartClicked() {
-        val id = _state.value.workoutId
-        viewModelScope.launch { _events.send(Event.Start(id)) }
-    }
-
-    private companion object {
-        fun mockState(): UiState {
-            val blocks = listOf(
-                // "Warm Up" is not a new phase. It’s just a named single-duration block preset.
-                WorkoutBlockUi(
-                    id = "b_warmup",
-                    name = "Warm Up",
-                    spec = WorkoutBlockSpec.Single(sets = 1, durationSec = 5 * 60),
-                ),
-                WorkoutBlockUi(
-                    id = "b_interval",
-                    name = "Interval block",
-                    spec = WorkoutBlockSpec.Interval(sets = 7, workSec = 30, restSec = 10),
-                ),
-                WorkoutBlockUi(
-                    id = "b_core",
-                    name = "Core Strength",
-                    spec = WorkoutBlockSpec.Interval(sets = 4, workSec = 90, restSec = 30),
-                ),
-                WorkoutBlockUi(
-                    id = "b_cooldown",
-                    name = "Cool Down",
-                    spec = WorkoutBlockSpec.Single(sets = 1, durationSec = 5 * 60),
-                ),
-            )
-            return UiState(
-                workoutId = "w_mock_builder",
-                title = "Create workout",
-                blocks = blocks,
-                totalDurationSec = blocks.sumOf { it.totalDurationSec },
-                isDebugMock = true,
-            )
-        }
     }
 }
 
@@ -230,10 +141,10 @@ sealed interface WorkoutBlockSpec {
 private fun CreateWorkoutScreen(
     state: CreateWorkoutViewModel.UiState,
     onBack: () -> Unit,
-    onMore: () -> Unit,
     onAddBlock: () -> Unit,
     onBlockMore: (blockId: String) -> Unit,
     onSave: () -> Unit,
+    onReorder: (fromIndex: Int, toIndex: Int) -> Unit
 ) {
     val c = MonoTheme.colors
 
@@ -260,29 +171,21 @@ private fun CreateWorkoutScreen(
                         )
                     }
                 },
-                actions = {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clickable(onClick = onMore),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MonoIcon(
-                            painter = painterResource(R.drawable.ic_more_vert),
-                            contentDescription = "More",
-                            tint = c.secondaryIconColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                },
+                actions = {},
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = c.appBackground,
                     titleContentColor = c.primaryTextColor,
                 )
             )
+            val lazyListState = rememberLazyListState()
+            val reorderableLazyListState =
+                rememberReorderableLazyListState(lazyListState) { from, to ->
+                    onReorder.invoke(from.index, to.index)
+                }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
+                state = lazyListState,
                 contentPadding = PaddingValues(
                     start = 14.dp,
                     end = 14.dp,
@@ -292,10 +195,12 @@ private fun CreateWorkoutScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 items(state.blocks, key = { it.id }) { block ->
-                    BlockRowCard(
-                        block = block,
-                        onMore = { onBlockMore(block.id) }
-                    )
+                    ReorderableItem(reorderableLazyListState, key = block.id) { isDragging ->
+                        BlockRowCard(
+                            block = block,
+                            onMore = { onBlockMore(block.id) }
+                        )
+                    }
                 }
 
                 item(key = "add_block") {
@@ -313,7 +218,7 @@ private fun CreateWorkoutScreen(
 }
 
 @Composable
-private fun BlockRowCard(
+private fun ReorderableCollectionItemScope.BlockRowCard(
     block: WorkoutBlockUi,
     onMore: () -> Unit,
 ) {
@@ -339,6 +244,7 @@ private fun BlockRowCard(
                 modifier = Modifier
                     .size(24.dp)
                     .padding(end = 10.dp)
+                    .draggableHandle()
             )
 
             Column(
@@ -513,16 +419,3 @@ private fun buildBlockMeta(spec: WorkoutBlockSpec): String = when (spec) {
     }
 }
 
-private fun metaLooksMonospace(spec: WorkoutBlockSpec): Boolean =
-    spec is WorkoutBlockSpec.Interval
-
-/**
- * Helpers:
- * - if you don't have these resources, map to your existing ones:
- *   ic_drag_handle, ic_play
- *
- * Minimal fallback:
- * - replace ic_drag_handle with ic_more_vert (tint alpha 0.35f)
- * - replace ic_play with any play/triangle icon you already have
- */
-private fun Int.coerceAtLeast1(): Int = max(1, this)
