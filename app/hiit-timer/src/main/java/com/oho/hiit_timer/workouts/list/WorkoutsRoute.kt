@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -23,10 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -91,7 +87,6 @@ fun WorkoutsRoute(
             onWorkoutClick = vm::onWorkoutClicked,
             onStartClick = vm::onStartClicked,
             onCreateWorkout = vm::onCreateClicked,
-            onMoreClicked = vm::onMoreClicked,
         )
     }
 }
@@ -102,7 +97,6 @@ private fun WorkoutsListScreen(
     onWorkoutClick: (workoutId: String) -> Unit,
     onStartClick: (workoutId: String) -> Unit,
     onCreateWorkout: () -> Unit,
-    onMoreClicked: () -> Unit,
 ) {
     val c = MonoTheme.colors
 
@@ -114,7 +108,6 @@ private fun WorkoutsListScreen(
         Column(Modifier.fillMaxSize()) {
             WorkoutsTopBar(
                 title = "Workouts",
-                onMoreClicked = onMoreClicked,
             )
 
             if (state.items.isEmpty()) {
@@ -150,20 +143,11 @@ private fun WorkoutsListScreen(
 @Composable
 private fun WorkoutsTopBar(
     title: String,
-    onMoreClicked: () -> Unit,
 ) {
     TopAppBar(
         modifier = Modifier.statusBarsPadding(),
         title = { Text(title) },
         navigationIcon = {
-        },
-        actions = {
-            IconButton(onClick = onMoreClicked) {
-                Icon(
-                    painterResource(R.drawable.ic_more_vert),
-                    contentDescription = "More"
-                )
-            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -223,14 +207,13 @@ private fun WorkoutRowCard(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f)) {
                 MonoText(
                     text = item.name,
-                    style = MonoTextStyle.TitleLarge,
+                    style = MonoTextStyle.TitleMedium,
                     color = colors.primaryTextColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -262,27 +245,12 @@ private fun StartPillButton(
     text: String,
     onClick: () -> Unit,
 ) {
-    val c = MonoTheme.colors
-
-    Surface(
+    MonoPrimaryButton(
         onClick = onClick,
-        shape = RoundedCornerShape(999.dp),
-        color = c.accentPrimary,
-        contentColor = c.inverseTextColor,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp,
-    ) {
-        Box(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            MonoText(
-                text = text,
-                style = MonoTextStyle.TitleMedium,
-                color = c.inverseTextColor,
-            )
-        }
-    }
+        text = text,
+        modifier = Modifier
+            .height(44.dp),
+    )
 }
 
 @Composable

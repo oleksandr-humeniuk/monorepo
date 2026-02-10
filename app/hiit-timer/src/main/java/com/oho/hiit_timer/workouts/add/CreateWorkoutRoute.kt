@@ -76,13 +76,13 @@ fun CreateWorkoutRoute(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
-    BlockMenuBottomSheet(
-        sheetState = sheetState,
-        onDismiss = {},
-        onEdit = {},
-        onDuplicate = {},
-        onDelete = { },
-    )
+//    BlockMenuBottomSheet(
+//        sheetState = sheetState,
+//        onDismiss = {},
+//        onEdit = {},
+//        onDuplicate = {},
+//        onDelete = { },
+//    )
 
     LaunchedEffect(Unit) {
         vm.events.collect { e ->
