@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,7 +71,6 @@ fun CreateEditWorkoutRoute(
     onStartWorkout: (workoutId: String) -> Unit = {},
     // optional: open block editor / menu
     onOpenBlockMenu: (blockId: String) -> Unit = {},
-    onOpenScreenMenu: () -> Unit = {},
 ) {
     val vm: CreateEditWorkoutViewModel = koinViewModel {
         parametersOf(workoutId)
@@ -96,7 +94,6 @@ fun CreateEditWorkoutRoute(
                 CreateEditWorkoutViewModel.Event.Back -> onBack()
                 is CreateEditWorkoutViewModel.Event.Start -> onStartWorkout(e.workoutId)
                 is CreateEditWorkoutViewModel.Event.OpenBlockMenu -> onOpenBlockMenu(e.blockId)
-                CreateEditWorkoutViewModel.Event.OpenScreenMenu -> onOpenScreenMenu()
             }
         }
     }
@@ -107,39 +104,10 @@ fun CreateEditWorkoutRoute(
             onBack = vm::onBackClicked,
             onAddBlock = vm::onAddBlockClicked,
             onBlockMore = vm::onBlockMoreClicked,
-            onSave = vm::onStartClicked,
+            onSave = vm::onSaveClicked,
             onReorder = vm::onReorderBlocks
         )
     }
-}
-
-@Immutable
-data class WorkoutBlockUi(
-    val id: String,
-    val name: String,
-    val spec: WorkoutBlockSpec,
-) {
-    val totalDurationSec: Int
-        get() = when (spec) {
-            is WorkoutBlockSpec.Single -> spec.sets * spec.durationSec
-            is WorkoutBlockSpec.Interval -> spec.sets * (spec.workSec + spec.restSec)
-        }
-}
-
-@Immutable
-sealed interface WorkoutBlockSpec {
-    @Immutable
-    data class Single(
-        val sets: Int,
-        val durationSec: Int,
-    ) : WorkoutBlockSpec
-
-    @Immutable
-    data class Interval(
-        val sets: Int,
-        val workSec: Int,
-        val restSec: Int,
-    ) : WorkoutBlockSpec
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -404,6 +372,7 @@ private fun BottomBar(
             Spacer(Modifier.height(16.dp))
 
             MonoPrimaryButton(
+                enabled = totalTime > 0,
                 onClick = onSaveClicked,
                 text = "Save Workout",
                 modifier = Modifier

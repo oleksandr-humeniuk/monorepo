@@ -3,47 +3,66 @@ package com.oho.hiit_timer.workouts.add
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oho.hiit_timer.data.HiitWorkoutsRepository
+import com.oho.hiit_timer.domain.totalDurationWithoutPrepareSec
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CreateEditWorkoutViewModel(
-    private val workoutId: String
+    private val workoutId: String,
+    private val hiitWorkoutsRepository: HiitWorkoutsRepository
 ) : ViewModel() {
 
     @Immutable
     data class UiState(
-        val workoutId: String = "w_mock",
         val title: String = "Create workout",
         val blocks: List<WorkoutBlockUi> = emptyList(),
         val totalDurationSec: Int = 0,
-        val isDebugMock: Boolean = false,
     )
 
     sealed interface Event {
         data object Back : Event
         data class Start(val workoutId: String) : Event
         data class OpenBlockMenu(val blockId: String) : Event
-        data object OpenScreenMenu : Event
     }
 
-    private val _state = MutableStateFlow(mockState())
+    private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     private val _events = Channel<Event>(capacity = Channel.Factory.BUFFERED)
     val events: Flow<Event> = _events.receiveAsFlow()
 
-    fun onBackClicked() {
-        viewModelScope.launch { _events.send(Event.Back) }
+    init {
+        viewModelScope.launch {
+            hiitWorkoutsRepository.observeWorkout(workoutId)
+                .filterNotNull()
+                .collect { hiitWorkout ->
+                    _state.update { s ->
+                        s.copy(
+                            title = hiitWorkout.name,
+                            totalDurationSec = hiitWorkout.totalDurationWithoutPrepareSec(),
+                            blocks = hiitWorkout.exercises.map { exercise ->
+                                WorkoutBlockUi(
+                                    id = exercise.id,
+                                    name = exercise.name,
+                                    spec = WorkoutBlockSpec.fromExercise(exercise)
+                                )
+                            }
+                        )
+                    }
+                }
+        }
     }
 
-    fun onMoreClicked() {
-        viewModelScope.launch { _events.send(Event.OpenScreenMenu) }
+    fun onBackClicked() {
+        viewModelScope.launch { _events.send(Event.Back) }
     }
 
     fun onBlockMoreClicked(blockId: String) {
@@ -67,9 +86,13 @@ class CreateEditWorkoutViewModel(
         }
     }
 
-    fun onStartClicked() {
-        val id = _state.value.workoutId
-        viewModelScope.launch { _events.send(Event.Start(id)) }
+    fun onSaveClicked() {
+        val id = workoutId
+        if (id == HiitWorkoutsRepository.TEMP_WORKOUT_ID) {
+            //duplicate from temp and store
+        } else {
+            //just store
+        }
     }
 
     fun onReorderBlocks(fromIndex: Int, toIndex: Int) {
@@ -82,38 +105,4 @@ class CreateEditWorkoutViewModel(
         }
     }
 
-    private companion object Companion {
-        fun mockState(): UiState {
-            val blocks = listOf(
-                // "Warm Up" is not a new phase. It’s just a named single-duration block preset.
-                WorkoutBlockUi(
-                    id = "b_warmup",
-                    name = "Warm Up",
-                    spec = WorkoutBlockSpec.Single(sets = 1, durationSec = 5 * 60),
-                ),
-                WorkoutBlockUi(
-                    id = "b_interval",
-                    name = "Interval block",
-                    spec = WorkoutBlockSpec.Interval(sets = 7, workSec = 30, restSec = 10),
-                ),
-                WorkoutBlockUi(
-                    id = "b_core",
-                    name = "Core Strength",
-                    spec = WorkoutBlockSpec.Interval(sets = 4, workSec = 90, restSec = 30),
-                ),
-                WorkoutBlockUi(
-                    id = "b_cooldown",
-                    name = "Cool Down",
-                    spec = WorkoutBlockSpec.Single(sets = 1, durationSec = 5 * 60),
-                ),
-            )
-            return UiState(
-                workoutId = "w_mock_builder",
-                title = "Create workout",
-                blocks = blocks,
-                totalDurationSec = blocks.sumOf { it.totalDurationSec },
-                isDebugMock = true,
-            )
-        }
-    }
 }
