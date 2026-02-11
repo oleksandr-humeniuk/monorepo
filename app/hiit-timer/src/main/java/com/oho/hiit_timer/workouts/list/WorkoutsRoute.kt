@@ -66,7 +66,7 @@ fun WorkoutsRoute(
     vm: WorkoutsListViewModel = koinViewModel(),
     openWorkout: (workoutId: String) -> Unit = {},
     startWorkout: (workoutId: String) -> Unit = {},
-    createWorkout: () -> Unit = {},
+    createEditWorkout: (String?) -> Unit = {}, //workoutId null if new
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
 
@@ -75,7 +75,7 @@ fun WorkoutsRoute(
             when (e) {
                 is WorkoutsListViewModel.Event.OpenWorkout -> openWorkout(e.workoutId)
                 is WorkoutsListViewModel.Event.StartWorkout -> startWorkout(e.workoutId)
-                WorkoutsListViewModel.Event.CreateWorkout -> createWorkout()
+                WorkoutsListViewModel.Event.CreateWorkout -> createEditWorkout(null)
                 WorkoutsListViewModel.Event.More -> Unit // hook later if needed
             }
         }

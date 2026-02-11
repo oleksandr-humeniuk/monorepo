@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CreateWorkoutViewModel : ViewModel() {
+class CreateEditWorkoutViewModel(
+    private val workoutId: String
+) : ViewModel() {
 
     @Immutable
     data class UiState(
@@ -80,7 +82,7 @@ class CreateWorkoutViewModel : ViewModel() {
         }
     }
 
-    private companion object {
+    private companion object Companion {
         fun mockState(): UiState {
             val blocks = listOf(
                 // "Warm Up" is not a new phase. It’s just a named single-duration block preset.

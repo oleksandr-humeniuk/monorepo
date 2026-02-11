@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,6 +52,7 @@ import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.formatSec
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -64,15 +66,19 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateWorkoutRoute(
-    vm: CreateWorkoutViewModel = koinViewModel(),
+fun CreateEditWorkoutRoute(
+    workoutId: String,
     onBack: () -> Unit = {},
     onStartWorkout: (workoutId: String) -> Unit = {},
     // optional: open block editor / menu
     onOpenBlockMenu: (blockId: String) -> Unit = {},
     onOpenScreenMenu: () -> Unit = {},
 ) {
-    val state by vm.state.collectAsState(initial = CreateWorkoutViewModel.UiState())
+    val vm: CreateEditWorkoutViewModel = koinViewModel {
+        parametersOf(workoutId)
+    }
+
+    val state by vm.state.collectAsState(initial = CreateEditWorkoutViewModel.UiState())
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
@@ -87,10 +93,10 @@ fun CreateWorkoutRoute(
     LaunchedEffect(Unit) {
         vm.events.collect { e ->
             when (e) {
-                CreateWorkoutViewModel.Event.Back -> onBack()
-                is CreateWorkoutViewModel.Event.Start -> onStartWorkout(e.workoutId)
-                is CreateWorkoutViewModel.Event.OpenBlockMenu -> onOpenBlockMenu(e.blockId)
-                CreateWorkoutViewModel.Event.OpenScreenMenu -> onOpenScreenMenu()
+                CreateEditWorkoutViewModel.Event.Back -> onBack()
+                is CreateEditWorkoutViewModel.Event.Start -> onStartWorkout(e.workoutId)
+                is CreateEditWorkoutViewModel.Event.OpenBlockMenu -> onOpenBlockMenu(e.blockId)
+                CreateEditWorkoutViewModel.Event.OpenScreenMenu -> onOpenScreenMenu()
             }
         }
     }
@@ -139,7 +145,7 @@ sealed interface WorkoutBlockSpec {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreateWorkoutScreen(
-    state: CreateWorkoutViewModel.UiState,
+    state: CreateEditWorkoutViewModel.UiState,
     onBack: () -> Unit,
     onAddBlock: () -> Unit,
     onBlockMore: (blockId: String) -> Unit,
@@ -373,6 +379,7 @@ private fun BottomBar(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
                 .padding(horizontal = 24.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

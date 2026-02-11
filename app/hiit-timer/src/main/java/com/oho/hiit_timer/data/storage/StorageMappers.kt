@@ -1,6 +1,5 @@
 package com.oho.hiit_timer.data.storage
 
-import com.oho.hiit_timer.domain.HiitWorkout
 import com.oho.hiit_timer.domain.RestAfterLastWorkPolicy
 
 private const val POLICY_SAME = 0
@@ -20,34 +19,3 @@ fun policyFromDb(type: Int, custom: Int?): RestAfterLastWorkPolicy = when (type)
     else -> RestAfterLastWorkPolicy.SameAsRegular
 }
 
-
-fun HiitWorkout.toEntities(
-    source: Int,
-    now: Long,
-): Pair<WorkoutEntity, List<ExerciseEntity>> {
-    val workoutEntity = WorkoutEntity(
-        id = id,
-        name = name,
-        prepareSec = prepareSec,
-        source = source,
-        createdAt = now,
-        updatedAt = now,
-    )
-
-    val exerciseEntities = exercises.mapIndexed { index, ex ->
-        val (t, c) = ex.restAfterLastWork.toDb()
-        ExerciseEntity(
-            id = ex.id,
-            workoutId = id,
-            name = ex.name,
-            sets = ex.sets,
-            workSec = ex.workSec,
-            restSec = ex.restSec,
-            restAfterLastWorkType = t,
-            restAfterLastWorkCustomSec = c,
-            orderInWorkout = index,
-        )
-    }
-
-    return workoutEntity to exerciseEntities
-}

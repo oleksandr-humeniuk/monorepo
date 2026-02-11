@@ -45,7 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 fun QuickStartTimerRoute(
     vm: QuickStartTimerViewModel = koinViewModel(),
     onBack: () -> Unit = {},
-    openWorkout: (workoutId: String) -> Unit = { _ -> }
+    runWrokout: (workoutId: String) -> Unit = { _ -> }
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
 
@@ -53,7 +53,7 @@ fun QuickStartTimerRoute(
         vm.events.collect { event ->
             when (event) {
                 is QuickStartTimerViewModel.Event.OpenWorkout -> {
-                    openWorkout(event.workoutId)
+                    runWrokout(event.workoutId)
                 }
             }
         }

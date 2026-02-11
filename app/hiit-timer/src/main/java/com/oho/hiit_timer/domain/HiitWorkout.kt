@@ -6,3 +6,7 @@ data class HiitWorkout(
     val prepareSec: Int,
     val exercises: List<HiitExercise>,
 )
+
+fun HiitWorkout.totalDurationWithoutPrepareSec(): Int {
+    return exercises.sumOf { it.totalDurationSec() }
+}

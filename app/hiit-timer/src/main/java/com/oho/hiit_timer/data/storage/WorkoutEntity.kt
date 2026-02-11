@@ -15,7 +15,6 @@ import androidx.room.PrimaryKey
 data class WorkoutEntity(
     @PrimaryKey val id: String, // "quick_start" або UUID/ULID
     val name: String,
-    val prepareSec: Int,
 
     /**
      * 0 = SYSTEM (quick/presets shipped)

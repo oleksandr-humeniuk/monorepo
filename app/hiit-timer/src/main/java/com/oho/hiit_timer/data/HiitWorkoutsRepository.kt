@@ -1,6 +1,7 @@
 package com.oho.hiit_timer.data
 
 import com.oho.hiit_timer.QuickStartTimerViewModel
+import com.oho.hiit_timer.data.HiitWorkoutsRepository.Companion.SOURCE_SYSTEM
 import com.oho.hiit_timer.data.storage.ExerciseEntity
 import com.oho.hiit_timer.data.storage.HiitWorkoutsDao
 import com.oho.hiit_timer.data.storage.WorkoutEntity
@@ -14,11 +15,26 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 interface HiitWorkoutsRepository {
+
     suspend fun ensureQuickStart(defaultState: QuickStartTimerViewModel.UiState)
     fun observeWorkout(id: String): Flow<HiitWorkout?>
     suspend fun upsert(workout: HiitWorkout, source: Int)
 
     suspend fun getWorkout(workoutId: String): HiitWorkout?
+
+    fun observerWorkouts(source: Source): Flow<List<HiitWorkout>>
+
+    enum class Source {
+        System,
+        User
+    }
+
+    companion object {
+        const val TEMP_WORKOUT_ID = "temp_workout_id"
+        const val SOURCE_SYSTEM = 0
+        const val SOURCE_USER = 1
+        const val SOURCE_PRESET = 2
+    }
 }
 
 
@@ -33,7 +49,7 @@ class HiitWorkoutsRepositoryImpl(
         val now = nowMs()
         val workout = QuickStartMapper.toWorkout(defaultState)
         val (w, ex) = workout.toEntitiesForInsert(
-            source = QuickStartRepository.SOURCE_SYSTEM,
+            source = SOURCE_SYSTEM,
             createdAt = now,
             updatedAt = now,
         )
@@ -68,6 +84,12 @@ class HiitWorkoutsRepositoryImpl(
         return dao.getWorkout(workoutId)?.toDomain()
     }
 
+    override fun observerWorkouts(source: HiitWorkoutsRepository.Source): Flow<List<HiitWorkout>> {
+        return dao.observeWorkouts()
+            .map { workouts ->
+                workouts.map { workout -> workout.toDomain() }
+            }
+    }
 }
 
 private fun HiitWorkout.toEntitiesForInsert(
@@ -95,7 +117,6 @@ private fun HiitWorkout.toEntitiesForUpsert(
     val w = WorkoutEntity(
         id = id,
         name = name,
-        prepareSec = prepareSec,
         source = source,
         createdAt = createdAt,
         updatedAt = updatedAt,
@@ -121,12 +142,12 @@ private fun HiitWorkout.toEntitiesForUpsert(
     return w to ex
 }
 
-private fun WorkoutWithExercises.toDomain(): HiitWorkout {
+private fun WorkoutWithExercises.toDomain(prepareSec: Int = 10): HiitWorkout {
     val sorted = exercises.sortedBy { it.orderInWorkout }
     return HiitWorkout(
         id = workout.id,
         name = workout.name,
-        prepareSec = workout.prepareSec,
+        prepareSec = prepareSec,
         exercises = sorted.map { e ->
             HiitExercise(
                 id = e.id,

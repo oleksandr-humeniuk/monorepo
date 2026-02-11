@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface HiitWorkoutsDao {
 
     @Transaction
-    @Query("SELECT * FROM hiit_workouts WHERE isDeleted = 0 ORDER BY source ASC, updatedAt DESC")
+    @Query("SELECT * FROM hiit_workouts WHERE source = 1 AND isDeleted = 0 ORDER BY source ASC, updatedAt DESC")
     fun observeWorkouts(): Flow<List<WorkoutWithExercises>>
 
     @Transaction

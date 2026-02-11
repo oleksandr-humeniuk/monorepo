@@ -30,3 +30,21 @@ data class HiitExercise(
      */
     val restAfterLastWork: RestAfterLastWorkPolicy = RestAfterLastWorkPolicy.SameAsRegular,
 )
+
+fun HiitExercise.totalDurationSec(): Int {
+    if (sets <= 0 || workSec <= 0) return 0
+
+    val workTotal = sets * workSec
+
+    val regularRestCount = (sets - 1).coerceAtLeast(0)
+    val regularRestTotal = regularRestCount * restSec
+
+    val lastRest = when (val policy = restAfterLastWork) {
+        RestAfterLastWorkPolicy.SameAsRegular -> restSec
+        RestAfterLastWorkPolicy.None -> 0
+        is RestAfterLastWorkPolicy.Custom ->
+            policy.seconds.takeIf { it > 0 } ?: 0
+    }
+
+    return workTotal + regularRestTotal + lastRest
+}
