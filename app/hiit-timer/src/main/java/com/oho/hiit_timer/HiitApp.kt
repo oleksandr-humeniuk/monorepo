@@ -11,6 +11,7 @@ import com.oho.hiit_timer.data.storage.HiitDatabase
 import com.oho.hiit_timer.root.HiitRootNavViewModel
 import com.oho.hiit_timer.tabs.TabsViewModel
 import com.oho.hiit_timer.workouts.add.CreateEditWorkoutViewModel
+import com.oho.hiit_timer.workouts.add_block.CreateEditIntervalViewModel
 import com.oho.hiit_timer.workouts.list.WorkoutsListViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androix.startup.KoinStartup
@@ -54,6 +55,7 @@ private val appModule = module {
     viewModelOf(::WorkoutsListViewModel)
     viewModelOf(::CreateEditWorkoutViewModel)
     viewModelOf(::HiitRootNavViewModel)
+    viewModelOf(::CreateEditIntervalViewModel)
     factory {
         HiitWorkoutsRepositoryImpl(
             dao = get(),
