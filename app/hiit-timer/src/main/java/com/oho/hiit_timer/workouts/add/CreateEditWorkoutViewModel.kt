@@ -31,6 +31,7 @@ class CreateEditWorkoutViewModel(
         data object Back : Event
         data class Start(val workoutId: String) : Event
         data class OpenBlockMenu(val blockId: String) : Event
+        data object OnAddBlockClicked : Event
     }
 
     private val _state = MutableStateFlow(UiState())
@@ -70,20 +71,22 @@ class CreateEditWorkoutViewModel(
     }
 
     fun onAddBlockClicked() {
-        // mocked in-memory mutation: append a new interval-like block
-        _state.update { cur ->
-            val idx = cur.blocks.size + 1
-            val newBlock = WorkoutBlockUi(
-                id = "b_added_$idx",
-                name = "New block $idx",
-                spec = WorkoutBlockSpec.Interval(sets = 6, workSec = 40, restSec = 20),
-            )
-            val blocks = cur.blocks + newBlock
-            cur.copy(
-                blocks = blocks,
-                totalDurationSec = blocks.sumOf { it.totalDurationSec }
-            )
-        }
+        viewModelScope.launch { _events.send(Event.OnAddBlockClicked) }
+
+//        // mocked in-memory mutation: append a new interval-like block
+//        _state.update { cur ->
+//            val idx = cur.blocks.size + 1
+//            val newBlock = WorkoutBlockUi(
+//                id = "b_added_$idx",
+//                name = "New block $idx",
+//                spec = WorkoutBlockSpec.Interval(sets = 6, workSec = 40, restSec = 20),
+//            )
+//            val blocks = cur.blocks + newBlock
+//            cur.copy(
+//                blocks = blocks,
+//                totalDurationSec = blocks.sumOf { it.totalDurationSec }
+//            )
+//        }
     }
 
     fun onSaveClicked() {

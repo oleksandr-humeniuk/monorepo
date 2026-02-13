@@ -42,6 +42,12 @@ class HiitRootNavViewModel(
         }
     }
 
+    fun onAddBlock() {
+        _state.update { s ->
+            s.copy(backStack = s.backStack + HiitRootRoute.AddBlock)
+        }
+    }
+
     data class NavState(
         val backStack: List<HiitRootRoute> = listOf(HiitRootRoute.Tabs),
     )

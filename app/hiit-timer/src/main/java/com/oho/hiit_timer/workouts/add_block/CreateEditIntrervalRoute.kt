@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -75,7 +78,6 @@ fun CreateEditIntrervalRoute(
 
     CreateEditIntervalScreen(
         title = title,
-        saveCta = saveCta,
         state = state,
         onBackClicked = vm::onBackClicked,
         onMoreClicked = vm::onMoreClicked,
@@ -105,7 +107,6 @@ fun CreateEditIntrervalRoute(
 @Composable
 private fun CreateEditIntervalScreen(
     title: String,
-    saveCta: String,
     state: CreateEditIntervalViewModel.UiState,
 
     onBackClicked: () -> Unit,
@@ -150,12 +151,6 @@ private fun CreateEditIntervalScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onMoreClicked) {
-                        Icon(
-                            painterResource(R.drawable.ic_more_vert),
-                            contentDescription = "More"
-                        )
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = page,
@@ -171,7 +166,7 @@ private fun CreateEditIntervalScreen(
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp, bottom = 120.dp),
             ) {
-                SectionTitle("BLOCK NAME (OPTIONAL)")
+                SectionTitle("BLOCK NAME")
                 SurfaceCard(shape = RoundedCornerShape(12.dp)) {
                     Box(Modifier.padding(horizontal = 14.dp, vertical = 14.dp)) {
                         val cs = MaterialTheme.colorScheme
@@ -255,7 +250,6 @@ private fun CreateEditIntervalScreen(
         BottomBar(
             totalTime = state.totalDurationSec,
             onSaveClicked = onSaveClicked,
-            cta = saveCta,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
@@ -373,7 +367,6 @@ private fun ValuePill(
 private fun BottomBar(
     totalTime: Int,
     onSaveClicked: () -> Unit,
-    cta: String,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -385,7 +378,9 @@ private fun BottomBar(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 18.dp),
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp, vertical = 18.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
@@ -409,8 +404,9 @@ private fun BottomBar(
             Spacer(Modifier.height(16.dp))
 
             MonoPrimaryButton(
+                enabled = totalTime > 0,
                 onClick = onSaveClicked,
-                text = cta,
+                text = "Save",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

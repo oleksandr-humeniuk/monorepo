@@ -33,6 +33,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
@@ -71,6 +72,7 @@ fun CreateEditWorkoutRoute(
     onStartWorkout: (workoutId: String) -> Unit = {},
     // optional: open block editor / menu
     onOpenBlockMenu: (blockId: String) -> Unit = {},
+    onAddBlock: () -> Unit
 ) {
     val vm: CreateEditWorkoutViewModel = koinViewModel {
         parametersOf(workoutId)
@@ -94,6 +96,7 @@ fun CreateEditWorkoutRoute(
                 CreateEditWorkoutViewModel.Event.Back -> onBack()
                 is CreateEditWorkoutViewModel.Event.Start -> onStartWorkout(e.workoutId)
                 is CreateEditWorkoutViewModel.Event.OpenBlockMenu -> onOpenBlockMenu(e.blockId)
+                CreateEditWorkoutViewModel.Event.OnAddBlockClicked -> onAddBlock()
             }
         }
     }
@@ -301,6 +304,7 @@ private fun AddBlockCard(onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp)
+            .clip(RoundedCornerShape(18.dp))
             .drawBehind {
                 val paint = Stroke(
                     width = strokeWidthPx,

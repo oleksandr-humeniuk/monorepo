@@ -8,6 +8,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.oho.hiit_timer.count_down_screen.HiitRunRoute
 import com.oho.hiit_timer.tabs.HiitTabHost
 import com.oho.hiit_timer.workouts.add.CreateEditWorkoutRoute
+import com.oho.hiit_timer.workouts.add_block.CreateEditIntrervalRoute
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -41,6 +42,15 @@ fun HiitAppNavRoot(
                 is HiitRootRoute.CreateEditWorkout -> NavEntry(key) {
                     CreateEditWorkoutRoute(
                         workoutId = key.workoutId,
+                        onBack = { viewModel.onBack() },
+                        onAddBlock = {
+                            viewModel.onAddBlock()
+                        }
+                    )
+                }
+
+                HiitRootRoute.AddBlock -> NavEntry(key) {
+                    CreateEditIntrervalRoute(
                         onBack = { viewModel.onBack() }
                     )
                 }
