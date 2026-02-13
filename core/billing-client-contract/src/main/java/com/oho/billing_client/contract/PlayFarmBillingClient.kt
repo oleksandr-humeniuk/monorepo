@@ -6,6 +6,7 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -28,7 +29,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.resume
 import kotlin.math.min
 import kotlin.time.Duration.Companion.seconds
 
@@ -100,76 +103,119 @@ class PlayFarmBillingClient(
         if (productIds.isEmpty()) return Result.success(Unit)
 
         return refreshMutex.withLock {
-            _productsState.update {
-                it.copy(
-                    isRefreshing = true,
-                    requestedIds = productIds,
-                    lastError = null
-                )
-            }
-
-            ensureConnectedOrFail("refreshProducts")?.let { failure ->
-                _productsState.update { it.copy(isRefreshing = false, lastError = failure) }
-                _events.emit(BillingEvent.Failure(failure))
-                return@withLock Result.failure(IllegalStateException(failure.where + ": " + failure.debugMessage))
-            }
-
-            val client = billingClient ?: run {
-                val f =
-                    BillingFailure(where = "refreshProducts", debugMessage = "billingClient=null")
-                _productsState.update { it.copy(isRefreshing = false, lastError = f) }
-                _events.emit(BillingEvent.Failure(f))
-                return@withLock Result.failure(IllegalStateException("billingClient=null"))
-            }
-
-            val queryList = productIds.map { id ->
-                QueryProductDetailsParams.Product.newBuilder()
-                    .setProductId(id)
-                    .setProductType(BillingClient.ProductType.SUBS)
-                    .build()
-            }
-
-            suspendCancellableCoroutine { cont ->
-                val params = QueryProductDetailsParams.newBuilder()
-                    .setProductList(queryList)
-                    .build()
-
-                client.queryProductDetailsAsync(params) { billingResult, queryResult ->
-                    val fetched = queryResult.productDetailsList
-                    val unfetched = queryResult.unfetchedProductList
-
-                    val map = fetched.associateBy { it.productId }
-
-                    _productsState.update {
-                        it.copy(
-                            isRefreshing = false,
-                            products = map,
-                            lastError = if (unfetched.isNotEmpty())
-                                BillingFailure(
-                                    where = "queryProductDetailsAsync",
-                                    code = billingResult.responseCode,
-                                    debugMessage = "Unfetched: " + unfetched.joinToString { u ->
-                                        "${u.productId}:${u.statusCode}"
-                                    }
-                                )
-                            else null
-                        )
-                    }
-
-                    if (unfetched.isNotEmpty()) {
-                        externalScope.launch(dispatcher) {
-                            _events.emit(
-                                BillingEvent.Log(
-                                    "Unfetched products: " + unfetched.joinToString { "${it.productId}:${it.statusCode}" }
-                                )
-                            )
-                        }
-                    }
+            withTimeout(10000) {
+                _productsState.update {
+                    it.copy(
+                        isRefreshing = true,
+                        requestedIds = productIds,
+                        lastError = null,
+                    )
                 }
 
+                ensureConnectedOrFail("refreshProducts")?.let { failure ->
+                    _productsState.update { it.copy(isRefreshing = false, lastError = failure) }
+                    externalScope.launch(dispatcher) { _events.emit(BillingEvent.Failure(failure)) }
+                    return@withTimeout Result.failure(
+                        IllegalStateException("${failure.where}: ${failure.debugMessage}")
+                    )
+                }
+
+                val client = billingClient ?: run {
+                    val f =
+                        BillingFailure(
+                            where = "refreshProducts",
+                            debugMessage = "billingClient=null"
+                        )
+                    _productsState.update { it.copy(isRefreshing = false, lastError = f) }
+                    externalScope.launch(dispatcher) { _events.emit(BillingEvent.Failure(f)) }
+                    return@withTimeout Result.failure(IllegalStateException("billingClient=null"))
+                }
+
+                val queryList = productIds.map { id ->
+                    QueryProductDetailsParams.Product.newBuilder()
+                        .setProductId(id)
+                        .setProductType(BillingClient.ProductType.SUBS)
+                        .build()
+                }
+
+                suspendCancellableCoroutine { cont ->
+                    val params = QueryProductDetailsParams.newBuilder()
+                        .setProductList(queryList)
+                        .build()
+
+                    client.queryProductDetailsAsync(params) { billingResult, queryResult ->
+                        externalScope.launch(dispatcher) {
+                            if (!cont.isActive) return@launch
+                            val fetched = queryResult.productDetailsList
+                            val unfetched = queryResult.unfetchedProductList
+
+                            val map = fetched.associateBy { it.productId }
+
+                            val failureOrNull =
+                                if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                                    BillingFailure(
+                                        where = "queryProductDetailsAsync",
+                                        code = billingResult.responseCode,
+                                        debugMessage = billingResult.debugMessage,
+                                    )
+                                } else if (unfetched.isNotEmpty()) {
+                                    BillingFailure(
+                                        where = "queryProductDetailsAsync",
+                                        code = billingResult.responseCode,
+                                        debugMessage = "Unfetched: " + unfetched.joinToString { u ->
+                                            "${u.productId}:${u.statusCode}"
+                                        },
+                                    )
+                                } else null
+
+                            _productsState.update {
+                                it.copy(
+                                    isRefreshing = false,
+                                    products = map,
+                                    lastError = failureOrNull,
+                                )
+                            }
+
+                            if (unfetched.isNotEmpty()) {
+                                _events.emit(
+                                    BillingEvent.Log(
+                                        "Unfetched products: " + unfetched.joinToString {
+                                            "${it.productId}:${it.statusCode}"
+                                        }
+                                    )
+                                )
+                            }
+
+                            if (failureOrNull != null && billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                                _events.emit(BillingEvent.Failure(failureOrNull))
+                            }
+
+                            val result: Result<Unit> =
+                                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                                    Result.success(Unit)
+                                } else {
+                                    Result.failure(
+                                        IllegalStateException(
+                                            failureOrNull?.debugMessage ?: "Query failed"
+                                        )
+                                    )
+                                }
+
+                            if (cont.isActive) {
+                                cont.resume(result)
+                            }
+                        }
+                    }
+
+                    // Optional: if coroutine is cancelled, mark as not refreshing
+                    cont.invokeOnCancellation {
+                        _productsState.update { it.copy(isRefreshing = false) }
+                    }
+                }
             }
         }
     }
+
 
     override suspend fun launchSubscriptionPurchase(
         activityProvider: ActivityProvider,
@@ -219,40 +265,50 @@ class PlayFarmBillingClient(
         }
     }
 
-    override suspend fun restorePurchases(): Result<Unit> {
+    override suspend fun restorePurchases(): Result<Unit> = withTimeout(10000L) {
         ensureConnectedOrFail("restorePurchases")?.let { failure ->
             _events.emit(BillingEvent.Failure(failure))
-            return Result.failure(IllegalStateException(failure.debugMessage ?: "Not connected"))
+            return@withTimeout Result.failure(
+                IllegalStateException(
+                    failure.debugMessage ?: "Not connected"
+                )
+            )
         }
 
         val client =
-            billingClient ?: return Result.failure(IllegalStateException("billingClient=null"))
+            billingClient
+                ?: return@withTimeout Result.failure(IllegalStateException("billingClient=null"))
 
         _entitlements.update { it.copy(isSyncing = true, lastSyncError = null) }
 
-        return suspendCancellableCoroutine { cont ->
+        return@withTimeout suspendCancellableCoroutine { cont ->
             val params = QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.SUBS)
                 .build()
 
             client.queryPurchasesAsync(params) { result, purchases ->
                 externalScope.launch(dispatcher) {
+                    if (!cont.isActive) return@launch // <--- add this
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         _events.emit(BillingEvent.RestoreCompleted(purchases))
                         handlePurchases(purchases)
                         _entitlements.update { it.copy(isSyncing = false, lastSyncError = null) }
-                        cont.resume(Result.success(Unit)) { cause, _, _ -> }
+                        if (cont.isActive) {
+                            cont.resume(Result.success(Unit))
+                        }
                     } else {
                         val failure = result.toFailure(where = "queryPurchasesAsync(SUBS)")
                         _entitlements.update { it.copy(isSyncing = false, lastSyncError = failure) }
                         _events.emit(BillingEvent.Failure(failure))
-                        cont.resume(
-                            Result.failure(
-                                IllegalStateException(
-                                    failure.debugMessage ?: "restore failed"
+                        if (cont.isActive) {
+                            cont.resume(
+                                Result.failure(
+                                    IllegalStateException(
+                                        failure.debugMessage ?: "restore failed"
+                                    )
                                 )
                             )
-                        ) { cause, _, _ -> }
+                        }
                     }
                 }
             }
@@ -267,6 +323,11 @@ class PlayFarmBillingClient(
         if (billingClient != null) return
         billingClient = BillingClient.newBuilder(context)
             .setListener(purchasesUpdatedListener)
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder()
+                    .enableOneTimeProducts()
+                    .build()
+            )
             .build()
     }
 
@@ -303,13 +364,17 @@ class PlayFarmBillingClient(
                         if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                             _connectionState.value = ConnectionState.Connected
                             _events.emit(BillingEvent.Log("Billing connected"))
-                            cont.resume(true) { cause, _, _ -> }
+                            if (cont.isActive) {
+                                cont.resume(true)
+                            }
                         } else {
                             val failure = result.toFailure(where = "onBillingSetupFinished")
                             _connectionState.value =
                                 ConnectionState.Disconnected(result.toDisconnectReason())
                             _events.emit(BillingEvent.Failure(failure))
-                            cont.resume(false) { cause, _, _ -> }
+                            if (cont.isActive) {
+                                cont.resume(false)
+                            }
                         }
                     }
                 }
@@ -376,13 +441,18 @@ class PlayFarmBillingClient(
 
             client.acknowledgePurchase(params) { result ->
                 externalScope.launch(dispatcher) {
+                    if (!cont.isActive) return@launch // <--- add this
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         _events.emit(BillingEvent.PurchaseAcknowledged(purchaseToken))
-                        cont.resume(true) { cause, _, _ -> }
+                        if (cont.isActive) {
+                            cont.resume(true)
+                        }
                     } else {
                         val failure = result.toFailure(where = "acknowledgePurchase")
                         _events.emit(BillingEvent.Failure(failure))
-                        cont.resume(false) { cause, _, _ -> }
+                        if (cont.isActive) {
+                            cont.resume(false)
+                        }
                     }
                 }
             }
