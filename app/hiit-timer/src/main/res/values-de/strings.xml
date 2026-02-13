@@ -1,0 +1,105 @@
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">Intervall hinzufügen</string>
+    <string name="create_edit_interval_save_cta">Speichern</string>
+    <string name="back">Zurück</string>
+
+    <string name="set_name">Satzname</string>
+    <string name="structure">Struktur</string>
+    <string name="timing">Zeit</string>
+
+    <string name="sets">Sätze</string>
+    <string name="work">Belastung</string>
+    <string name="rest">Pause</string>
+    <string name="last_rest">Letzte Pause</string>
+
+    <string name="total_duration">Gesamtzeit</string>
+
+    <string name="decrease_label">%1$s verringern</string>
+    <string name="increase_label">%1$s erhöhen</string>
+
+    <string name="name_placeholder">z.B. Tabata, Core…</string>
+
+    <string name="quick_start_title">Schnellstart</string>
+    <string name="more">Mehr</string>
+
+    <string name="quick_start_structure">Struktur</string>
+    <string name="quick_start_sets">Sätze</string>
+    <string name="quick_start_timing">Zeit</string>
+    <string name="quick_start_work">Belastung</string>
+    <string name="quick_start_rest">Pause</string>
+
+    <string name="quick_start_decrease_label">%1$s verringern</string>
+    <string name="quick_start_increase_label">%1$s erhöhen</string>
+    <string name="quick_start_total_duration">Gesamtzeit</string>
+
+    <string name="quick_start_cta">Training starten</string>
+
+    <string name="create_workout_title">Training erstellen</string>
+    <string name="set_menu">Satzmenü</string>
+    <string name="add_set">Satz hinzufügen</string>
+    <string name="save_workout">Training speichern</string>
+
+    <string name="total_chip">Gesamt: %1$s</string>
+
+    <string name="single_set_spec">%1$d Satz • %2$s</string>
+    <string name="multiple_sets_spec">%1$d Sätze • %2$s</string>
+    <string name="interval_spec">%1$d Sätze • %2$s / %3$s</string>
+
+    <string name="workouts_title">Trainings</string>
+    <string name="start_button">Start</string>
+
+    <string name="empty_workouts_title">Erstelle dein erstes Training</string>
+    <string name="empty_workouts_description">
+        Erstelle eine einfache Abfolge von Sätzen und starte in Sekunden.
+    </string>
+
+    <string name="create_workout_button">Training erstellen</string>
+    <string name="add_workout_fab">Training hinzufügen</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="one">%1$d Satz • %2$s</item>
+        <item quantity="other">%1$d Sätze • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">Trainings</string>
+    <string name="tab_quick">Schnell</string>
+    <string name="tab_history">Verlauf</string>
+    <string name="tab_challenges">Challenges</string>
+
+    <string name="set_actions">Satzaktionen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="duplicate">Duplizieren</string>
+    <string name="delete">Löschen</string>
+
+    <string name="quick_start_workout_name">Schnellstart</string>
+    <string name="quick_start_exercise_name">Belastung</string>
+
+    <string name="timer_run_close">Schließen</string>
+    <string name="timer_run_total_remaining">Verbleibend</string>
+
+    <string name="timer_run_set_of_total">Satz %1$d von %2$d</string>
+    <string name="timer_run_rest_of_total">Pause %1$d von %2$d</string>
+    <string name="timer_run_next_prefix">Nächste: %1$s</string>
+
+    <string name="timer_run_resume">Fortsetzen</string>
+    <string name="timer_run_pause">Pause</string>
+    <string name="timer_run_previous">Zurück</string>
+    <string name="timer_run_next">Weiter</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">Training beendet</string>
+    <string name="run_notification_stopped">Gestoppt</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">Vorbereitung</string>
+    <string name="run_notification_rest_phase">Pause</string>
+    <string name="run_notification_done_phase">Fertig</string>
+
+    <string name="run_notification_prepare_next">Vorbereitung</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">Pause %1$s</string>
+
+</resources>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">ইন্টারভাল সেট যোগ করুন</string>
+    <string name="create_edit_interval_save_cta">সংরক্ষণ</string>
+    <string name="back">পিছনে</string>
+
+    <string name="set_name">সেটের নাম</string>
+    <string name="structure">গঠন</string>
+    <string name="timing">সময়</string>
+
+    <string name="sets">সেট</string>
+    <string name="work">কাজ</string>
+    <string name="rest">বিশ্রাম</string>
+    <string name="last_rest">শেষ বিশ্রাম</string>
+
+    <string name="total_duration">মোট সময়</string>
+
+    <string name="decrease_label">%1$s কমান</string>
+    <string name="increase_label">%1$s বাড়ান</string>
+
+    <string name="name_placeholder">যেমন: টাবাটা, ওয়ার্ম আপ, কোর…</string>
+
+    <string name="quick_start_title">দ্রুত শুরু</string>
+    <string name="more">আরও</string>
+
+    <string name="quick_start_structure">গঠন</string>
+    <string name="quick_start_sets">সেট</string>
+    <string name="quick_start_timing">সময়</string>
+    <string name="quick_start_work">কাজ</string>
+    <string name="quick_start_rest">বিশ্রাম</string>
+
+    <string name="quick_start_decrease_label">%1$s কমান</string>
+    <string name="quick_start_increase_label">%1$s বাড়ান</string>
+    <string name="quick_start_total_duration">মোট সময়</string>
+
+    <string name="quick_start_cta">ওয়ার্কআউট শুরু করুন</string>
+
+    <string name="create_workout_title">ওয়ার্কআউট তৈরি করুন</string>
+    <string name="set_menu">সেট মেনু</string>
+    <string name="add_set">সেট যোগ করুন</string>
+    <string name="save_workout">ওয়ার্কআউট সংরক্ষণ</string>
+
+    <string name="total_chip">মোট: %1$s</string>
+
+    <string name="single_set_spec">%1$d সেট • %2$s</string>
+    <string name="multiple_sets_spec">%1$d সেট • %2$s</string>
+    <string name="interval_spec">%1$d সেট • %2$s / %3$s</string>
+
+    <string name="workouts_title">ওয়ার্কআউট</string>
+    <string name="start_button">শুরু</string>
+
+    <string name="empty_workouts_title">আপনার প্রথম ওয়ার্কআউট তৈরি করুন</string>
+    <string name="empty_workouts_description">
+        সহজ সেটের ধারাবাহিকতা তৈরি করুন এবং কয়েক সেকেন্ডে শুরু করুন।
+    </string>
+
+    <string name="create_workout_button">ওয়ার্কআউট তৈরি করুন</string>
+    <string name="add_workout_fab">ওয়ার্কআউট যোগ করুন</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="one">%1$d সেট • %2$s</item>
+        <item quantity="other">%1$d সেট • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">ওয়ার্কআউট</string>
+    <string name="tab_quick">দ্রুত</string>
+    <string name="tab_history">ইতিহাস</string>
+    <string name="tab_challenges">চ্যালেঞ্জ</string>
+
+    <string name="set_actions">সেটের কার্যক্রম</string>
+    <string name="edit">সম্পাদনা</string>
+    <string name="duplicate">ডুপ্লিকেট</string>
+    <string name="delete">মুছুন</string>
+
+    <string name="quick_start_workout_name">দ্রুত শুরু</string>
+    <string name="quick_start_exercise_name">কাজ</string>
+
+    <string name="timer_run_close">বন্ধ</string>
+    <string name="timer_run_total_remaining">অবশিষ্ট সময়</string>
+
+    <string name="timer_run_set_of_total">সেট %1$d / %2$d</string>
+    <string name="timer_run_rest_of_total">বিশ্রাম %1$d / %2$d</string>
+    <string name="timer_run_next_prefix">পরবর্তী: %1$s</string>
+
+    <string name="timer_run_resume">পুনরায় শুরু</string>
+    <string name="timer_run_pause">বিরতি</string>
+    <string name="timer_run_previous">পূর্ববর্তী</string>
+    <string name="timer_run_next">পরবর্তী</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">ওয়ার্কআউট সম্পূর্ণ</string>
+    <string name="run_notification_stopped">বন্ধ করা হয়েছে</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">প্রস্তুতি</string>
+    <string name="run_notification_rest_phase">বিশ্রাম</string>
+    <string name="run_notification_done_phase">সম্পন্ন</string>
+
+    <string name="run_notification_prepare_next">প্রস্তুতি</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">বিশ্রাম %1$s</string>
+
+</resources>

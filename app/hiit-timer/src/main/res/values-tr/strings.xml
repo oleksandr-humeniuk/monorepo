@@ -1,0 +1,105 @@
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">Set ekle</string>
+    <string name="create_edit_interval_save_cta">Kaydet</string>
+    <string name="back">Geri</string>
+
+    <string name="set_name">Set adı</string>
+    <string name="structure">Yapı</string>
+    <string name="timing">Süre</string>
+
+    <string name="sets">Set</string>
+    <string name="work">Çalışma</string>
+    <string name="rest">Dinlenme</string>
+    <string name="last_rest">Son dinlenme</string>
+
+    <string name="total_duration">Toplam süre</string>
+
+    <string name="decrease_label">%1$s azalt</string>
+    <string name="increase_label">%1$s artır</string>
+
+    <string name="name_placeholder">örn. Tabata, Core…</string>
+
+    <string name="quick_start_title">Hızlı başlangıç</string>
+    <string name="more">Daha fazla</string>
+
+    <string name="quick_start_structure">Yapı</string>
+    <string name="quick_start_sets">Set</string>
+    <string name="quick_start_timing">Süre</string>
+    <string name="quick_start_work">Çalışma</string>
+    <string name="quick_start_rest">Dinlenme</string>
+
+    <string name="quick_start_decrease_label">%1$s azalt</string>
+    <string name="quick_start_increase_label">%1$s artır</string>
+    <string name="quick_start_total_duration">Toplam süre</string>
+
+    <string name="quick_start_cta">Antrenmanı başlat</string>
+
+    <string name="create_workout_title">Antrenman oluştur</string>
+    <string name="set_menu">Set menüsü</string>
+    <string name="add_set">Set ekle</string>
+    <string name="save_workout">Antrenmanı kaydet</string>
+
+    <string name="total_chip">Toplam: %1$s</string>
+
+    <string name="single_set_spec">%1$d set • %2$s</string>
+    <string name="multiple_sets_spec">%1$d set • %2$s</string>
+    <string name="interval_spec">%1$d set • %2$s / %3$s</string>
+
+    <string name="workouts_title">Antrenmanlar</string>
+    <string name="start_button">Başlat</string>
+
+    <string name="empty_workouts_title">İlk antrenmanını oluştur</string>
+    <string name="empty_workouts_description">
+        Basit bir set dizisi oluştur ve saniyeler içinde başla.
+    </string>
+
+    <string name="create_workout_button">Antrenman oluştur</string>
+    <string name="add_workout_fab">Antrenman ekle</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="other">%1$d set • %2$s</item>
+        <item quantity="one">%1$d set • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">Antrenmanlar</string>
+    <string name="tab_quick">Hızlı</string>
+    <string name="tab_history">Geçmiş</string>
+    <string name="tab_challenges">Meydan okumalar</string>
+
+    <string name="set_actions">Set işlemleri</string>
+    <string name="edit">Düzenle</string>
+    <string name="duplicate">Kopyala</string>
+    <string name="delete">Sil</string>
+
+    <string name="quick_start_workout_name">Hızlı başlangıç</string>
+    <string name="quick_start_exercise_name">Çalışma</string>
+
+    <string name="timer_run_close">Kapat</string>
+    <string name="timer_run_total_remaining">Kalan süre</string>
+
+    <string name="timer_run_set_of_total">%1$d / %2$d set</string>
+    <string name="timer_run_rest_of_total">%1$d / %2$d dinlenme</string>
+    <string name="timer_run_next_prefix">Sonraki: %1$s</string>
+
+    <string name="timer_run_resume">Devam et</string>
+    <string name="timer_run_pause">Duraklat</string>
+    <string name="timer_run_previous">Önceki</string>
+    <string name="timer_run_next">Sonraki</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">Antrenman tamamlandı</string>
+    <string name="run_notification_stopped">Durduruldu</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">Hazırlık</string>
+    <string name="run_notification_rest_phase">Dinlenme</string>
+    <string name="run_notification_done_phase">Tamamlandı</string>
+
+    <string name="run_notification_prepare_next">Hazırlık</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">Dinlenme %1$s</string>
+
+</resources>

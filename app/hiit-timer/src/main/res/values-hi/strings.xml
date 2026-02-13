@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">सेट जोड़ें</string>
+    <string name="create_edit_interval_save_cta">सेव करें</string>
+    <string name="back">वापस</string>
+
+    <string name="set_name">सेट का नाम</string>
+    <string name="structure">संरचना</string>
+    <string name="timing">समय</string>
+
+    <string name="sets">सेट</string>
+    <string name="work">वर्क</string>
+    <string name="rest">आराम</string>
+    <string name="last_rest">अंतिम आराम</string>
+
+    <string name="total_duration">कुल समय</string>
+
+    <string name="decrease_label">%1$s घटाएं</string>
+    <string name="increase_label">%1$s बढ़ाएं</string>
+
+    <string name="name_placeholder">जैसे Tabata, Core…</string>
+
+    <string name="quick_start_title">त्वरित शुरुआत</string>
+    <string name="more">और</string>
+
+    <string name="quick_start_structure">संरचना</string>
+    <string name="quick_start_sets">सेट</string>
+    <string name="quick_start_timing">समय</string>
+    <string name="quick_start_work">वर्क</string>
+    <string name="quick_start_rest">आराम</string>
+
+    <string name="quick_start_decrease_label">%1$s घटाएं</string>
+    <string name="quick_start_increase_label">%1$s बढ़ाएं</string>
+    <string name="quick_start_total_duration">कुल समय</string>
+
+    <string name="quick_start_cta">वर्कआउट शुरू करें</string>
+
+    <string name="create_workout_title">वर्कआउट बनाएं</string>
+    <string name="set_menu">सेट मेनू</string>
+    <string name="add_set">सेट जोड़ें</string>
+    <string name="save_workout">वर्कआउट सेव करें</string>
+
+    <string name="total_chip">कुल: %1$s</string>
+
+    <string name="single_set_spec">%1$d सेट • %2$s</string>
+    <string name="multiple_sets_spec">%1$d सेट • %2$s</string>
+    <string name="interval_spec">%1$d सेट • %2$s / %3$s</string>
+
+    <string name="workouts_title">वर्कआउट</string>
+    <string name="start_button">शुरू करें</string>
+
+    <string name="empty_workouts_title">अपना पहला वर्कआउट बनाएं</string>
+    <string name="empty_workouts_description">
+        सरल सेट क्रम बनाएं और कुछ ही सेकंड में शुरू करें।
+    </string>
+
+    <string name="create_workout_button">वर्कआउट बनाएं</string>
+    <string name="add_workout_fab">वर्कआउट जोड़ें</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="one">%1$d सेट • %2$s</item>
+        <item quantity="other">%1$d सेट • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">वर्कआउट</string>
+    <string name="tab_quick">त्वरित</string>
+    <string name="tab_history">इतिहास</string>
+    <string name="tab_challenges">चैलेंज</string>
+
+    <string name="set_actions">सेट क्रियाएं</string>
+    <string name="edit">संपादित करें</string>
+    <string name="duplicate">कॉपी करें</string>
+    <string name="delete">हटाएं</string>
+
+    <string name="quick_start_workout_name">त्वरित शुरुआत</string>
+    <string name="quick_start_exercise_name">वर्क</string>
+
+    <string name="timer_run_close">बंद करें</string>
+    <string name="timer_run_total_remaining">शेष समय</string>
+
+    <string name="timer_run_set_of_total">सेट %1$d / %2$d</string>
+    <string name="timer_run_rest_of_total">आराम %1$d / %2$d</string>
+    <string name="timer_run_next_prefix">अगला: %1$s</string>
+
+    <string name="timer_run_resume">जारी रखें</string>
+    <string name="timer_run_pause">पॉज़</string>
+    <string name="timer_run_previous">पिछला</string>
+    <string name="timer_run_next">अगला</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">वर्कआउट पूरा</string>
+    <string name="run_notification_stopped">रुका हुआ</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">तैयारी</string>
+    <string name="run_notification_rest_phase">आराम</string>
+    <string name="run_notification_done_phase">पूरा</string>
+
+    <string name="run_notification_prepare_next">तैयारी</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">आराम %1$s</string>
+
+</resources>

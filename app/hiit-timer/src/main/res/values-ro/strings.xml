@@ -1,0 +1,106 @@
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">Adaugă serie</string>
+    <string name="create_edit_interval_save_cta">Salvează</string>
+    <string name="back">Înapoi</string>
+
+    <string name="set_name">Nume serie</string>
+    <string name="structure">Structură</string>
+    <string name="timing">Timp</string>
+
+    <string name="sets">Serii</string>
+    <string name="work">Efort</string>
+    <string name="rest">Pauză</string>
+    <string name="last_rest">Ultima pauză</string>
+
+    <string name="total_duration">Durată totală</string>
+
+    <string name="decrease_label">Redu %1$s</string>
+    <string name="increase_label">Mărește %1$s</string>
+
+    <string name="name_placeholder">ex. Tabata, Core…</string>
+
+    <string name="quick_start_title">Pornire rapidă</string>
+    <string name="more">Mai mult</string>
+
+    <string name="quick_start_structure">Structură</string>
+    <string name="quick_start_sets">Serii</string>
+    <string name="quick_start_timing">Timp</string>
+    <string name="quick_start_work">Efort</string>
+    <string name="quick_start_rest">Pauză</string>
+
+    <string name="quick_start_decrease_label">Redu %1$s</string>
+    <string name="quick_start_increase_label">Mărește %1$s</string>
+    <string name="quick_start_total_duration">Durată totală</string>
+
+    <string name="quick_start_cta">Pornește antrenamentul</string>
+
+    <string name="create_workout_title">Creează antrenament</string>
+    <string name="set_menu">Meniu serie</string>
+    <string name="add_set">Adaugă serie</string>
+    <string name="save_workout">Salvează antrenamentul</string>
+
+    <string name="total_chip">Total: %1$s</string>
+
+    <string name="single_set_spec">%1$d serie • %2$s</string>
+    <string name="multiple_sets_spec">%1$d serii • %2$s</string>
+    <string name="interval_spec">%1$d serii • %2$s / %3$s</string>
+
+    <string name="workouts_title">Antrenamente</string>
+    <string name="start_button">Start</string>
+
+    <string name="empty_workouts_title">Creează primul tău antrenament</string>
+    <string name="empty_workouts_description">
+        Creează o secvență simplă de serii și începe în câteva secunde.
+    </string>
+
+    <string name="create_workout_button">Creează antrenament</string>
+    <string name="add_workout_fab">Adaugă antrenament</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="one">%1$d serie • %2$s</item>
+        <item quantity="few">%1$d serii • %2$s</item>
+        <item quantity="other">%1$d serii • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">Antrenamente</string>
+    <string name="tab_quick">Rapid</string>
+    <string name="tab_history">Istoric</string>
+    <string name="tab_challenges">Provocări</string>
+
+    <string name="set_actions">Acțiuni serie</string>
+    <string name="edit">Editează</string>
+    <string name="duplicate">Duplică</string>
+    <string name="delete">Șterge</string>
+
+    <string name="quick_start_workout_name">Pornire rapidă</string>
+    <string name="quick_start_exercise_name">Efort</string>
+
+    <string name="timer_run_close">Închide</string>
+    <string name="timer_run_total_remaining">Timp rămas</string>
+
+    <string name="timer_run_set_of_total">Seria %1$d din %2$d</string>
+    <string name="timer_run_rest_of_total">Pauza %1$d din %2$d</string>
+    <string name="timer_run_next_prefix">Următorul: %1$s</string>
+
+    <string name="timer_run_resume">Reia</string>
+    <string name="timer_run_pause">Pauză</string>
+    <string name="timer_run_previous">Anterior</string>
+    <string name="timer_run_next">Următor</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">Antrenament finalizat</string>
+    <string name="run_notification_stopped">Oprit</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">Pregătire</string>
+    <string name="run_notification_rest_phase">Pauză</string>
+    <string name="run_notification_done_phase">Finalizat</string>
+
+    <string name="run_notification_prepare_next">Pregătire</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">Pauză %1$s</string>
+
+</resources>

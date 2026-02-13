@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">Přidat sérii</string>
+    <string name="create_edit_interval_save_cta">Uložit</string>
+    <string name="back">Zpět</string>
+
+    <string name="set_name">Název série</string>
+    <string name="structure">Struktura</string>
+    <string name="timing">Čas</string>
+
+    <string name="sets">Série</string>
+    <string name="work">Zátěž</string>
+    <string name="rest">Odpočinek</string>
+    <string name="last_rest">Poslední odpočinek</string>
+
+    <string name="total_duration">Celkový čas</string>
+
+    <string name="decrease_label">Snížit %1$s</string>
+    <string name="increase_label">Zvýšit %1$s</string>
+
+    <string name="name_placeholder">např. Tabata, Core…</string>
+
+    <string name="quick_start_title">Rychlý start</string>
+    <string name="more">Více</string>
+
+    <string name="quick_start_structure">Struktura</string>
+    <string name="quick_start_sets">Série</string>
+    <string name="quick_start_timing">Čas</string>
+    <string name="quick_start_work">Zátěž</string>
+    <string name="quick_start_rest">Odpočinek</string>
+
+    <string name="quick_start_decrease_label">Snížit %1$s</string>
+    <string name="quick_start_increase_label">Zvýšit %1$s</string>
+    <string name="quick_start_total_duration">Celkový čas</string>
+
+    <string name="quick_start_cta">Spustit trénink</string>
+
+    <string name="create_workout_title">Vytvořit trénink</string>
+    <string name="set_menu">Menu série</string>
+    <string name="add_set">Přidat sérii</string>
+    <string name="save_workout">Uložit trénink</string>
+
+    <string name="total_chip">Celkem: %1$s</string>
+
+    <string name="single_set_spec">%1$d série • %2$s</string>
+    <string name="multiple_sets_spec">%1$d série • %2$s</string>
+    <string name="interval_spec">%1$d série • %2$s / %3$s</string>
+
+    <string name="workouts_title">Tréninky</string>
+    <string name="start_button">Spustit</string>
+
+    <string name="empty_workouts_title">Vytvořte první trénink</string>
+    <string name="empty_workouts_description">
+        Vytvořte jednoduchou sekvenci sérií a začněte během pár sekund.
+    </string>
+
+    <string name="create_workout_button">Vytvořit trénink</string>
+    <string name="add_workout_fab">Přidat trénink</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="one">%1$d série • %2$s</item>
+        <item quantity="few">%1$d série • %2$s</item>
+        <item quantity="other">%1$d série • %2$s</item>
+        <item quantity="many">%1$d série • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">Tréninky</string>
+    <string name="tab_quick">Rychlé</string>
+    <string name="tab_history">Historie</string>
+    <string name="tab_challenges">Výzvy</string>
+
+    <string name="set_actions">Akce série</string>
+    <string name="edit">Upravit</string>
+    <string name="duplicate">Duplikovat</string>
+    <string name="delete">Smazat</string>
+
+    <string name="quick_start_workout_name">Rychlý start</string>
+    <string name="quick_start_exercise_name">Zátěž</string>
+
+    <string name="timer_run_close">Zavřít</string>
+    <string name="timer_run_total_remaining">Zbývá</string>
+
+    <string name="timer_run_set_of_total">Série %1$d z %2$d</string>
+    <string name="timer_run_rest_of_total">Odpočinek %1$d z %2$d</string>
+    <string name="timer_run_next_prefix">Další: %1$s</string>
+
+    <string name="timer_run_resume">Pokračovat</string>
+    <string name="timer_run_pause">Pauza</string>
+    <string name="timer_run_previous">Předchozí</string>
+    <string name="timer_run_next">Další</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">Trénink dokončen</string>
+    <string name="run_notification_stopped">Zastaveno</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">Příprava</string>
+    <string name="run_notification_rest_phase">Odpočinek</string>
+    <string name="run_notification_done_phase">Hotovo</string>
+
+    <string name="run_notification_prepare_next">Příprava</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">Odpočinek %1$s</string>
+
+</resources>

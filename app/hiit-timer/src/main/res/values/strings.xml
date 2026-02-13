@@ -61,7 +61,7 @@
 
     <plurals name="workout_meta_info">
         <item quantity="one">%1$d set • %2$s</item>
-        <item quantity="many">%1$d sets • %2$s</item>
+        <item quantity="other">%1$d sets • %2$s</item>
     </plurals>
 
     <string name="tab_workouts">Workouts</string>

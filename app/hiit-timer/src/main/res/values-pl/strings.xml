@@ -1,0 +1,107 @@
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">Dodaj serię</string>
+    <string name="create_edit_interval_save_cta">Zapisz</string>
+    <string name="back">Wstecz</string>
+
+    <string name="set_name">Nazwa serii</string>
+    <string name="structure">Struktura</string>
+    <string name="timing">Czas</string>
+
+    <string name="sets">Serie</string>
+    <string name="work">Wysiłek</string>
+    <string name="rest">Odpoczynek</string>
+    <string name="last_rest">Ostatni odpoczynek</string>
+
+    <string name="total_duration">Czas całkowity</string>
+
+    <string name="decrease_label">Zmniejsz %1$s</string>
+    <string name="increase_label">Zwiększ %1$s</string>
+
+    <string name="name_placeholder">np. Tabata, Core…</string>
+
+    <string name="quick_start_title">Szybki start</string>
+    <string name="more">Więcej</string>
+
+    <string name="quick_start_structure">Struktura</string>
+    <string name="quick_start_sets">Serie</string>
+    <string name="quick_start_timing">Czas</string>
+    <string name="quick_start_work">Wysiłek</string>
+    <string name="quick_start_rest">Odpoczynek</string>
+
+    <string name="quick_start_decrease_label">Zmniejsz %1$s</string>
+    <string name="quick_start_increase_label">Zwiększ %1$s</string>
+    <string name="quick_start_total_duration">Czas całkowity</string>
+
+    <string name="quick_start_cta">Rozpocznij trening</string>
+
+    <string name="create_workout_title">Utwórz trening</string>
+    <string name="set_menu">Menu serii</string>
+    <string name="add_set">Dodaj serię</string>
+    <string name="save_workout">Zapisz trening</string>
+
+    <string name="total_chip">Łącznie: %1$s</string>
+
+    <string name="single_set_spec">%1$d seria • %2$s</string>
+    <string name="multiple_sets_spec">%1$d serie • %2$s</string>
+    <string name="interval_spec">%1$d serie • %2$s / %3$s</string>
+
+    <string name="workouts_title">Treningi</string>
+    <string name="start_button">Start</string>
+
+    <string name="empty_workouts_title">Utwórz swój pierwszy trening</string>
+    <string name="empty_workouts_description">
+        Zbuduj prostą sekwencję serii i zacznij w kilka sekund.
+    </string>
+
+    <string name="create_workout_button">Utwórz trening</string>
+    <string name="add_workout_fab">Dodaj trening</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="one">%1$d seria • %2$s</item>
+        <item quantity="few">%1$d serie • %2$s</item>
+        <item quantity="many">%1$d serii • %2$s</item>
+        <item quantity="other">%1$d serii • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">Treningi</string>
+    <string name="tab_quick">Szybko</string>
+    <string name="tab_history">Historia</string>
+    <string name="tab_challenges">Wyzwania</string>
+
+    <string name="set_actions">Akcje serii</string>
+    <string name="edit">Edytuj</string>
+    <string name="duplicate">Duplikuj</string>
+    <string name="delete">Usuń</string>
+
+    <string name="quick_start_workout_name">Szybki start</string>
+    <string name="quick_start_exercise_name">Wysiłek</string>
+
+    <string name="timer_run_close">Zamknij</string>
+    <string name="timer_run_total_remaining">Pozostało</string>
+
+    <string name="timer_run_set_of_total">Seria %1$d z %2$d</string>
+    <string name="timer_run_rest_of_total">Odpoczynek %1$d z %2$d</string>
+    <string name="timer_run_next_prefix">Następne: %1$s</string>
+
+    <string name="timer_run_resume">Wznów</string>
+    <string name="timer_run_pause">Pauza</string>
+    <string name="timer_run_previous">Poprzedni</string>
+    <string name="timer_run_next">Następny</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">Trening zakończony</string>
+    <string name="run_notification_stopped">Zatrzymano</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">Przygotowanie</string>
+    <string name="run_notification_rest_phase">Odpoczynek</string>
+    <string name="run_notification_done_phase">Gotowe</string>
+
+    <string name="run_notification_prepare_next">Przygotowanie</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">Odpoczynek %1$s</string>
+
+</resources>

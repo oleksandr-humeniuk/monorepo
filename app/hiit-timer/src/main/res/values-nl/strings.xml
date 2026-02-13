@@ -1,0 +1,105 @@
+<resources>
+
+    <string name="app_name">HIIT Timer</string>
+
+    <string name="create_edit_interval_add_title">Interval toevoegen</string>
+    <string name="create_edit_interval_save_cta">Opslaan</string>
+    <string name="back">Terug</string>
+
+    <string name="set_name">Setnaam</string>
+    <string name="structure">Structuur</string>
+    <string name="timing">Tijd</string>
+
+    <string name="sets">Sets</string>
+    <string name="work">Inspanning</string>
+    <string name="rest">Rust</string>
+    <string name="last_rest">Laatste rust</string>
+
+    <string name="total_duration">Totale tijd</string>
+
+    <string name="decrease_label">%1$s verlagen</string>
+    <string name="increase_label">%1$s verhogen</string>
+
+    <string name="name_placeholder">bijv. Tabata, Core…</string>
+
+    <string name="quick_start_title">Snelle start</string>
+    <string name="more">Meer</string>
+
+    <string name="quick_start_structure">Structuur</string>
+    <string name="quick_start_sets">Sets</string>
+    <string name="quick_start_timing">Tijd</string>
+    <string name="quick_start_work">Inspanning</string>
+    <string name="quick_start_rest">Rust</string>
+
+    <string name="quick_start_decrease_label">%1$s verlagen</string>
+    <string name="quick_start_increase_label">%1$s verhogen</string>
+    <string name="quick_start_total_duration">Totale tijd</string>
+
+    <string name="quick_start_cta">Training starten</string>
+
+    <string name="create_workout_title">Training maken</string>
+    <string name="set_menu">Setmenu</string>
+    <string name="add_set">Set toevoegen</string>
+    <string name="save_workout">Training opslaan</string>
+
+    <string name="total_chip">Totaal: %1$s</string>
+
+    <string name="single_set_spec">%1$d set • %2$s</string>
+    <string name="multiple_sets_spec">%1$d sets • %2$s</string>
+    <string name="interval_spec">%1$d sets • %2$s / %3$s</string>
+
+    <string name="workouts_title">Trainingen</string>
+    <string name="start_button">Start</string>
+
+    <string name="empty_workouts_title">Maak je eerste training</string>
+    <string name="empty_workouts_description">
+        Maak een eenvoudige reeks sets en start binnen enkele seconden.
+    </string>
+
+    <string name="create_workout_button">Training maken</string>
+    <string name="add_workout_fab">Training toevoegen</string>
+
+    <plurals name="workout_meta_info">
+        <item quantity="one">%1$d set • %2$s</item>
+        <item quantity="other">%1$d sets • %2$s</item>
+    </plurals>
+
+    <string name="tab_workouts">Trainingen</string>
+    <string name="tab_quick">Snel</string>
+    <string name="tab_history">Geschiedenis</string>
+    <string name="tab_challenges">Challenges</string>
+
+    <string name="set_actions">Setacties</string>
+    <string name="edit">Bewerken</string>
+    <string name="duplicate">Dupliceren</string>
+    <string name="delete">Verwijderen</string>
+
+    <string name="quick_start_workout_name">Snelle start</string>
+    <string name="quick_start_exercise_name">Inspanning</string>
+
+    <string name="timer_run_close">Sluiten</string>
+    <string name="timer_run_total_remaining">Resterend</string>
+
+    <string name="timer_run_set_of_total">Set %1$d van %2$d</string>
+    <string name="timer_run_rest_of_total">Rust %1$d van %2$d</string>
+    <string name="timer_run_next_prefix">Volgende: %1$s</string>
+
+    <string name="timer_run_resume">Hervatten</string>
+    <string name="timer_run_pause">Pauze</string>
+    <string name="timer_run_previous">Vorige</string>
+    <string name="timer_run_next">Volgende</string>
+
+    <string name="run_notification_title">HIIT Timer</string>
+    <string name="run_notification_workout_complete">Training voltooid</string>
+    <string name="run_notification_stopped">Gestopt</string>
+    <string name="run_notification_text_format">%1$s: %2$s</string>
+
+    <string name="run_notification_prepare_phase">Voorbereiding</string>
+    <string name="run_notification_rest_phase">Rust</string>
+    <string name="run_notification_done_phase">Klaar</string>
+
+    <string name="run_notification_prepare_next">Voorbereiding</string>
+    <string name="run_notification_work_next_format">%1$s %2$s</string>
+    <string name="run_notification_rest_next_format">Rust %1$s</string>
+
+</resources>
