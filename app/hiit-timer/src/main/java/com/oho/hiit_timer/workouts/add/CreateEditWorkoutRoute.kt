@@ -39,6 +39,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
@@ -56,6 +57,7 @@ import org.koin.core.parameter.parametersOf
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import com.oho.utils.R as timerR
 
 /**
  * Create Workout screen (blocks builder):
@@ -78,7 +80,7 @@ fun CreateEditWorkoutRoute(
         parametersOf(workoutId)
     }
 
-    val state by vm.state.collectAsState(initial = CreateEditWorkoutViewModel.UiState())
+    val state by vm.state.collectAsState()
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
@@ -132,7 +134,7 @@ private fun CreateWorkoutScreen(
     ) {
         Column(Modifier.fillMaxSize()) {
             CenterAlignedTopAppBar(
-                title = { Text("Create workout") },
+                title = { Text(state.title) },
                 navigationIcon = {
                     Box(
                         modifier = Modifier
@@ -142,7 +144,7 @@ private fun CreateWorkoutScreen(
                     ) {
                         MonoIcon(
                             painter = painterResource(R.drawable.ic_navigate_before),
-                            contentDescription = "Back",
+                            contentDescription = stringResource(timerR.string.back),
                             tint = c.primaryIconColor,
                             modifier = Modifier.size(22.dp)
                         )
@@ -239,7 +241,12 @@ private fun ReorderableCollectionItemScope.BlockRowCard(
 
                     Spacer(Modifier.width(10.dp))
 
-                    TotalChip(text = "Total: ${formatSec(block.totalDurationSec)}")
+                    TotalChip(
+                        text = stringResource(
+                            timerR.string.total_chip,
+                            formatSec(block.totalDurationSec)
+                        )
+                    )
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -264,7 +271,7 @@ private fun ReorderableCollectionItemScope.BlockRowCard(
             ) {
                 MonoIcon(
                     painter = painterResource(R.drawable.ic_more_vert),
-                    contentDescription = "Block menu",
+                    contentDescription = stringResource(timerR.string.set_menu),
                     tint = c.secondaryIconColor,
                     modifier = Modifier.size(18.dp)
                 )
@@ -328,7 +335,7 @@ private fun AddBlockCard(onClick: () -> Unit) {
             )
             Spacer(Modifier.width(10.dp))
             MonoText(
-                text = "Add block",
+                text = stringResource(timerR.string.add_set),
                 style = MonoTextStyle.TitleMedium,
                 color = c.secondaryTextColor
             )
@@ -361,7 +368,7 @@ private fun BottomBar(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "TOTAL DURATION",
+                    text = stringResource(timerR.string.total_duration),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.60f),
                 )
@@ -378,7 +385,7 @@ private fun BottomBar(
             MonoPrimaryButton(
                 enabled = totalTime > 0,
                 onClick = onSaveClicked,
-                text = "Save Workout",
+                text = stringResource(timerR.string.save_workout),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -387,15 +394,22 @@ private fun BottomBar(
     }
 }
 
+@Composable
 private fun buildBlockMeta(spec: WorkoutBlockSpec): String = when (spec) {
     is WorkoutBlockSpec.Single -> {
-        val setsPart = if (spec.sets == 1) "1 set" else "${spec.sets} sets"
-        "$setsPart • ${formatSec(spec.durationSec)}"
+        if (spec.sets == 1) {
+            stringResource(timerR.string.single_set_spec, spec.sets, formatSec(spec.durationSec))
+        } else {
+            stringResource(timerR.string.multiple_sets_spec, spec.sets, formatSec(spec.durationSec))
+        }
     }
 
     is WorkoutBlockSpec.Interval -> {
-        val setsPart = if (spec.sets == 1) "1 set" else "${spec.sets} sets"
-        "$setsPart • ${formatSec(spec.workSec)} / ${formatSec(spec.restSec)}"
+        stringResource(
+            timerR.string.interval_spec,
+            spec.sets,
+            formatSec(spec.workSec),
+            formatSec(spec.restSec)
+        )
     }
 }
-

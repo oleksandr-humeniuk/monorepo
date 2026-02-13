@@ -38,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
@@ -46,6 +48,7 @@ import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.RoundIconButton
 import com.oho.hiit_timer.formatSec
 import org.koin.androidx.compose.koinViewModel
+import com.oho.utils.R as timerR
 
 /**
  * Create/Edit Interval Block route.
@@ -58,8 +61,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CreateEditIntrervalRoute(
     vm: CreateEditIntervalViewModel = koinViewModel(),
-    title: String = "Add interval block",
-    saveCta: String = "Save",
+    title: String = stringResource(timerR.string.create_edit_interval_add_title),
+    saveCta: String = stringResource(timerR.string.create_edit_interval_save_cta),
     onBack: () -> Unit = {},
     onSaved: (IntervalBlockDraft) -> Unit = {},
 ) {
@@ -100,6 +103,7 @@ fun CreateEditIntrervalRoute(
         onLastRestPillClicked = { vm.onPillClicked(CreateEditIntervalViewModel.PillTarget.LastRest) },
 
         onSaveClicked = vm::onSaveClicked,
+        saveCta = saveCta,
     )
 }
 
@@ -129,6 +133,7 @@ private fun CreateEditIntervalScreen(
     onLastRestPillClicked: () -> Unit,
 
     onSaveClicked: () -> Unit,
+    saveCta: String,
 ) {
     val page = MaterialTheme.colorScheme.background
     val outline = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
@@ -146,7 +151,7 @@ private fun CreateEditIntervalScreen(
                     IconButton(onClick = onBackClicked) {
                         Icon(
                             painterResource(R.drawable.ic_navigate_before),
-                            contentDescription = "Back"
+                            contentDescription = stringResource(timerR.string.back)
                         )
                     }
                 },
@@ -166,7 +171,7 @@ private fun CreateEditIntervalScreen(
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp, bottom = 120.dp),
             ) {
-                SectionTitle("BLOCK NAME")
+                SectionTitle(stringResource(timerR.string.set_name))
                 SurfaceCard(shape = RoundedCornerShape(12.dp)) {
                     Box(Modifier.padding(horizontal = 14.dp, vertical = 14.dp)) {
                         val cs = MaterialTheme.colorScheme
@@ -177,7 +182,7 @@ private fun CreateEditIntervalScreen(
                             singleLine = true,
                             placeholder = {
                                 Text(
-                                    text = "e.g. Tabata, Warm Up, Core…",
+                                    text = stringResource(timerR.string.name_placeholder),
                                     color = cs.onSurface.copy(alpha = 0.45f),
                                 )
                             },
@@ -198,10 +203,10 @@ private fun CreateEditIntervalScreen(
 
                 Spacer(Modifier.height(18.dp))
 
-                SectionTitle("STRUCTURE")
+                SectionTitle(stringResource(timerR.string.structure))
                 SurfaceCard(shape = RoundedCornerShape(12.dp)) {
                     RowItem(
-                        label = "Sets",
+                        label = stringResource(timerR.string.sets),
                         text = state.sets.toString(),
                         value = state.sets,
                         onMinus = onSetsMinus,
@@ -212,10 +217,10 @@ private fun CreateEditIntervalScreen(
 
                 Spacer(Modifier.height(18.dp))
 
-                SectionTitle("TIMING")
+                SectionTitle(stringResource(timerR.string.timing))
                 SurfaceCard(shape = RoundedCornerShape(12.dp)) {
                     RowItem(
-                        label = "Work",
+                        label = stringResource(timerR.string.work),
                         text = formatSec(state.workSec),
                         value = state.workSec,
                         onMinus = onWorkMinus,
@@ -224,7 +229,7 @@ private fun CreateEditIntervalScreen(
                     )
                     Divider(color = outline)
                     RowItem(
-                        label = "Rest",
+                        label = stringResource(timerR.string.rest),
                         text = formatSec(state.restSec),
                         value = state.restSec,
                         onMinus = onRestMinus,
@@ -235,7 +240,7 @@ private fun CreateEditIntervalScreen(
                     if (state.isLastRestVisible) {
                         Divider(color = outline)
                         RowItem(
-                            label = "Last rest",
+                            label = stringResource(timerR.string.last_rest),
                             text = formatSec(state.lastRestSec),
                             value = state.lastRestSec,
                             onMinus = onLastRestMinus,
@@ -251,6 +256,7 @@ private fun CreateEditIntervalScreen(
             totalTime = state.totalDurationSec,
             onSaveClicked = onSaveClicked,
             modifier = Modifier.align(Alignment.BottomCenter),
+            saveCta = saveCta,
         )
     }
 }
@@ -310,7 +316,7 @@ private fun RowItem(
         Row(verticalAlignment = Alignment.CenterVertically) {
             RoundIconButton(
                 icon = { Icon(painterResource(R.drawable.ic_minus), contentDescription = null) },
-                contentDescription = "Decrease $label",
+                contentDescription = stringResource(timerR.string.decrease_label, label),
                 onClick = onMinus,
                 modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
             )
@@ -327,7 +333,7 @@ private fun RowItem(
 
             RoundIconButton(
                 icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
-                contentDescription = "Increase $label",
+                contentDescription = stringResource(com.oho.utils.R.string.increase_label, label),
                 onClick = onPlus,
                 modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
             )
@@ -367,6 +373,7 @@ private fun ValuePill(
 private fun BottomBar(
     totalTime: Int,
     onSaveClicked: () -> Unit,
+    saveCta: String,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -389,7 +396,7 @@ private fun BottomBar(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "TOTAL DURATION",
+                    text = stringResource(timerR.string.total_duration),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.60f),
                 )
@@ -406,7 +413,7 @@ private fun BottomBar(
             MonoPrimaryButton(
                 enabled = totalTime > 0,
                 onClick = onSaveClicked,
-                text = "Save",
+                text = saveCta,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

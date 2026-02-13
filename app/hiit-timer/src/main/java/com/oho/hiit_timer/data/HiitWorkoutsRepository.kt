@@ -1,5 +1,6 @@
 package com.oho.hiit_timer.data
 
+import android.content.Context
 import com.oho.hiit_timer.QuickStartTimerViewModel
 import com.oho.hiit_timer.data.HiitWorkoutsRepository.Companion.SOURCE_SYSTEM
 import com.oho.hiit_timer.data.storage.ExerciseEntity
@@ -41,13 +42,14 @@ interface HiitWorkoutsRepository {
 class HiitWorkoutsRepositoryImpl(
     private val dao: HiitWorkoutsDao,
     private val nowMs: () -> Long,
+    private val context: Context
 ) : HiitWorkoutsRepository {
     override suspend fun ensureQuickStart(defaultState: QuickStartTimerViewModel.UiState) {
         val existing = dao.getWorkout(QuickStartMapper.QUICK_START_ID)
         if (existing != null) return
 
         val now = nowMs()
-        val workout = QuickStartMapper.toWorkout(defaultState)
+        val workout = QuickStartMapper.toWorkout(context, defaultState)
         val (w, ex) = workout.toEntitiesForInsert(
             source = SOURCE_SYSTEM,
             createdAt = now,

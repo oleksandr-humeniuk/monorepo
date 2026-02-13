@@ -1,20 +1,22 @@
 package com.oho.hiit_timer.domain
 
+import android.content.Context
 import com.oho.hiit_timer.QuickStartTimerViewModel
+import com.oho.utils.R as timerR
 
 object QuickStartMapper {
     const val QUICK_START_ID = "quick_start"
     private const val QUICK_EXERCISE_ID = "quick_start_ex"
 
-    fun toWorkout(state: QuickStartTimerViewModel.UiState): HiitWorkout {
+    fun toWorkout(context: Context, state: QuickStartTimerViewModel.UiState): HiitWorkout {
         return HiitWorkout(
             id = QUICK_START_ID,
-            name = "Quick start",
+            name = context.getString(timerR.string.quick_start_workout_name),
             prepareSec = 0,
             exercises = listOf(
                 HiitExercise(
                     id = QUICK_EXERCISE_ID,
-                    name = "Work",
+                    name = context.getString(timerR.string.quick_start_exercise_name),
                     sets = state.sets,
                     workSec = state.workSec,
                     restSec = state.restSec,

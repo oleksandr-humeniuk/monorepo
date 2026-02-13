@@ -33,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -47,6 +49,7 @@ import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.formatSec
 import org.koin.androidx.compose.koinViewModel
+import com.oho.utils.R as timerR
 
 /**
  * Fully self-contained Workouts screen with:
@@ -107,7 +110,7 @@ private fun WorkoutsListScreen(
     ) {
         Column(Modifier.fillMaxSize()) {
             WorkoutsTopBar(
-                title = "Workouts",
+                title = stringResource(timerR.string.workouts_title),
             )
 
             if (state.items.isEmpty()) {
@@ -233,7 +236,7 @@ private fun WorkoutRowCard(
             Spacer(Modifier.size(12.dp))
 
             StartPillButton(
-                text = "Start",
+                text = stringResource(timerR.string.start_button),
                 onClick = onStartClick,
             )
         }
@@ -284,7 +287,7 @@ private fun WorkoutsEmptyState(
         Spacer(Modifier.height(18.dp))
 
         MonoText(
-            text = "Create your first workout",
+            text = stringResource(timerR.string.empty_workouts_title),
             style = MonoTextStyle.TitleLarge,
             color = c.primaryTextColor,
             textAlign = TextAlign.Center
@@ -293,7 +296,7 @@ private fun WorkoutsEmptyState(
         Spacer(Modifier.height(8.dp))
 
         MonoText(
-            text = "Build a simple sequence of blocks and start training in seconds.",
+            text = stringResource(timerR.string.empty_workouts_description),
             style = MonoTextStyle.BodyPrimary,
             color = c.secondaryTextColor,
             maxLines = 2,
@@ -304,7 +307,7 @@ private fun WorkoutsEmptyState(
         Spacer(Modifier.height(22.dp))
 
         MonoPrimaryButton(
-            text = "Create workout",
+            text = stringResource(timerR.string.create_workout_button),
             onClick = onCreateWorkout,
             modifier = Modifier
                 .fillMaxWidth()
@@ -335,14 +338,18 @@ private fun AddFab(
     ) {
         MonoIcon(
             painter = painterResource(R.drawable.ic_add),
-            contentDescription = "Add workout",
+            contentDescription = stringResource(timerR.string.add_workout_fab),
             tint = c.accentPrimary,
             modifier = Modifier.size(22.dp),
         )
     }
 }
 
+@Composable
 private fun buildMetaText(blocksCount: Int, totalDurationSec: Int): String {
-    val blocksPart = if (blocksCount == 1) "1 block" else "$blocksCount blocks"
-    return "$blocksPart • ${formatSec(totalDurationSec)}"
+    return pluralStringResource(
+        timerR.plurals.workout_meta_info,
+        count = blocksCount,
+        formatSec(totalDurationSec)
+    )
 }

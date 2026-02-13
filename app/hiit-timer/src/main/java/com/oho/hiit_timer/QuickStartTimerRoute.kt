@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +41,7 @@ import com.oho.core.ui.components.AnimatedNumberText
 import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.RoundIconButton
 import org.koin.androidx.compose.koinViewModel
+import com.oho.utils.R as timerR
 
 @Composable
 fun QuickStartTimerRoute(
@@ -104,14 +106,14 @@ fun IntervalTimerConfigScreen(
         Column(Modifier.fillMaxSize()) {
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
-                title = { Text("Quick start") },
+                title = { Text(stringResource(timerR.string.quick_start_title)) },
                 navigationIcon = {
                 },
                 actions = {
                     IconButton(onClick = onMoreClicked) {
                         Icon(
                             painterResource(R.drawable.ic_more_vert),
-                            contentDescription = "More"
+                            contentDescription = stringResource(timerR.string.more)
                         )
                     }
                 },
@@ -129,12 +131,12 @@ fun IntervalTimerConfigScreen(
                     .padding(horizontal = 16.dp)
                     .padding(top = 8.dp, bottom = 120.dp),
             ) {
-                SectionTitle("STRUCTURE")
+                SectionTitle(stringResource(timerR.string.quick_start_structure))
                 SurfaceCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     RowItem(
-                        label = "Sets",
+                        label = stringResource(timerR.string.quick_start_sets),
                         text = state.sets.toString(),
                         value = state.sets,
                         onMinus = onSetsMinus,
@@ -145,12 +147,12 @@ fun IntervalTimerConfigScreen(
 
                 Spacer(Modifier.height(18.dp))
 
-                SectionTitle("TIMING")
+                SectionTitle(stringResource(timerR.string.quick_start_timing))
                 SurfaceCard(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     RowItem(
-                        label = "Work",
+                        label = stringResource(timerR.string.quick_start_work),
                         text = formatSec(state.workSec),
                         value = state.workSec,
                         onMinus = onWorkMinus,
@@ -159,7 +161,7 @@ fun IntervalTimerConfigScreen(
                     )
                     Divider(color = outline)
                     RowItem(
-                        label = "Rest",
+                        label = stringResource(timerR.string.quick_start_rest),
                         text = formatSec(state.restSec),
                         value = state.restSec,
                         onMinus = onRestMinus,
@@ -233,7 +235,10 @@ private fun RowItem(
         Row(verticalAlignment = Alignment.CenterVertically) {
             RoundIconButton(
                 icon = { Icon(painterResource(R.drawable.ic_minus), contentDescription = null) },
-                contentDescription = "Decrease $label",
+                contentDescription = stringResource(
+                    timerR.string.quick_start_decrease_label,
+                    label
+                ),
                 onClick = onMinus,
                 modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
             )
@@ -250,7 +255,10 @@ private fun RowItem(
 
             RoundIconButton(
                 icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
-                contentDescription = "Increase $label",
+                contentDescription = stringResource(
+                    timerR.string.quick_start_increase_label,
+                    label
+                ),
                 onClick = onPlus,
                 modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
             )
@@ -315,7 +323,7 @@ private fun BottomBar(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "TOTAL DURATION",
+                    text = stringResource(timerR.string.quick_start_total_duration),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.60f),
                 )
@@ -331,7 +339,7 @@ private fun BottomBar(
 
             MonoPrimaryButton(
                 onClick = onStartClicked,
-                text = "Start Workout",
+                text = stringResource(timerR.string.quick_start_cta),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
 import com.oho.core.ui.components.MonoCard
@@ -27,6 +28,7 @@ import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.utils.R as timerR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,27 +72,27 @@ fun BlockMenuBottomSheet(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             MonoText(
-                text = "Block actions",
+                text = stringResource(timerR.string.set_actions),
                 style = MonoTextStyle.TitleMedium,
                 color = c.primaryTextColor,
                 modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
             )
 
             ActionRow(
-                text = "Edit",
-                iconRes = R.drawable.ic_edit, // якщо нема — заміни на ic_more_vert або додай simple vector
+                text = stringResource(timerR.string.edit),
+                iconRes = R.drawable.ic_edit,
                 onClick = onEdit,
             )
 
             ActionRow(
-                text = "Duplicate",
-                iconRes = R.drawable.ic_copy, // якщо нема — заміни
+                text = stringResource(timerR.string.duplicate),
+                iconRes = R.drawable.ic_copy,
                 onClick = onDuplicate,
             )
 
             ActionRow(
-                text = "Delete",
-                iconRes = R.drawable.ic_delete, // якщо нема — заміни
+                text = stringResource(timerR.string.delete),
+                iconRes = R.drawable.ic_delete,
                 onClick = onDelete,
                 isDestructive = true,
             )
@@ -147,7 +149,7 @@ private fun ActionRow(
             )
 
             MonoIcon(
-                painter = painterResource(R.drawable.ic_navigate_next), // якщо нема — прибери або постав chevron
+                painter = painterResource(R.drawable.ic_navigate_next),
                 contentDescription = null,
                 tint = c.secondaryIconColor.copy(alpha = 0.6f),
                 modifier = Modifier.size(18.dp),

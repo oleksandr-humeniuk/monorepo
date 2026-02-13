@@ -36,6 +36,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.oho.core.ui.R
@@ -52,6 +53,7 @@ import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.formatSec
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import com.oho.utils.R as timerR
 
 @Composable
 fun HiitRunRoute(
@@ -221,7 +223,7 @@ private fun RunTopBar(
     ) {
         MonoIcon(
             painter = painterResource(R.drawable.ic_close),
-            contentDescription = "Close",
+            contentDescription = stringResource(timerR.string.timer_run_close),
             tint = c.secondaryIconColor,
             modifier = Modifier
                 .clickable { onClose() }
@@ -235,7 +237,7 @@ private fun RunTopBar(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             MonoText(
-                text = "TOTAL REMAINING",
+                text = stringResource(timerR.string.timer_run_total_remaining),
                 style = MonoTextStyle.Label,
                 color = c.secondaryTextColor,
             )
@@ -300,8 +302,18 @@ private fun RunPhaseCard(
             MonoText(
                 text = when (state.phase) {
                     HiitPhase.Prepare -> ""
-                    HiitPhase.Work -> "Set ${state.setIndex} of ${state.setsTotal}"
-                    HiitPhase.Rest -> "Rest ${state.restIndex} of ${state.totalRest}"
+                    HiitPhase.Work -> stringResource(
+                        timerR.string.timer_run_set_of_total,
+                        state.setIndex,
+                        state.setsTotal
+                    )
+
+                    HiitPhase.Rest -> stringResource(
+                        timerR.string.timer_run_rest_of_total,
+                        state.restIndex,
+                        state.totalRest
+                    )
+
                     HiitPhase.Done -> ""
                 },
                 style = MonoTextStyle.TitleMedium,
@@ -310,7 +322,13 @@ private fun RunPhaseCard(
 
             Spacer(Modifier.height(10.dp))
             MonoText(
-                text = state.nextLabel?.let { "Next: $it" } ?: "",
+                text = state.nextLabel?.let {
+                    stringResource(
+                        timerR.string.timer_run_next_prefix,
+                        it
+                    )
+                }
+                    ?: "",
                 style = MonoTextStyle.BodyPrimary,
                 color = onCardSecondary,
             )
@@ -341,7 +359,7 @@ private fun RunControls(
                     tint = MonoTheme.colors.primaryIconColor
                 )
             },
-            contentDescription = "Previous",
+            contentDescription = stringResource(timerR.string.timer_run_previous),
             onClick = onPrevious,
             modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
         )
@@ -350,7 +368,7 @@ private fun RunControls(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp),
-                text = "RESUME",
+                text = stringResource(timerR.string.timer_run_resume),
                 onClick = onPauseResume,
             )
         } else {
@@ -358,7 +376,7 @@ private fun RunControls(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp),
-                text = "PAUSE",
+                text = stringResource(timerR.string.timer_run_pause),
                 onClick = onPauseResume,
             )
         }
@@ -371,7 +389,7 @@ private fun RunControls(
                     tint = MonoTheme.colors.primaryIconColor
                 )
             },
-            contentDescription = "Next",
+            contentDescription = stringResource(timerR.string.timer_run_next),
             onClick = onNext,
             modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp)
         )

@@ -34,6 +34,7 @@ class HiitRunService : Service(), KoinComponent {
     private val sessionDao: HiitRunSessionDao by inject()
 
     private val binder = LocalBinder()
+
     @Volatile
     private var soundPreloaded = false
 
@@ -233,6 +234,7 @@ class HiitRunService : Service(), KoinComponent {
 
     @Volatile
     private var tickJob: Job? = null
+
     private suspend fun handleStart(workoutId: String) {
         val w = workoutsRepo.getWorkout(workoutId) ?: return
         applyWorkout(w)
@@ -327,8 +329,8 @@ class HiitRunService : Service(), KoinComponent {
             // show Done briefly in notification, then clear session to avoid next-open blink
             NotificationHelper.notify(
                 ctx = this,
-                title = "HIIT Timer",
-                text = "Workout complete",
+                title = getString(R.string.run_notification_title),
+                text = getString(R.string.run_notification_workout_complete),
                 ongoing = false,
                 actions = listOf(Action.Open),
             )
@@ -378,7 +380,7 @@ class HiitRunService : Service(), KoinComponent {
                 phaseRemaining = 0,
                 nextLabel = null,
                 isPaused = true,
-                phaseLabel = "Done",
+                phaseLabel = getString(R.string.run_notification_done_phase),
                 setIndex = 0,
                 setsTotal = 0,
                 phaseIndex = 0,
@@ -390,8 +392,8 @@ class HiitRunService : Service(), KoinComponent {
 
         NotificationHelper.notify(
             ctx = this,
-            title = "HIIT Timer",
-            text = "Stopped",
+            title = getString(R.string.run_notification_title),
+            text = getString(R.string.run_notification_stopped),
             ongoing = false,
             actions = listOf(Action.Open),
         )
@@ -466,8 +468,12 @@ class HiitRunService : Service(), KoinComponent {
 
         NotificationHelper.notify(
             ctx = this,
-            title = "HIIT Timer",
-            text = "${s.phaseLabel}: ${formatSec(s.phaseRemaining)}",
+            title = getString(R.string.run_notification_title),
+            text = getString(
+                R.string.run_notification_text_format,
+                s.phaseLabel,
+                formatSec(s.phaseRemaining)
+            ),
             ongoing = true,
             actions = actions,
         )
@@ -481,8 +487,12 @@ class HiitRunService : Service(), KoinComponent {
 
         val notif = NotificationHelper.build(
             ctx = this,
-            title = "HIIT Timer",
-            text = "${s.phaseLabel}: ${formatSec(s.phaseRemaining)}",
+            title = getString(R.string.run_notification_title),
+            text = getString(
+                R.string.run_notification_text_format,
+                s.phaseLabel,
+                formatSec(s.phaseRemaining)
+            ),
             ongoing = true,
             actions = actions,
         )
@@ -577,7 +587,7 @@ class HiitRunService : Service(), KoinComponent {
         return when (this) {
             is HiitSegment.Prepare -> HiitRunUiState(
                 phase = HiitPhase.Prepare,
-                phaseLabel = "PREPARE",
+                phaseLabel = getString(R.string.run_notification_prepare_phase),
                 phaseRemaining = phaseRemainingSec,
                 totalRemaining = totalRemainingSec,
                 setIndex = 0,
@@ -607,7 +617,7 @@ class HiitRunService : Service(), KoinComponent {
 
             is HiitSegment.Rest -> HiitRunUiState(
                 phase = HiitPhase.Rest,
-                phaseLabel = "REST",
+                phaseLabel = getString(R.string.run_notification_rest_phase),
                 phaseRemaining = phaseRemainingSec,
                 totalRemaining = totalRemainingSec,
                 setIndex = setIndex,
@@ -622,7 +632,7 @@ class HiitRunService : Service(), KoinComponent {
 
             is HiitSegment.Done -> HiitRunUiState(
                 phase = HiitPhase.Done,
-                phaseLabel = "DONE",
+                phaseLabel = getString(R.string.run_notification_done_phase),
                 phaseRemaining = 0,
                 totalRemaining = 0,
                 setIndex = 0,
@@ -639,9 +649,18 @@ class HiitRunService : Service(), KoinComponent {
 
     private fun HiitSegment.asNextLabel(): String? {
         return when (this) {
-            is HiitSegment.Prepare -> "Prepare"
-            is HiitSegment.Work -> "$exerciseName ${formatSec(durationSec)}"
-            is HiitSegment.Rest -> "Rest ${formatSec(durationSec)}"
+            is HiitSegment.Prepare -> getString(R.string.run_notification_prepare_next)
+            is HiitSegment.Work -> getString(
+                R.string.run_notification_work_next_format,
+                exerciseName,
+                formatSec(durationSec)
+            )
+
+            is HiitSegment.Rest -> getString(
+                R.string.run_notification_rest_next_format,
+                formatSec(durationSec)
+            )
+
             is HiitSegment.Done -> null
         }
     }

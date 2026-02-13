@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
@@ -25,6 +26,7 @@ import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.QuickStartTimerRoute
+import com.oho.utils.R as timerR
 import com.oho.hiit_timer.workouts.add_block.CreateEditIntrervalRoute
 import com.oho.hiit_timer.workouts.list.WorkoutsRoute
 import org.koin.androidx.compose.koinViewModel
@@ -67,7 +69,7 @@ fun HiitTabHost(
                     }
 
                     HiitTabRoute.History -> NavEntry(tab) {
-                        MockScreen("History")
+                        MockScreen(stringResource(timerR.string.tab_history))
                     }
 
                     HiitTabRoute.Challenges -> NavEntry(tab) {
@@ -151,9 +153,10 @@ private val Tab.iconRes
     }
 
 private val Tab.title
+    @Composable
     get() = when (this.route) {
-        HiitTabRoute.Challenges -> "Challenges"
-        HiitTabRoute.History -> "History"
-        HiitTabRoute.Quick -> "Quick"
-        HiitTabRoute.Workouts -> "Workouts"
+        HiitTabRoute.Challenges -> stringResource(timerR.string.tab_challenges)
+        HiitTabRoute.History -> stringResource(timerR.string.tab_history)
+        HiitTabRoute.Quick -> stringResource(timerR.string.tab_quick)
+        HiitTabRoute.Workouts -> stringResource(timerR.string.tab_workouts)
     }

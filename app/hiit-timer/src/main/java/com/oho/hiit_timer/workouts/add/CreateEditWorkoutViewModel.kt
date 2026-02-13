@@ -1,10 +1,13 @@
 package com.oho.hiit_timer.workouts.add
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.domain.totalDurationWithoutPrepareSec
+import com.oho.utils.R
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,12 +20,13 @@ import kotlinx.coroutines.launch
 
 class CreateEditWorkoutViewModel(
     private val workoutId: String,
-    private val hiitWorkoutsRepository: HiitWorkoutsRepository
+    private val hiitWorkoutsRepository: HiitWorkoutsRepository,
+    @SuppressLint("StaticFieldLeak") private val context: Context
 ) : ViewModel() {
 
     @Immutable
     data class UiState(
-        val title: String = "Create workout",
+        val title: String,
         val blocks: List<WorkoutBlockUi> = emptyList(),
         val totalDurationSec: Int = 0,
     )
@@ -34,7 +38,11 @@ class CreateEditWorkoutViewModel(
         data object OnAddBlockClicked : Event
     }
 
-    private val _state = MutableStateFlow(UiState())
+    private val _state = MutableStateFlow(
+        UiState(
+            title = context.getString(R.string.create_workout_title)
+        )
+    )
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     private val _events = Channel<Event>(capacity = Channel.Factory.BUFFERED)
