@@ -23,3 +23,4 @@ rootProject.name = "Mono-repo"
 include("app:notification-listener")
 include(":core:ui")
 include(":app:hiit-timer")
+include(":core:billing-client-contract")
