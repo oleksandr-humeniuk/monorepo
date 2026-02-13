@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -68,15 +69,30 @@ class PlayFarmBillingClient(
 
     private val purchasesUpdatedListener = PurchasesUpdatedListener { result, purchases ->
         externalScope.launch(dispatcher) {
-            if (result.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-                _events.emit(BillingEvent.PurchasesUpdated(purchases))
-                handlePurchases(purchases)
-            } else {
-                emitFailure(
-                    where = "PurchasesUpdatedListener",
-                    billingResult = result,
-                    extra = "purchases=${purchases?.size ?: 0}"
-                )
+            when (result.responseCode) {
+                BillingClient.BillingResponseCode.OK -> {
+                    val list = purchases.orEmpty()
+                    _events.emit(BillingEvent.PurchasesUpdated(list))
+                    handlePurchases(list)
+                }
+
+                BillingClient.BillingResponseCode.USER_CANCELED -> {
+                    _events.emit(BillingEvent.Log("Purchase canceled by user"))
+                    // не Failure
+                }
+
+                BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
+                    _events.emit(BillingEvent.Log("Item already owned -> restorePurchases"))
+                    restorePurchases()
+                }
+
+                else -> {
+                    emitFailure(
+                        where = "PurchasesUpdatedListener",
+                        billingResult = result,
+                        extra = "purchases=${purchases?.size ?: 0}"
+                    )
+                }
             }
         }
     }
@@ -112,12 +128,16 @@ class PlayFarmBillingClient(
                     )
                 }
 
-                ensureConnectedOrFail("refreshProducts")?.let { failure ->
-                    _productsState.update { it.copy(isRefreshing = false, lastError = failure) }
-                    externalScope.launch(dispatcher) { _events.emit(BillingEvent.Failure(failure)) }
-                    return@withTimeout Result.failure(
-                        IllegalStateException("${failure.where}: ${failure.debugMessage}")
-                    )
+                if (connectionState.value != ConnectionState.Connected) {
+                    val ok = awaitConnected()
+                    if (!ok) {
+                        val f = BillingFailure(
+                            where = "launchSubscriptionPurchase",
+                            debugMessage = "Billing connection timeout"
+                        )
+                        _events.emit(BillingEvent.Failure(f))
+                        return@withTimeout Result.failure(IllegalStateException("Billing connection timeout"))
+                    }
                 }
 
                 val client = billingClient ?: run {
@@ -224,9 +244,16 @@ class PlayFarmBillingClient(
         obfuscatedAccountId: String?,
         obfuscatedProfileId: String?,
     ): Result<Unit> {
-        ensureConnectedOrFail("launchSubscriptionPurchase")?.let { failure ->
-            _events.emit(BillingEvent.Failure(failure))
-            return Result.failure(IllegalStateException(failure.debugMessage ?: "Not connected"))
+        if (connectionState.value != ConnectionState.Connected) {
+            val ok = awaitConnected()
+            if (!ok) {
+                val f = BillingFailure(
+                    where = "launchSubscriptionPurchase",
+                    debugMessage = "Billing connection timeout"
+                )
+                _events.emit(BillingEvent.Failure(f))
+                return Result.failure(IllegalStateException("Billing connection timeout"))
+            }
         }
 
         val details = productsState.value.products[productId]
@@ -266,13 +293,16 @@ class PlayFarmBillingClient(
     }
 
     override suspend fun restorePurchases(): Result<Unit> = withTimeout(10000L) {
-        ensureConnectedOrFail("restorePurchases")?.let { failure ->
-            _events.emit(BillingEvent.Failure(failure))
-            return@withTimeout Result.failure(
-                IllegalStateException(
-                    failure.debugMessage ?: "Not connected"
+        if (connectionState.value != ConnectionState.Connected) {
+            val ok = awaitConnected()
+            if (!ok) {
+                val f = BillingFailure(
+                    where = "launchSubscriptionPurchase",
+                    debugMessage = "Billing connection timeout"
                 )
-            )
+                _events.emit(BillingEvent.Failure(f))
+                return@withTimeout Result.failure(IllegalStateException("Billing connection timeout"))
+            }
         }
 
         val client =
@@ -282,33 +312,32 @@ class PlayFarmBillingClient(
         _entitlements.update { it.copy(isSyncing = true, lastSyncError = null) }
 
         return@withTimeout suspendCancellableCoroutine { cont ->
+            cont.invokeOnCancellation {
+                _entitlements.update { it.copy(isSyncing = false) }
+            }
+
             val params = QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.SUBS)
                 .build()
 
             client.queryPurchasesAsync(params) { result, purchases ->
                 externalScope.launch(dispatcher) {
-                    if (!cont.isActive) return@launch // <--- add this
+                    if (!cont.isActive) return@launch
+
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         _events.emit(BillingEvent.RestoreCompleted(purchases))
                         handlePurchases(purchases)
                         _entitlements.update { it.copy(isSyncing = false, lastSyncError = null) }
-                        if (cont.isActive) {
-                            cont.resume(Result.success(Unit))
-                        }
+                        cont.resume(Result.success(Unit))
                     } else {
                         val failure = result.toFailure(where = "queryPurchasesAsync(SUBS)")
                         _entitlements.update { it.copy(isSyncing = false, lastSyncError = failure) }
                         _events.emit(BillingEvent.Failure(failure))
-                        if (cont.isActive) {
-                            cont.resume(
-                                Result.failure(
-                                    IllegalStateException(
-                                        failure.debugMessage ?: "restore failed"
-                                    )
-                                )
+                        cont.resume(
+                            Result.failure(
+                                IllegalStateException(failure.debugMessage ?: "restore failed")
                             )
-                        }
+                        )
                     }
                 }
             }
@@ -351,57 +380,55 @@ class PlayFarmBillingClient(
     }
 
     private suspend fun connectOnce(): Boolean = connectionMutex.withLock {
-        if (!started.get()) return false
-        ensureClient()
+        return try {
+            withTimeout(10000L) {
+                if (!started.get()) return@withTimeout false
+                ensureClient()
 
-        val client = billingClient ?: return false
-        _connectionState.value = ConnectionState.Connecting
+                val client = billingClient ?: return@withTimeout false
+                _connectionState.value = ConnectionState.Connecting
 
-        return suspendCancellableCoroutine { cont ->
-            client.startConnection(object : BillingClientStateListener {
-                override fun onBillingSetupFinished(result: BillingResult) {
-                    externalScope.launch(dispatcher) {
-                        if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                            _connectionState.value = ConnectionState.Connected
-                            _events.emit(BillingEvent.Log("Billing connected"))
-                            if (cont.isActive) {
-                                cont.resume(true)
-                            }
-                        } else {
-                            val failure = result.toFailure(where = "onBillingSetupFinished")
-                            _connectionState.value =
-                                ConnectionState.Disconnected(result.toDisconnectReason())
-                            _events.emit(BillingEvent.Failure(failure))
-                            if (cont.isActive) {
-                                cont.resume(false)
+                return@withTimeout suspendCancellableCoroutine { cont ->
+                    client.startConnection(object : BillingClientStateListener {
+                        override fun onBillingSetupFinished(result: BillingResult) {
+                            externalScope.launch(dispatcher) {
+                                if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                                    _connectionState.value = ConnectionState.Connected
+                                    _events.emit(BillingEvent.Log("Billing connected"))
+                                    if (cont.isActive) {
+                                        cont.resume(true)
+                                    }
+                                } else {
+                                    val failure = result.toFailure(where = "onBillingSetupFinished")
+                                    _connectionState.value =
+                                        ConnectionState.Disconnected(result.toDisconnectReason())
+                                    _events.emit(BillingEvent.Failure(failure))
+                                    if (cont.isActive) {
+                                        cont.resume(false)
+                                    }
+                                }
                             }
                         }
-                    }
-                }
 
-                override fun onBillingServiceDisconnected() {
-                    externalScope.launch(dispatcher) {
-                        _connectionState.value =
-                            ConnectionState.Disconnected(DisconnectReason.ServiceDisconnected)
-                        _events.emit(BillingEvent.Log("Billing service disconnected"))
-                        // Trigger reconnect loop:
-                        if (started.get()) connectWithBackoff()
-                    }
+                        override fun onBillingServiceDisconnected() {
+                            externalScope.launch(dispatcher) {
+                                _connectionState.value =
+                                    ConnectionState.Disconnected(DisconnectReason.ServiceDisconnected)
+                                _events.emit(BillingEvent.Log("Billing service disconnected"))
+                                // Trigger reconnect loop:
+                                if (started.get()) connectWithBackoff()
+                            }
+                        }
+                    })
                 }
-            })
-        }
-    }
-
-    /**
-     * Returns failure if not connected and cannot connect immediately.
-     * We do NOT block forever here; caller can decide to retry.
-     */
-    private suspend fun ensureConnectedOrFail(where: String): BillingFailure? {
-        return when (connectionState.value) {
-            ConnectionState.Connected -> null
-            ConnectionState.Connecting -> BillingFailure(where, debugMessage = "Still connecting")
-            ConnectionState.Stopped -> BillingFailure(where, debugMessage = "Client not started")
-            is ConnectionState.Disconnected -> BillingFailure(where, debugMessage = "Disconnected")
+            }
+        } catch (t: Throwable) {
+            _connectionState.value =
+                ConnectionState.Disconnected(DisconnectReason.ServiceUnavailable) // або Unknown
+            externalScope.launch(dispatcher) {
+                _events.emit(BillingEvent.Log("Billing connect timeout/cancel: ${t::class.simpleName}"))
+            }
+            false
         }
     }
 
@@ -432,27 +459,28 @@ class PlayFarmBillingClient(
         _entitlements.update { it.copy(acknowledgedTokens = it.acknowledgedTokens + acknowledgedTokens) }
     }
 
-    private suspend fun acknowledge(purchaseToken: String): Boolean {
-        val client = billingClient ?: return false
-        return suspendCancellableCoroutine { cont ->
+    private suspend fun acknowledge(purchaseToken: String): Boolean = withTimeout(10_000L) {
+        val client = billingClient ?: return@withTimeout false
+
+        suspendCancellableCoroutine { cont ->
+            // нічого станового не міняємо, але лишаємо симетрично
+            cont.invokeOnCancellation { /* no-op */ }
+
             val params = AcknowledgePurchaseParams.newBuilder()
                 .setPurchaseToken(purchaseToken)
                 .build()
 
             client.acknowledgePurchase(params) { result ->
                 externalScope.launch(dispatcher) {
-                    if (!cont.isActive) return@launch // <--- add this
+                    if (!cont.isActive) return@launch
+
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         _events.emit(BillingEvent.PurchaseAcknowledged(purchaseToken))
-                        if (cont.isActive) {
-                            cont.resume(true)
-                        }
+                        cont.resume(true)
                     } else {
                         val failure = result.toFailure(where = "acknowledgePurchase")
                         _events.emit(BillingEvent.Failure(failure))
-                        if (cont.isActive) {
-                            cont.resume(false)
-                        }
+                        cont.resume(false)
                     }
                 }
             }
@@ -490,6 +518,21 @@ class PlayFarmBillingClient(
     ) {
         val failure = billingResult.toFailure(where = where, extra = extra)
         _events.emit(BillingEvent.Failure(failure))
+    }
+
+    private suspend fun awaitConnected(timeoutMs: Long = 10_000L): Boolean {
+        if (connectionState.value == ConnectionState.Connected) return true
+        return try {
+            withTimeout(timeoutMs) {
+                val state = connectionState.firstOrNull {
+                    it == ConnectionState.Connected || it is ConnectionState.Disconnected || it is ConnectionState.Stopped
+                }
+                return@withTimeout state == ConnectionState.Connected
+            }
+        } catch (t: Throwable) {
+            if (t is kotlinx.coroutines.CancellationException) throw t
+            return false
+        }
     }
 }
 
