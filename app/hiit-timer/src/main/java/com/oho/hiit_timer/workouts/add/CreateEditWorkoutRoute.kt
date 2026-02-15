@@ -86,7 +86,7 @@ fun CreateEditWorkoutRoute(
     )
     val exerciseId = state.blockContextMenuId
     if (exerciseId != null) {
-        BlockMenuBottomSheet(
+        MenuBottomSheet(
             sheetState = sheetState,
             onDismiss = {
                 vm.onDismissedContextMenu()

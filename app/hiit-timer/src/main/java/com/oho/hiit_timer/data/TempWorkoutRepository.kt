@@ -1,6 +1,5 @@
 package com.oho.hiit_timer.data
 
-import android.util.Log
 import com.oho.hiit_timer.data.storage.HiitWorkoutsDao
 import com.oho.hiit_timer.domain.HiitExercise
 import com.oho.hiit_timer.domain.HiitWorkout
@@ -27,6 +26,14 @@ class TempWorkoutRepository(
                 workoutId = HiitWorkoutsRepository.TEMP_WORKOUT_ID,
                 orderInWorkout = workoutsDao.getMaxOrder(HiitWorkoutsRepository.TEMP_WORKOUT_ID) + 1
             )
+        )
+    }
+
+    suspend fun duplicateToTemp(workoutId: String) {
+        workoutsRepository.duplicateWorkout(
+            workoutId = workoutId,
+            newId = HiitWorkoutsRepository.TEMP_WORKOUT_ID,
+            source = HiitWorkoutsRepository.SOURCE_SYSTEM
         )
     }
 }

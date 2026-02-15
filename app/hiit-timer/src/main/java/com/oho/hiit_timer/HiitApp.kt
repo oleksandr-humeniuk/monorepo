@@ -10,7 +10,7 @@ import com.oho.hiit_timer.data.TempWorkoutRepository
 import com.oho.hiit_timer.data.storage.HiitDatabase
 import com.oho.hiit_timer.root.HiitRootNavViewModel
 import com.oho.hiit_timer.tabs.TabsViewModel
-import com.oho.hiit_timer.workout_details.WorkoutDetailsViewModel
+import com.oho.hiit_timer.workouts.workout_details.WorkoutDetailsViewModel
 import com.oho.hiit_timer.workouts.add.CreateEditWorkoutViewModel
 import com.oho.hiit_timer.workouts.add_block.CreateEditIntervalViewModel
 import com.oho.hiit_timer.workouts.list.WorkoutsListViewModel

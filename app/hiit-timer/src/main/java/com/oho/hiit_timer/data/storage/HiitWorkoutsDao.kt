@@ -51,6 +51,9 @@ interface HiitWorkoutsDao {
     @Query("DELETE FROM hiit_exercises WHERE id = :exerciseId")
     suspend fun deleteExercise(exerciseId: String)
 
+    @Query("DELETE FROM hiit_workouts WHERE id = :workoutId")
+    suspend fun deleteWorkout(workoutId: String)
+
     @Query("SELECT * FROM hiit_exercises WHERE  id =:exerciseId")
     suspend fun queryExercise(
         exerciseId: String
@@ -58,13 +61,32 @@ interface HiitWorkoutsDao {
 
     @Transaction
     suspend fun duplicateExercise(exerciseId: String, workoutId: String) {
-        val toDuplicated = queryExercise( exerciseId = exerciseId) ?: return
+        val toDuplicated = queryExercise(exerciseId = exerciseId) ?: return
         val currentMaxOrder = getMaxOrder(workoutId = workoutId)
         upsertExercise(
             toDuplicated.copy(
                 id = UUID.randomUUID().toString(),
                 orderInWorkout = currentMaxOrder + 1
             )
+        )
+    }
+
+    @Transaction
+    suspend fun duplicateWorkout(workoutId: String, newId: String, source: Int) {
+        val toDuplicate = getWorkout(workoutId) ?: return
+        upsertWorkoutGraph(
+            workout = toDuplicate.workout.copy(
+                id = newId,
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis(),
+                source = source
+            ),
+            exercises = toDuplicate.exercises.map {
+                it.copy(
+                    id = UUID.randomUUID().toString(),
+                    workoutId = newId
+                )
+            }
         )
     }
 }

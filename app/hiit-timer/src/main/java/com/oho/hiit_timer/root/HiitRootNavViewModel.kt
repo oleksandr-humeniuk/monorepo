@@ -29,13 +29,13 @@ class HiitRootNavViewModel(
         }
     }
 
-    fun createEditWorkout(workoutId: String?) {
+    fun createWorkout() {
         viewModelScope.launch {
             tempWorkoutRepository.ensureExist()
             _state.update { s ->
                 s.copy(
                     backStack = s.backStack + HiitRootRoute.CreateEditWorkout(
-                        workoutId = workoutId ?: HiitWorkoutsRepository.TEMP_WORKOUT_ID
+                        workoutId = HiitWorkoutsRepository.TEMP_WORKOUT_ID
                     )
                 )
             }
@@ -59,6 +59,19 @@ class HiitRootNavViewModel(
             s.copy(
                 backStack = s.backStack + HiitRootRoute.WorkoutDetails(workoutId)
             )
+        }
+    }
+
+    fun onEditWorkout(workoutId: String) {
+        viewModelScope.launch {
+            tempWorkoutRepository.duplicateToTemp(workoutId)
+            _state.update { s ->
+                s.copy(
+                    backStack = s.backStack + HiitRootRoute.CreateEditWorkout(
+                        workoutId = workoutId
+                    )
+                )
+            }
         }
     }
 

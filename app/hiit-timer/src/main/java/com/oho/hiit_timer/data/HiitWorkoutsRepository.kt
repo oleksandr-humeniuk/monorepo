@@ -28,6 +28,10 @@ interface HiitWorkoutsRepository {
     suspend fun duplicateExercise(exerciseId: String, workoutId: String)
     suspend fun getExercise(exerciseId: String): HiitExercise?
 
+    suspend fun deleteWorkout(workoutId: String)
+
+    suspend fun duplicateWorkout(workoutId: String, newId: String, source: Int)
+
 
     enum class Source {
         System,
@@ -110,6 +114,22 @@ class HiitWorkoutsRepositoryImpl(
 
     override suspend fun getExercise(exerciseId: String): HiitExercise? {
         return dao.queryExercise(exerciseId = exerciseId)?.toDomain()
+    }
+
+    override suspend fun deleteWorkout(workoutId: String) {
+        dao.deleteWorkout(workoutId)
+    }
+
+    override suspend fun duplicateWorkout(
+        workoutId: String,
+        newId: String,
+        source: Int
+    ) {
+        dao.duplicateWorkout(
+            workoutId = workoutId,
+            newId = newId,
+            source = source
+        )
     }
 }
 

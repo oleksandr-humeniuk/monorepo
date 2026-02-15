@@ -1,4 +1,4 @@
-package com.oho.hiit_timer.workout_details
+package com.oho.hiit_timer.workouts.workout_details
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -20,11 +20,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,6 +46,7 @@ import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.formatSec
+import com.oho.hiit_timer.workouts.add.MenuBottomSheet
 import com.oho.hiit_timer.workouts.add.TotalChip
 import com.oho.hiit_timer.workouts.add.WorkoutBlockUi
 import com.oho.hiit_timer.workouts.add.buildBlockMeta
@@ -49,11 +54,13 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import com.oho.utils.R as timerR
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutDetailsRoute(
     workoutId: String,
     onBack: () -> Unit,
     onStartWorkout: (String) -> Unit,
+    onEditWorkout: (String) -> Unit
 ) {
     val vm: WorkoutDetailsViewModel = koinViewModel {
         parametersOf(workoutId)
@@ -61,12 +68,47 @@ fun WorkoutDetailsRoute(
 
     val state by vm.state.collectAsState()
 
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false
+    )
+
+    if (state.showMoreSheet) {
+        MenuBottomSheet(
+            title = state.title,
+            sheetState = sheetState,
+            onDismiss = {
+                vm.onMoreDismissed()
+            },
+            onEdit = {
+                vm.onEdit()
+            },
+            onDuplicate = {
+                vm.onDuplicate()
+            },
+            onDelete = {
+                vm.onDelete()
+            },
+        )
+    }
+
     MonoScaffold(Modifier.fillMaxSize()) {
         WorkoutDetailsScreen(
             state = state,
             onBack = onBack,
-            onStart = { onStartWorkout(workoutId) }
+            onStart = { onStartWorkout(workoutId) },
+            onMoreClicked = {
+                vm.onMoreClicked()
+            }
         )
+    }
+
+    LaunchedEffect(Unit) {
+        vm.events.collect { e ->
+            when (e) {
+                WorkoutDetailsViewModel.Event.Back -> onBack()
+                is WorkoutDetailsViewModel.Event.Edit -> onEditWorkout(e.workoutId)
+            }
+        }
     }
 }
 
@@ -76,6 +118,7 @@ private fun WorkoutDetailsScreen(
     state: WorkoutDetailsViewModel.UiState,
     onBack: () -> Unit,
     onStart: () -> Unit,
+    onMoreClicked: () -> Unit
 ) {
     val c = MonoTheme.colors
 
@@ -106,7 +149,15 @@ private fun WorkoutDetailsScreen(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = c.appBackground,
                     titleContentColor = c.primaryTextColor,
-                )
+                ),
+                actions = {
+                    IconButton(onClick = onMoreClicked) {
+                        Icon(
+                            painterResource(R.drawable.ic_more_vert),
+                            contentDescription = stringResource(timerR.string.more)
+                        )
+                    }
+                }
             )
 
             LazyColumn(

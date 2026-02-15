@@ -44,7 +44,7 @@ sealed interface HiitTabRoute {
 fun HiitTabHost(
     runWorkout: (String) -> Unit,
     openDetails: (String) -> Unit,
-    createEditWorkout: (String?) -> Unit,
+    createWorkout: (String?) -> Unit,
     viewModel: TabsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -83,7 +83,7 @@ fun HiitTabHost(
 
                     HiitTabRoute.Workouts -> NavEntry(tab) {
                         WorkoutsRoute(
-                            createEditWorkout = createEditWorkout,
+                            createEditWorkout = createWorkout,
                             runWrokout = runWorkout,
                             openWorkout = openDetails
                         )

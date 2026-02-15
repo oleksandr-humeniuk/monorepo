@@ -33,12 +33,13 @@ import com.oho.utils.R as timerR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BlockMenuBottomSheet(
+fun MenuBottomSheet(
     sheetState: SheetState,
     onDismiss: () -> Unit,
     onEdit: () -> Unit,
     onDuplicate: () -> Unit,
     onDelete: () -> Unit,
+    title: String = stringResource(timerR.string.set_actions)
 ) {
     val c = MonoTheme.colors
 
@@ -73,7 +74,7 @@ fun BlockMenuBottomSheet(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             MonoText(
-                text = stringResource(timerR.string.set_actions),
+                text = title,
                 style = MonoTextStyle.TitleMedium,
                 color = c.primaryTextColor,
                 modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
