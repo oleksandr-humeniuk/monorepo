@@ -134,7 +134,11 @@ class CreateEditIntervalViewModel(
                     sets = s.sets,
                     workSec = s.workSec,
                     restSec = s.restSec,
-                    restAfterLastWork = if (s.sets > 1) RestAfterLastWorkPolicy.Custom(s.lastRestSec) else RestAfterLastWorkPolicy.None,
+                    restAfterLastWork = if (s.restSec != s.lastRestSec) RestAfterLastWorkPolicy.Custom(
+                        s.lastRestSec
+                    ) else {
+                        RestAfterLastWorkPolicy.SameAsRegular
+                    },
                 )
             )
             emit(Event.Saved)

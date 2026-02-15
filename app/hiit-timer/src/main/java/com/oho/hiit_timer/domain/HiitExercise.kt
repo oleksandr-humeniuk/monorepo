@@ -42,8 +42,7 @@ fun HiitExercise.totalDurationSec(): Int {
     val lastRest = when (val policy = restAfterLastWork) {
         RestAfterLastWorkPolicy.SameAsRegular -> restSec
         RestAfterLastWorkPolicy.None -> 0
-        is RestAfterLastWorkPolicy.Custom ->
-            policy.seconds.takeIf { it > 0 } ?: 0
+        is RestAfterLastWorkPolicy.Custom -> policy.seconds
     }
 
     return workTotal + regularRestTotal + lastRest
