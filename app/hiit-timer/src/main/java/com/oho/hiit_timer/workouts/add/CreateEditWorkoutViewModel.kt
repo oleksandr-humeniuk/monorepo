@@ -9,7 +9,9 @@ import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.domain.HiitWorkout
 import com.oho.hiit_timer.domain.totalDurationWithoutPrepareSec
 import com.oho.utils.R
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,9 +55,10 @@ class CreateEditWorkoutViewModel(
 
     init {
         viewModelScope.launch {
-            hiitWorkoutsRepository.observeWorkout(workoutId)
+            hiitWorkoutsRepository.observeWorkout(HiitWorkoutsRepository.TEMP_WORKOUT_ID)
                 .filterNotNull()
                 .collect { hiitWorkout ->
+                    suppressPersist = true
                     _state.update { s ->
                         s.copy(
                             workoutDomain = hiitWorkout,
@@ -71,6 +74,7 @@ class CreateEditWorkoutViewModel(
                             }
                         )
                     }
+                    suppressPersist = false
                 }
         }
     }
@@ -108,12 +112,36 @@ class CreateEditWorkoutViewModel(
 
     fun onReorderBlocks(fromIndex: Int, toIndex: Int) {
         _state.update {
+            val domain = it.workoutDomain
             it.copy(
                 blocks = it.blocks.toMutableList().apply {
                     add(toIndex, removeAt(fromIndex))
-                }
+                },
+                workoutDomain = domain?.copy(
+                    exercises = domain.exercises.toMutableList().apply {
+                        add(toIndex, removeAt(fromIndex))
+                    }
+                )
+            )
+        }
+        _state.value.workoutDomain?.let {
+            schedulePersist(domain = it)
+        }
+    }
+
+    private fun schedulePersist(domain: HiitWorkout) {
+        if (suppressPersist) return
+
+        persistJob?.cancel()
+        persistJob = viewModelScope.launch {
+            delay(250L) // debounce
+            hiitWorkoutsRepository.upsert(
+                workout = domain,
+                source = HiitWorkoutsRepository.SOURCE_USER,
             )
         }
     }
 
+    private var suppressPersist = false
+    private var persistJob: Job? = null
 }
