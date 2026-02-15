@@ -68,7 +68,7 @@ import com.oho.utils.R as timerR
 fun WorkoutsRoute(
     vm: WorkoutsListViewModel = koinViewModel(),
     openWorkout: (workoutId: String) -> Unit = {},
-    startWorkout: (workoutId: String) -> Unit = {},
+    runWrokout: (workoutId: String) -> Unit = {},
     createEditWorkout: (String?) -> Unit = {}, //workoutId null if new
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
@@ -77,7 +77,7 @@ fun WorkoutsRoute(
         vm.events.collect { e ->
             when (e) {
                 is WorkoutsListViewModel.Event.OpenWorkout -> openWorkout(e.workoutId)
-                is WorkoutsListViewModel.Event.StartWorkout -> startWorkout(e.workoutId)
+                is WorkoutsListViewModel.Event.StartWorkout -> runWrokout(e.workoutId)
                 WorkoutsListViewModel.Event.CreateWorkout -> createEditWorkout(null)
                 WorkoutsListViewModel.Event.More -> Unit // hook later if needed
             }
@@ -350,6 +350,6 @@ private fun buildMetaText(blocksCount: Int, totalDurationSec: Int): String {
     return pluralStringResource(
         timerR.plurals.workout_meta_info,
         count = blocksCount,
-        formatSec(totalDurationSec)
+        blocksCount, formatSec(totalDurationSec)
     )
 }

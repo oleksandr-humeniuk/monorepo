@@ -69,7 +69,7 @@ fun HiitTabHost(
                 when (tab) {
                     HiitTabRoute.Quick -> NavEntry(tab) {
                         QuickStartTimerRoute(
-                            runWrokout = { workoutId -> runWorkout(workoutId) }
+                            runWrokout = runWorkout
                         )
                     }
 
@@ -82,7 +82,8 @@ fun HiitTabHost(
 
                     HiitTabRoute.Workouts -> NavEntry(tab) {
                         WorkoutsRoute(
-                            createEditWorkout = createEditWorkout
+                            createEditWorkout = createEditWorkout,
+                            runWrokout = runWorkout
                         )
                     }
                 }

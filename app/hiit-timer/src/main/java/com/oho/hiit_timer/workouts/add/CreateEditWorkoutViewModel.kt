@@ -6,6 +6,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
+import com.oho.hiit_timer.domain.HiitWorkout
 import com.oho.hiit_timer.domain.totalDurationWithoutPrepareSec
 import com.oho.utils.R
 import kotlinx.coroutines.channels.Channel
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class CreateEditWorkoutViewModel(
     private val workoutId: String,
@@ -26,6 +28,7 @@ class CreateEditWorkoutViewModel(
 
     @Immutable
     data class UiState(
+        val workoutDomain: HiitWorkout? = null,
         val title: String,
         val blocks: List<WorkoutBlockUi> = emptyList(),
         val totalDurationSec: Int = 0,
@@ -40,7 +43,7 @@ class CreateEditWorkoutViewModel(
 
     private val _state = MutableStateFlow(
         UiState(
-            title = context.getString(R.string.create_workout_title)
+            title = ""
         )
     )
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -55,7 +58,9 @@ class CreateEditWorkoutViewModel(
                 .collect { hiitWorkout ->
                     _state.update { s ->
                         s.copy(
-                            title = hiitWorkout.name,
+                            workoutDomain = hiitWorkout,
+                            title = hiitWorkout.name.takeIf { it.isNotBlank() }
+                                ?: context.getString(R.string.create_workout_title),
                             totalDurationSec = hiitWorkout.totalDurationWithoutPrepareSec(),
                             blocks = hiitWorkout.exercises.map { exercise ->
                                 WorkoutBlockUi(
@@ -80,29 +85,24 @@ class CreateEditWorkoutViewModel(
 
     fun onAddBlockClicked() {
         viewModelScope.launch { _events.send(Event.OnAddBlockClicked) }
-
-//        // mocked in-memory mutation: append a new interval-like block
-//        _state.update { cur ->
-//            val idx = cur.blocks.size + 1
-//            val newBlock = WorkoutBlockUi(
-//                id = "b_added_$idx",
-//                name = "New block $idx",
-//                spec = WorkoutBlockSpec.Interval(sets = 6, workSec = 40, restSec = 20),
-//            )
-//            val blocks = cur.blocks + newBlock
-//            cur.copy(
-//                blocks = blocks,
-//                totalDurationSec = blocks.sumOf { it.totalDurationSec }
-//            )
-//        }
     }
 
     fun onSaveClicked() {
-        val id = workoutId
-        if (id == HiitWorkoutsRepository.TEMP_WORKOUT_ID) {
-            //duplicate from temp and store
-        } else {
-            //just store
+        val currentDomain = _state.value.workoutDomain ?: return
+        viewModelScope.launch {
+            val id = workoutId
+            if (id == HiitWorkoutsRepository.TEMP_WORKOUT_ID) {
+                hiitWorkoutsRepository.upsert(
+                    workout = currentDomain.copy(
+                        id = UUID.randomUUID().toString(),
+                        name = "Current"
+                    ),
+                    source = HiitWorkoutsRepository.SOURCE_USER,
+                )
+            } else {
+                //just store
+            }
+            _events.send(Event.Back)
         }
     }
 
