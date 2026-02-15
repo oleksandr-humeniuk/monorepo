@@ -103,8 +103,13 @@ class CreateEditWorkoutViewModel(
                     ),
                     source = HiitWorkoutsRepository.SOURCE_USER,
                 )
-            } else {
-                //just store
+            } else { //move from temp to real for edit
+                hiitWorkoutsRepository.upsert(
+                    workout = currentDomain.copy(
+                        id = workoutId,
+                    ),
+                    source = HiitWorkoutsRepository.SOURCE_USER,
+                )
             }
             _events.send(Event.Back)
         }
