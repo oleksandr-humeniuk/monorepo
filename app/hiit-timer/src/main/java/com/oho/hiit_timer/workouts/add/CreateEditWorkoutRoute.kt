@@ -103,6 +103,20 @@ fun CreateEditWorkoutRoute(
             },
         )
     }
+    val nameSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
+    if (state.enterName) {
+        NameWorkoutBottomSheet(
+            sheetState = nameSheetState,
+            initialValue = state.workoutDomain?.name.orEmpty(),
+            onDismiss = { vm.onDismissNameSheet() },
+            onSave = { name ->
+                vm.onConfirmWorkoutName(name)
+            }
+        )
+    }
 
 
     LaunchedEffect(Unit) {

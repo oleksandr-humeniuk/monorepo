@@ -101,7 +101,9 @@
     <string name="run_notification_prepare_next">Prepare</string>
     <string name="run_notification_work_next_format">%1$s %2$s</string>
     <string name="run_notification_rest_next_format">Rest %1$s</string>
-<!--    to translate-->
+    <!--    to translate-->
     <string name="create_edit_interval_edit_title">Edit set</string>
+    <string name="name_workout">Workout name</string>
+    <string name="workout_name_placeholder">Enter workout name</string>
 
 </resources>

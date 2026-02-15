@@ -32,10 +32,11 @@ class CreateEditWorkoutViewModel(
     @Immutable
     data class UiState(
         val workoutDomain: HiitWorkout? = null,
-        val title: String,
+        val title: String = "",
         val blocks: List<WorkoutBlockUi> = emptyList(),
         val totalDurationSec: Int = 0,
-        val blockContextMenuId: String? = null
+        val blockContextMenuId: String? = null,
+        val enterName: Boolean = false,
     )
 
     sealed interface Event {
@@ -44,11 +45,7 @@ class CreateEditWorkoutViewModel(
         data object OnAddBlockClicked : Event
     }
 
-    private val _state = MutableStateFlow(
-        UiState(
-            title = ""
-        )
-    )
+    private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     private val _events = Channel<Event>(capacity = Channel.Factory.BUFFERED)
@@ -99,27 +96,10 @@ class CreateEditWorkoutViewModel(
     }
 
     fun onSaveClicked() {
-        val currentDomain = _state.value.workoutDomain ?: return
-        viewModelScope.launch {
-            val id = workoutId
-            if (id == HiitWorkoutsRepository.TEMP_WORKOUT_ID) {
-                hiitWorkoutsRepository.upsert(
-                    workout = currentDomain.copy(
-                        id = UUID.randomUUID().toString(),
-                        name = "Current"
-                    ),
-                    source = HiitWorkoutsRepository.SOURCE_USER,
-                )
-            } else { //move from temp to real for edit
-                hiitWorkoutsRepository.upsert(
-                    workout = currentDomain.copy(
-                        id = workoutId,
-                    ),
-                    source = HiitWorkoutsRepository.SOURCE_USER,
-                )
-            }
-            _events.send(Event.Back)
+        _state.update {
+            it.copy(enterName = true)
         }
+
     }
 
     fun onReorderBlocks(fromIndex: Int, toIndex: Int) {
@@ -178,6 +158,38 @@ class CreateEditWorkoutViewModel(
                 exerciseId = exerciseId,
                 workoutId = TEMP_WORKOUT_ID
             )
+        }
+    }
+
+    fun onDismissNameSheet() {
+        _state.update {
+            it.copy(enterName = false)
+        }
+    }
+
+    fun onConfirmWorkoutName(name: String) {
+        val currentDomain = _state.value.workoutDomain ?: return
+        onDismissNameSheet()
+        viewModelScope.launch {
+            val id = workoutId
+            if (id == HiitWorkoutsRepository.TEMP_WORKOUT_ID) {
+                hiitWorkoutsRepository.upsert(
+                    workout = currentDomain.copy(
+                        id = UUID.randomUUID().toString(),
+                        name = name
+                    ),
+                    source = HiitWorkoutsRepository.SOURCE_USER,
+                )
+            } else { //move from temp to real for edit
+                hiitWorkoutsRepository.upsert(
+                    workout = currentDomain.copy(
+                        id = workoutId,
+                        name = name
+                    ),
+                    source = HiitWorkoutsRepository.SOURCE_USER,
+                )
+            }
+            _events.send(Event.Back)
         }
     }
 
