@@ -110,12 +110,12 @@ fun IntervalTimerConfigScreen(
                 navigationIcon = {
                 },
                 actions = {
-                    IconButton(onClick = onMoreClicked) {
-                        Icon(
-                            painterResource(R.drawable.ic_more_vert),
-                            contentDescription = stringResource(timerR.string.more)
-                        )
-                    }
+//                    IconButton(onClick = onMoreClicked) {
+//                        Icon(
+//                            painterResource(R.drawable.ic_more_vert),
+//                            contentDescription = stringResource(timerR.string.more)
+//                        )
+//                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = page,
