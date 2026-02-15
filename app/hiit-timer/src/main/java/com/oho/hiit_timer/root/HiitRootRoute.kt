@@ -9,4 +9,8 @@ sealed interface HiitRootRoute {
     data class AddEditExercise(
         val id: String? = null // add null, edit not null
     ) : HiitRootRoute
+
+    data class WorkoutDetails(
+        val id: String
+    ): HiitRootRoute
 }

@@ -54,6 +54,14 @@ class HiitRootNavViewModel(
         }
     }
 
+    fun openWorkoutDetails(workoutId: String) {
+        _state.update { s ->
+            s.copy(
+                backStack = s.backStack + HiitRootRoute.WorkoutDetails(workoutId)
+            )
+        }
+    }
+
     data class NavState(
         val backStack: List<HiitRootRoute> = listOf(HiitRootRoute.Tabs),
     )

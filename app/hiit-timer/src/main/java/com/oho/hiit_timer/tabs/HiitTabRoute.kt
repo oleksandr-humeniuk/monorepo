@@ -43,6 +43,7 @@ sealed interface HiitTabRoute {
 @Composable
 fun HiitTabHost(
     runWorkout: (String) -> Unit,
+    openDetails: (String) -> Unit,
     createEditWorkout: (String?) -> Unit,
     viewModel: TabsViewModel = koinViewModel()
 ) {
@@ -83,7 +84,8 @@ fun HiitTabHost(
                     HiitTabRoute.Workouts -> NavEntry(tab) {
                         WorkoutsRoute(
                             createEditWorkout = createEditWorkout,
-                            runWrokout = runWorkout
+                            runWrokout = runWorkout,
+                            openWorkout = openDetails
                         )
                     }
                 }

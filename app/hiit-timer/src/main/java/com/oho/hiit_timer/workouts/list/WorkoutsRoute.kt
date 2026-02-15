@@ -67,9 +67,9 @@ import com.oho.utils.R as timerR
 @Composable
 fun WorkoutsRoute(
     vm: WorkoutsListViewModel = koinViewModel(),
-    openWorkout: (workoutId: String) -> Unit = {},
-    runWrokout: (workoutId: String) -> Unit = {},
-    createEditWorkout: (String?) -> Unit = {}, //workoutId null if new
+    openWorkout: (workoutId: String) -> Unit,
+    runWrokout: (workoutId: String) -> Unit,
+    createEditWorkout: (String?) -> Unit, //workoutId null if new
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
 

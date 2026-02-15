@@ -308,7 +308,7 @@ private fun ReorderableCollectionItemScope.BlockRowCard(
 }
 
 @Composable
-private fun TotalChip(text: String) {
+fun TotalChip(text: String) {
     val c = MonoTheme.colors
     Surface(
         shape = RoundedCornerShape(999.dp),
@@ -421,7 +421,7 @@ private fun BottomBar(
 }
 
 @Composable
-private fun buildBlockMeta(spec: WorkoutBlockSpec): String = when (spec) {
+fun buildBlockMeta(spec: WorkoutBlockSpec): String = when (spec) {
     is WorkoutBlockSpec.Interval -> {
         stringResource(
             timerR.string.interval_spec,

@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.oho.hiit_timer.count_down_screen.HiitRunRoute
 import com.oho.hiit_timer.tabs.HiitTabHost
+import com.oho.hiit_timer.workout_details.WorkoutDetailsRoute
 import com.oho.hiit_timer.workouts.add.CreateEditWorkoutRoute
 import com.oho.hiit_timer.workouts.add_block.CreateEditIntrervalRoute
 import org.koin.androidx.compose.koinViewModel
@@ -41,6 +42,9 @@ fun HiitAppNavRoot(
                         },
                         createEditWorkout = { workoutId ->
                             viewModel.createEditWorkout(workoutId)
+                        },
+                        openDetails = {workoutId ->
+                            viewModel.openWorkoutDetails(workoutId)
                         }
                     )
                 }
@@ -63,6 +67,18 @@ fun HiitAppNavRoot(
                         exerciseId = key.id,
                         onBack = { viewModel.onBack() },
                         onSaved = { viewModel.onBack() }
+                    )
+                }
+
+                is HiitRootRoute.WorkoutDetails -> NavEntry(key) {
+                    WorkoutDetailsRoute(
+                        workoutId = key.id,
+                        onBack = {
+                            viewModel.onBack()
+                        },
+                        onStartWorkout = {
+                            viewModel.runWorkout(workoutId = it)
+                        }
                     )
                 }
             }
