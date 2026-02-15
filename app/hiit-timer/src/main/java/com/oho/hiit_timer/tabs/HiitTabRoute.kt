@@ -35,7 +35,7 @@ import com.oho.utils.R as timerR
 sealed interface HiitTabRoute {
     data object Workouts : HiitTabRoute
     data object Quick : HiitTabRoute
-    data object History : HiitTabRoute
+    data object Settings : HiitTabRoute
     data object Challenges : HiitTabRoute
 }
 
@@ -73,7 +73,7 @@ fun HiitTabHost(
                         )
                     }
 
-                    HiitTabRoute.History -> NavEntry(tab) {
+                    HiitTabRoute.Settings -> NavEntry(tab) {
                         MockScreen(stringResource(timerR.string.tab_history))
                     }
 
@@ -152,7 +152,7 @@ fun HiitBottomBar(
 private val Tab.iconRes
     get() = when (this.route) {
         HiitTabRoute.Challenges -> R.drawable.ic_emoji_events
-        HiitTabRoute.History -> R.drawable.ic_history
+        HiitTabRoute.Settings -> R.drawable.ic_settings
         HiitTabRoute.Quick -> R.drawable.ic_timer
         HiitTabRoute.Workouts -> R.drawable.ic_fitness_center
     }
@@ -161,7 +161,7 @@ private val Tab.title
     @Composable
     get() = when (this.route) {
         HiitTabRoute.Challenges -> stringResource(timerR.string.tab_challenges)
-        HiitTabRoute.History -> stringResource(timerR.string.tab_history)
+        HiitTabRoute.Settings -> stringResource(timerR.string.tab_history)
         HiitTabRoute.Quick -> stringResource(timerR.string.tab_quick)
         HiitTabRoute.Workouts -> stringResource(timerR.string.tab_workouts)
     }

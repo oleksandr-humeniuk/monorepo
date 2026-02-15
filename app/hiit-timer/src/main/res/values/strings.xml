@@ -105,5 +105,7 @@
     <string name="create_edit_interval_edit_title">Edit set</string>
     <string name="name_workout">Workout name</string>
     <string name="workout_name_placeholder">Enter workout name</string>
+    <string name="tab_settings">Settings</string>
+
 
 </resources>

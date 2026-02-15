@@ -16,9 +16,8 @@ class TabsViewModel : ViewModel() {
         val tabs: List<Tab> = listOf(
             Tab(HiitTabRoute.Quick),
             Tab(HiitTabRoute.Workouts),
-            Tab(HiitTabRoute.Challenges),
-            Tab(HiitTabRoute.History),
-            )
+            Tab(HiitTabRoute.Settings),
+        )
     ) {
         val selected: HiitTabRoute
             get() = backStack.last()
