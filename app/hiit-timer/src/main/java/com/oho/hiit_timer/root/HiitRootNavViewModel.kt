@@ -44,7 +44,13 @@ class HiitRootNavViewModel(
 
     fun onAddBlock() {
         _state.update { s ->
-            s.copy(backStack = s.backStack + HiitRootRoute.AddBlock)
+            s.copy(backStack = s.backStack + HiitRootRoute.AddEditExercise())
+        }
+    }
+
+    fun onEditExercise(exerciseId: String) {
+        _state.update { s ->
+            s.copy(backStack = s.backStack + HiitRootRoute.AddEditExercise(exerciseId))
         }
     }
 

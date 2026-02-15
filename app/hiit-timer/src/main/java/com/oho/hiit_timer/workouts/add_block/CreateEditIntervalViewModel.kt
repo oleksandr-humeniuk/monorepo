@@ -1,10 +1,13 @@
 package com.oho.hiit_timer.workouts.add_block
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.data.TempWorkoutRepository
 import com.oho.hiit_timer.domain.HiitExercise
 import com.oho.hiit_timer.domain.RestAfterLastWorkPolicy
+import com.oho.hiit_timer.domain.totalDurationSec
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,9 +27,15 @@ import kotlin.math.max
  * - When sets drops to 1, last rest resets to restSec and becomes not-custom.
  */
 class CreateEditIntervalViewModel(
-    // If you need "edit mode", pass initial values through DI params and call initialize().
-    private val tempWorkoutRepository: TempWorkoutRepository
+    private val params: Params,
+    private val tempWorkoutRepository: TempWorkoutRepository,
+    private val hiitWorkoutsRepository: HiitWorkoutsRepository,
+    private val context: Context
 ) : ViewModel() {
+
+    data class Params(
+        val exerciseId: String?
+    )
 
     // ---- public API
 
@@ -56,25 +65,28 @@ class CreateEditIntervalViewModel(
     val state: StateFlow<UiState> = _state.asStateFlow()
     val events = _events.receiveAsFlow()
 
-    fun initialize(
-        name: String?,
-        sets: Int,
-        workSec: Int,
-        restSec: Int,
-        lastRestSec: Int?,
-    ) {
-        _state.value = compute(
-            UiState(
-                name = name.orEmpty(),
-                sets = sets.coerceAtLeast(MIN_SETS),
-                workSec = workSec.coerceAtLeast(MIN_SEC),
-                restSec = restSec.coerceAtLeast(MIN_SEC),
-                lastRestSec = (lastRestSec ?: restSec).coerceAtLeast(MIN_SEC),
-                isLastRestVisible = sets > 1,
-                totalDurationSec = 0,
-            ),
-            lastRestIsCustom = lastRestSec != null && lastRestSec != restSec,
-        )
+    init {
+        viewModelScope.launch {
+            params.exerciseId?.let { exerciseId ->
+                val fetched = hiitWorkoutsRepository.getExercise(exerciseId)
+                fetched?.let {
+
+                    _state.value = UiState(
+                        name = fetched.name,
+                        sets = fetched.sets,
+                        workSec = fetched.workSec,
+                        restSec = fetched.restSec,
+                        lastRestSec = when (val policy = fetched.restAfterLastWork) {
+                            is RestAfterLastWorkPolicy.Custom -> policy.seconds
+                            RestAfterLastWorkPolicy.None -> 0
+                            RestAfterLastWorkPolicy.SameAsRegular -> fetched.restSec
+                        },
+                        isLastRestVisible = fetched.sets > 1,
+                        totalDurationSec = fetched.totalDurationSec()
+                    )
+                }
+            }
+        }
     }
 
     fun onBackClicked() {
@@ -114,8 +126,8 @@ class CreateEditIntervalViewModel(
         viewModelScope.launch {
             tempWorkoutRepository.upsertExercise(
                 HiitExercise(
-                    id = UUID.randomUUID().toString(),
-                    name = nameTrim ?: "Work",
+                    id = params.exerciseId ?: UUID.randomUUID().toString(),
+                    name = nameTrim ?: context.getString(com.oho.utils.R.string.work),
                     sets = s.sets,
                     workSec = s.workSec,
                     restSec = s.restSec,

@@ -47,6 +47,7 @@ import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.RoundIconButton
 import com.oho.hiit_timer.formatSec
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import com.oho.utils.R as timerR
 
 /**
@@ -59,12 +60,21 @@ import com.oho.utils.R as timerR
  */
 @Composable
 fun CreateEditIntrervalRoute(
-    title: String = stringResource(timerR.string.create_edit_interval_add_title),
+    exerciseId: String?,
+    title: String = if (exerciseId == null) stringResource(timerR.string.create_edit_interval_add_title) else stringResource(
+        timerR.string.create_edit_interval_edit_title
+    ),
     saveCta: String = stringResource(timerR.string.create_edit_interval_save_cta),
     onBack: () -> Unit = {},
     onSaved: () -> Unit = {},
 ) {
-    val vm: CreateEditIntervalViewModel = koinViewModel()
+    val vm: CreateEditIntervalViewModel = koinViewModel {
+        parametersOf(
+            CreateEditIntervalViewModel.Params(
+                exerciseId = exerciseId
+            )
+        )
+    }
 
     val state by vm.state.collectAsState(initial = CreateEditIntervalViewModel.UiState())
 

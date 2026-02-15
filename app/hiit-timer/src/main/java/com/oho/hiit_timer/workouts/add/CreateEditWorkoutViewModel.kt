@@ -6,6 +6,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
+import com.oho.hiit_timer.data.HiitWorkoutsRepository.Companion.TEMP_WORKOUT_ID
 import com.oho.hiit_timer.domain.HiitWorkout
 import com.oho.hiit_timer.domain.totalDurationWithoutPrepareSec
 import com.oho.utils.R
@@ -34,12 +35,12 @@ class CreateEditWorkoutViewModel(
         val title: String,
         val blocks: List<WorkoutBlockUi> = emptyList(),
         val totalDurationSec: Int = 0,
+        val blockContextMenuId: String? = null
     )
 
     sealed interface Event {
         data object Back : Event
         data class Start(val workoutId: String) : Event
-        data class OpenBlockMenu(val blockId: String) : Event
         data object OnAddBlockClicked : Event
     }
 
@@ -84,7 +85,13 @@ class CreateEditWorkoutViewModel(
     }
 
     fun onBlockMoreClicked(blockId: String) {
-        viewModelScope.launch { _events.send(Event.OpenBlockMenu(blockId)) }
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    blockContextMenuId = blockId
+                )
+            }
+        }
     }
 
     fun onAddBlockClicked() {
@@ -143,6 +150,33 @@ class CreateEditWorkoutViewModel(
             hiitWorkoutsRepository.upsert(
                 workout = domain,
                 source = HiitWorkoutsRepository.SOURCE_USER,
+            )
+        }
+    }
+
+    fun onDismissedContextMenu() {
+        hideContextMenu()
+    }
+
+    private fun hideContextMenu() {
+        _state.update {
+            it.copy(blockContextMenuId = null)
+        }
+    }
+
+    fun deleteExercise(exerciseId: String) {
+        hideContextMenu()
+        viewModelScope.launch {
+            hiitWorkoutsRepository.deleteExercise(exerciseId)
+        }
+    }
+
+    fun duplicateExercise(exerciseId: String) {
+        hideContextMenu()
+        viewModelScope.launch {
+            hiitWorkoutsRepository.duplicateExercise(
+                exerciseId = exerciseId,
+                workoutId = TEMP_WORKOUT_ID
             )
         }
     }

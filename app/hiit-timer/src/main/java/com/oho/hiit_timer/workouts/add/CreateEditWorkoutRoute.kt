@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,9 +73,8 @@ fun CreateEditWorkoutRoute(
     workoutId: String,
     onBack: () -> Unit = {},
     onStartWorkout: (workoutId: String) -> Unit = {},
-    // optional: open block editor / menu
-    onOpenBlockMenu: (blockId: String) -> Unit = {},
-    onAddBlock: () -> Unit
+    onAddBlock: () -> Unit,
+    onEditExercise: (exerciseId: String) -> Unit
 ) {
     val vm: CreateEditWorkoutViewModel = koinViewModel {
         parametersOf(workoutId)
@@ -84,20 +84,32 @@ fun CreateEditWorkoutRoute(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
     )
-//    BlockMenuBottomSheet(
-//        sheetState = sheetState,
-//        onDismiss = {},
-//        onEdit = {},
-//        onDuplicate = {},
-//        onDelete = { },
-//    )
+    val exerciseId = state.blockContextMenuId
+    if (exerciseId != null) {
+        BlockMenuBottomSheet(
+            sheetState = sheetState,
+            onDismiss = {
+                vm.onDismissedContextMenu()
+            },
+            onEdit = {
+                onEditExercise(exerciseId)
+                vm.onDismissedContextMenu()
+            },
+            onDuplicate = {
+                vm.duplicateExercise(exerciseId)
+            },
+            onDelete = {
+                vm.deleteExercise(exerciseId)
+            },
+        )
+    }
+
 
     LaunchedEffect(Unit) {
         vm.events.collect { e ->
             when (e) {
                 CreateEditWorkoutViewModel.Event.Back -> onBack()
                 is CreateEditWorkoutViewModel.Event.Start -> onStartWorkout(e.workoutId)
-                is CreateEditWorkoutViewModel.Event.OpenBlockMenu -> onOpenBlockMenu(e.blockId)
                 CreateEditWorkoutViewModel.Event.OnAddBlockClicked -> onAddBlock()
             }
         }
@@ -266,6 +278,7 @@ private fun ReorderableCollectionItemScope.BlockRowCard(
             Box(
                 modifier = Modifier
                     .size(40.dp)
+                    .clip(CircleShape)
                     .clickable(onClick = onMore),
                 contentAlignment = Alignment.Center
             ) {
@@ -395,14 +408,6 @@ private fun BottomBar(
 
 @Composable
 private fun buildBlockMeta(spec: WorkoutBlockSpec): String = when (spec) {
-    is WorkoutBlockSpec.Single -> {
-        if (spec.sets == 1) {
-            stringResource(timerR.string.single_set_spec, spec.sets, formatSec(spec.durationSec))
-        } else {
-            stringResource(timerR.string.multiple_sets_spec, spec.sets, formatSec(spec.durationSec))
-        }
-    }
-
     is WorkoutBlockSpec.Interval -> {
         stringResource(
             timerR.string.interval_spec,

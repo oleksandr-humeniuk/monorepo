@@ -10,7 +10,6 @@ data class WorkoutBlockUi(
 ) {
     val totalDurationSec: Int
         get() = when (spec) {
-            is WorkoutBlockSpec.Single -> spec.sets * spec.durationSec
             is WorkoutBlockSpec.Interval -> spec.sets * (spec.workSec + spec.restSec)
         }
 }

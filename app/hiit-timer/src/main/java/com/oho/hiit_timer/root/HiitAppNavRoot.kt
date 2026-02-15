@@ -51,12 +51,16 @@ fun HiitAppNavRoot(
                         onBack = { viewModel.onBack() },
                         onAddBlock = {
                             viewModel.onAddBlock()
+                        },
+                        onEditExercise = { exerciseId ->
+                            viewModel.onEditExercise(exerciseId = exerciseId)
                         }
                     )
                 }
 
-                is HiitRootRoute.AddBlock -> NavEntry(key) {
+                is HiitRootRoute.AddEditExercise -> NavEntry(key) {
                     CreateEditIntrervalRoute(
+                        exerciseId = key.id,
                         onBack = { viewModel.onBack() },
                         onSaved = { viewModel.onBack() }
                     )

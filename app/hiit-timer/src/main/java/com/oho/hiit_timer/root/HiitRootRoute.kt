@@ -6,5 +6,7 @@ sealed interface HiitRootRoute {
 
     data class CreateEditWorkout(val workoutId: String) : HiitRootRoute
 
-    data object AddBlock : HiitRootRoute
+    data class AddEditExercise(
+        val id: String? = null // add null, edit not null
+    ) : HiitRootRoute
 }

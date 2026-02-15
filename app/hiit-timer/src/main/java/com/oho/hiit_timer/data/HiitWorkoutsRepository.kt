@@ -24,6 +24,10 @@ interface HiitWorkoutsRepository {
     suspend fun getWorkout(workoutId: String): HiitWorkout?
 
     fun observerWorkouts(source: Source): Flow<List<HiitWorkout>>
+    suspend fun deleteExercise(exerciseId: String)
+    suspend fun duplicateExercise(exerciseId: String, workoutId: String)
+    suspend fun getExercise(exerciseId: String): HiitExercise?
+
 
     enum class Source {
         System,
@@ -91,6 +95,21 @@ class HiitWorkoutsRepositoryImpl(
             .map { workouts ->
                 workouts.map { workout -> workout.toDomain() }
             }
+    }
+
+    override suspend fun deleteExercise(exerciseId: String) {
+        dao.deleteExercise(exerciseId)
+    }
+
+    override suspend fun duplicateExercise(exerciseId: String, workoutId: String) {
+        dao.duplicateExercise(
+            exerciseId = exerciseId,
+            workoutId = workoutId
+        )
+    }
+
+    override suspend fun getExercise(exerciseId: String): HiitExercise? {
+        return dao.queryExercise(exerciseId = exerciseId)?.toDomain()
     }
 }
 
@@ -162,17 +181,22 @@ private fun WorkoutWithExercises.toDomain(prepareSec: Int = 10): HiitWorkout {
         name = workout.name,
         prepareSec = prepareSec,
         exercises = sorted.map { e ->
-            HiitExercise(
-                id = e.id,
-                name = e.name,
-                sets = e.sets,
-                workSec = e.workSec,
-                restSec = e.restSec,
-                restAfterLastWork = policyFromDb(
-                    e.restAfterLastWorkType,
-                    e.restAfterLastWorkCustomSec
-                ),
-            )
+            e.toDomain()
         }
+    )
+}
+
+private fun ExerciseEntity.toDomain(): HiitExercise {
+    val e = this
+    return HiitExercise(
+        id = e.id,
+        name = e.name,
+        sets = e.sets,
+        workSec = e.workSec,
+        restSec = e.restSec,
+        restAfterLastWork = policyFromDb(
+            e.restAfterLastWorkType,
+            e.restAfterLastWorkCustomSec
+        ),
     )
 }

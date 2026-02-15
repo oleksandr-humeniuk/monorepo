@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 @Dao
 interface HiitWorkoutsDao {
@@ -45,5 +46,25 @@ interface HiitWorkoutsDao {
         upsertWorkout(workout)
         deleteExercisesByWorkout(workout.id)
         upsertExercises(exercises)
+    }
+
+    @Query("DELETE FROM hiit_exercises WHERE id = :exerciseId")
+    suspend fun deleteExercise(exerciseId: String)
+
+    @Query("SELECT * FROM hiit_exercises WHERE  id =:exerciseId")
+    suspend fun queryExercise(
+        exerciseId: String
+    ): ExerciseEntity?
+
+    @Transaction
+    suspend fun duplicateExercise(exerciseId: String, workoutId: String) {
+        val toDuplicated = queryExercise( exerciseId = exerciseId) ?: return
+        val currentMaxOrder = getMaxOrder(workoutId = workoutId)
+        upsertExercise(
+            toDuplicated.copy(
+                id = UUID.randomUUID().toString(),
+                orderInWorkout = currentMaxOrder + 1
+            )
+        )
     }
 }
