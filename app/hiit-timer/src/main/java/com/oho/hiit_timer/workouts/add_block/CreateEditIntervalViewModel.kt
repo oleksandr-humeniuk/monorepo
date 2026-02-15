@@ -47,7 +47,10 @@ class CreateEditIntervalViewModel(
         val lastRestSec: Int = 10,
         val isLastRestVisible: Boolean = false,
         val totalDurationSec: Int = 40, // computed
-    )
+    ) {
+        val saveEnabled: Boolean
+            get() = restSec != 0 || workSec != 0
+    }
 
     sealed interface Event {
         data object Back : Event

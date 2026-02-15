@@ -267,6 +267,7 @@ private fun CreateEditIntervalScreen(
             onSaveClicked = onSaveClicked,
             modifier = Modifier.align(Alignment.BottomCenter),
             saveCta = saveCta,
+            saveEnabled = state.saveEnabled
         )
     }
 }
@@ -382,6 +383,7 @@ private fun ValuePill(
 @Composable
 private fun BottomBar(
     totalTime: Int,
+    saveEnabled: Boolean,
     onSaveClicked: () -> Unit,
     saveCta: String,
     modifier: Modifier = Modifier,
@@ -421,7 +423,7 @@ private fun BottomBar(
             Spacer(Modifier.height(16.dp))
 
             MonoPrimaryButton(
-                enabled = totalTime > 0,
+                enabled = saveEnabled,
                 onClick = onSaveClicked,
                 text = saveCta,
                 modifier = Modifier

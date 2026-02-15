@@ -32,7 +32,7 @@ data class HiitExercise(
 )
 
 fun HiitExercise.totalDurationSec(): Int {
-    if (sets <= 0 || workSec <= 0) return 0
+    if (sets <= 0) return 0
 
     val workTotal = sets * workSec
 
