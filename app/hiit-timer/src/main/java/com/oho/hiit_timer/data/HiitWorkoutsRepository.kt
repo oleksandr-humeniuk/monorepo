@@ -127,21 +127,32 @@ private fun HiitWorkout.toEntitiesForUpsert(
     )
 
     val ex = exercises.mapIndexed { index, e ->
-        val (t, c) = e.restAfterLastWork.toDb()
-        ExerciseEntity(
-            id = e.id,
+        e.toDb(
             workoutId = id,
-            name = e.name,
-            sets = e.sets,
-            workSec = e.workSec,
-            restSec = e.restSec,
-            restAfterLastWorkType = t,
-            restAfterLastWorkCustomSec = c,
-            orderInWorkout = index,
+            orderInWorkout = index
         )
     }
 
     return w to ex
+}
+
+fun HiitExercise.toDb(
+    workoutId: String,
+    orderInWorkout: Int
+): ExerciseEntity {
+    val e = this
+    val (t, c) = e.restAfterLastWork.toDb()
+    return ExerciseEntity(
+        id = e.id,
+        workoutId = workoutId,
+        name = e.name,
+        sets = e.sets,
+        workSec = e.workSec,
+        restSec = e.restSec,
+        restAfterLastWorkType = t,
+        restAfterLastWorkCustomSec = c,
+        orderInWorkout = orderInWorkout,
+    )
 }
 
 private fun WorkoutWithExercises.toDomain(prepareSec: Int = 10): HiitWorkout {

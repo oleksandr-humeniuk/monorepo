@@ -67,5 +67,8 @@ private val appModule = module {
     factoryOf(::QuickStartRepository)
     factoryOf(::TempWorkoutRepository)
 
+
+
+
 }
 //TODO: reset min for rest and work to 0

@@ -19,17 +19,18 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.oho.core.ui.R
 import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.QuickStartTimerRoute
-import com.oho.utils.R as timerR
-import com.oho.hiit_timer.workouts.add_block.CreateEditIntrervalRoute
 import com.oho.hiit_timer.workouts.list.WorkoutsRoute
 import org.koin.androidx.compose.koinViewModel
+import com.oho.utils.R as timerR
 
 sealed interface HiitTabRoute {
     data object Workouts : HiitTabRoute
@@ -60,6 +61,10 @@ fun HiitTabHost(
             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
             backStack = state.backStack,
             onBack = { viewModel.onBack() },
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
             entryProvider = { tab ->
                 when (tab) {
                     HiitTabRoute.Quick -> NavEntry(tab) {
@@ -73,7 +78,6 @@ fun HiitTabHost(
                     }
 
                     HiitTabRoute.Challenges -> NavEntry(tab) {
-                        CreateEditIntrervalRoute()
                     }
 
                     HiitTabRoute.Workouts -> NavEntry(tab) {

@@ -304,7 +304,6 @@ private fun TotalChip(text: String) {
 @Composable
 private fun AddBlockCard(onClick: () -> Unit) {
     val c = MonoTheme.colors
-    val strokeWidthPx = 2.0f
     val dash = floatArrayOf(14f, 10f)
 
     Box(
@@ -314,7 +313,7 @@ private fun AddBlockCard(onClick: () -> Unit) {
             .clip(RoundedCornerShape(18.dp))
             .drawBehind {
                 val paint = Stroke(
-                    width = strokeWidthPx,
+                    width = 2.dp.toPx(),
                     pathEffect = PathEffect.dashPathEffect(dash, 0f),
                 )
                 drawRoundRect(

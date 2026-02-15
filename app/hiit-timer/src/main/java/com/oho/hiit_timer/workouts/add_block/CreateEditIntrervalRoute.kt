@@ -39,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
@@ -47,7 +46,7 @@ import com.oho.core.ui.components.AnimatedNumberText
 import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.RoundIconButton
 import com.oho.hiit_timer.formatSec
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import com.oho.utils.R as timerR
 
 /**
@@ -60,19 +59,20 @@ import com.oho.utils.R as timerR
  */
 @Composable
 fun CreateEditIntrervalRoute(
-    vm: CreateEditIntervalViewModel = koinViewModel(),
     title: String = stringResource(timerR.string.create_edit_interval_add_title),
     saveCta: String = stringResource(timerR.string.create_edit_interval_save_cta),
     onBack: () -> Unit = {},
-    onSaved: (IntervalBlockDraft) -> Unit = {},
+    onSaved: () -> Unit = {},
 ) {
+    val vm: CreateEditIntervalViewModel = koinViewModel()
+
     val state by vm.state.collectAsState(initial = CreateEditIntervalViewModel.UiState())
 
     LaunchedEffect(Unit) {
         vm.events.collect { e ->
             when (e) {
                 CreateEditIntervalViewModel.Event.Back -> onBack()
-                is CreateEditIntervalViewModel.Event.Saved -> onSaved(e.block)
+                is CreateEditIntervalViewModel.Event.Saved -> onSaved()
                 is CreateEditIntervalViewModel.Event.OpenPicker -> Unit
                 CreateEditIntervalViewModel.Event.More -> Unit
             }

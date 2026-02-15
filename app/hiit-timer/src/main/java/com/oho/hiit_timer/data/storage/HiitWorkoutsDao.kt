@@ -31,6 +31,12 @@ interface HiitWorkoutsDao {
     @Query("DELETE FROM hiit_exercises WHERE workoutId = :workoutId")
     suspend fun deleteExercisesByWorkout(workoutId: String)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertExercise(exercises: ExerciseEntity)
+
+    @Query("SELECT COALESCE(MAX(orderInWorkout), -1) FROM hiit_exercises WHERE workoutId = :workoutId")
+    suspend fun getMaxOrder(workoutId: String): Int
+
     @Transaction
     suspend fun upsertWorkoutGraph(
         workout: WorkoutEntity,

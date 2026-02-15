@@ -2,6 +2,9 @@ package com.oho.hiit_timer.workouts.add_block
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oho.hiit_timer.data.TempWorkoutRepository
+import com.oho.hiit_timer.domain.HiitExercise
+import com.oho.hiit_timer.domain.RestAfterLastWorkPolicy
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 import kotlin.math.max
 
 /**
@@ -21,6 +25,7 @@ import kotlin.math.max
  */
 class CreateEditIntervalViewModel(
     // If you need "edit mode", pass initial values through DI params and call initialize().
+    private val tempWorkoutRepository: TempWorkoutRepository
 ) : ViewModel() {
 
     // ---- public API
@@ -38,7 +43,7 @@ class CreateEditIntervalViewModel(
     sealed interface Event {
         data object Back : Event
         data object More : Event
-        data class Saved(val block: IntervalBlockDraft) : Event
+        data object Saved : Event
 
         data class OpenPicker(val target: PillTarget) : Event
     }
@@ -105,14 +110,20 @@ class CreateEditIntervalViewModel(
         val s = _state.value
         val nameTrim = s.name.trim().takeIf { it.isNotEmpty() }
 
-        val block = IntervalBlockDraft(
-            name = nameTrim,
-            sets = s.sets,
-            workSec = s.workSec,
-            restSec = s.restSec,
-            lastRestSec = if (s.sets > 1) s.lastRestSec else null,
-        )
-        emit(Event.Saved(block))
+
+        viewModelScope.launch {
+            tempWorkoutRepository.upsertExercise(
+                HiitExercise(
+                    id = UUID.randomUUID().toString(),
+                    name = nameTrim ?: "Work",
+                    sets = s.sets,
+                    workSec = s.workSec,
+                    restSec = s.restSec,
+                    restAfterLastWork = if (s.sets > 1) RestAfterLastWorkPolicy.Custom(s.lastRestSec) else RestAfterLastWorkPolicy.None,
+                )
+            )
+            emit(Event.Saved)
+        }
     }
 
     // ---- internal
