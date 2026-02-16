@@ -75,6 +75,14 @@ class HiitRootNavViewModel(
         }
     }
 
+    fun openSoundSettings() {
+        _state.update { s ->
+            s.copy(
+                backStack = s.backStack + HiitRootRoute.SoundSettings
+            )
+        }
+    }
+
     data class NavState(
         val backStack: List<HiitRootRoute> = listOf(HiitRootRoute.Tabs),
     )

@@ -12,5 +12,7 @@ sealed interface HiitRootRoute {
 
     data class WorkoutDetails(
         val id: String
-    ): HiitRootRoute
+    ) : HiitRootRoute
+
+    data object SoundSettings : HiitRootRoute
 }

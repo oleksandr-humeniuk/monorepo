@@ -28,6 +28,7 @@ import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.QuickStartTimerRoute
+import com.oho.hiit_timer.settings.SettingsRoute
 import com.oho.hiit_timer.workouts.list.WorkoutsRoute
 import org.koin.androidx.compose.koinViewModel
 import com.oho.utils.R as timerR
@@ -45,6 +46,7 @@ fun HiitTabHost(
     runWorkout: (String) -> Unit,
     openDetails: (String) -> Unit,
     createWorkout: (String?) -> Unit,
+    openSoundSettings: () -> Unit,
     viewModel: TabsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -75,7 +77,16 @@ fun HiitTabHost(
                     }
 
                     HiitTabRoute.Settings -> NavEntry(tab) {
-                        MockScreen(stringResource(timerR.string.tab_history))
+                        SettingsRoute(
+                            onBack = {
+                                viewModel.onBack()
+                            },
+                            onRateApp = {},
+                            onContactSupport = {},
+                            onOpenSound = openSoundSettings,
+                            onOpenPrivacyPolicy = { },
+                            vm = koinViewModel(),
+                        )
                     }
 
                     HiitTabRoute.Challenges -> NavEntry(tab) {
