@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -431,6 +432,88 @@ private fun ProCtaButton(
             text = text,
             style = MonoTextStyle.Button,
             color = if (enabled) Color.White else c.disabledButtonText,
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Paywall – Yearly selected")
+@Composable
+private fun HiitPaywallScreenPreview() {
+    MonoTheme {
+        HiitPaywallScreen(
+            state = HiitPaywallUiState(
+                phase = PaywallUiPhase.Ready,
+                products = mapOf(
+                    PaywallPlan.Yearly to PaywallProduct(
+                        plan = PaywallPlan.Yearly,
+                        priceText = "$39.99 / year",
+                        secondaryText = "Save 67%",
+                        isBestValue = true,
+                    ),
+                    PaywallPlan.Monthly to PaywallProduct(
+                        plan = PaywallPlan.Monthly,
+                        priceText = "$9.99 / month",
+                        secondaryText = "Flexible access",
+                        isBestValue = false,
+                    ),
+                ),
+                selectedPlan = PaywallPlan.Yearly,
+            ),
+            onClose = {},
+            onSelectPlan = {},
+            onCta = {},
+            onRestore = {},
+            onOpenTerms = {},
+            onOpenPrivacy = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Paywall – Monthly selected")
+@Composable
+private fun HiitPaywallScreenMonthlyPreview() {
+    MonoTheme {
+        HiitPaywallScreen(
+            state = HiitPaywallUiState(
+                phase = PaywallUiPhase.Ready,
+                products = mapOf(
+                    PaywallPlan.Yearly to PaywallProduct(
+                        plan = PaywallPlan.Yearly,
+                        priceText = "$39.99 / year",
+                        secondaryText = "Save 67%",
+                        isBestValue = true,
+                    ),
+                    PaywallPlan.Monthly to PaywallProduct(
+                        plan = PaywallPlan.Monthly,
+                        priceText = "$9.99 / month",
+                        secondaryText = "Flexible access",
+                        isBestValue = false,
+                    ),
+                ),
+                selectedPlan = PaywallPlan.Monthly,
+            ),
+            onClose = {},
+            onSelectPlan = {},
+            onCta = {},
+            onRestore = {},
+            onOpenTerms = {},
+            onOpenPrivacy = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Paywall – Loading")
+@Composable
+private fun HiitPaywallScreenLoadingPreview() {
+    MonoTheme {
+        HiitPaywallScreen(
+            state = HiitPaywallUiState(phase = PaywallUiPhase.Loading),
+            onClose = {},
+            onSelectPlan = {},
+            onCta = {},
+            onRestore = {},
+            onOpenTerms = {},
+            onOpenPrivacy = {},
         )
     }
 }
