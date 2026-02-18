@@ -72,39 +72,43 @@ fun SettingsRoute(
             }
         }
     }
-    val themeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
-    if (state.isThemeSheetVisible) {
+    val content = state as? SettingsViewModel.UiState.Content
+
+    val themeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    if (content?.isThemeSheetVisible == true) {
         ThemeBottomSheet(
             sheetState = themeSheetState,
-            selected = state.themeMode,
+            selected = content.themeMode,
             onDismiss = vm::dismissThemeSheet,
             onSelect = { vm.selectTheme(it) },
         )
     }
 
     MonoScaffold(Modifier.fillMaxSize()) {
-        SettingsScreen(
-            state = state,
-            onBack = vm::onBack,
-            onPrepareMinus = vm::onPrepareMinus,
-            onPreparePlus = vm::onPreparePlus,
-            onToggleShowTotalRemaining = vm::onToggleShowTotalRemaining,
-            onToggleAutoStartNextPhase = vm::onToggleAutoStartNextPhase,
-            onOpenSound = vm::onOpenSound,
-            onOpenTheme = vm::openThemeSheet,
-            onToggleKeepScreenOn = vm::onToggleKeepScreenOn,
-            onContactSupport = vm::onContactSupport,
-            onRateApp = vm::onRateApp,
-            onOpenPrivacyPolicy = vm::onOpenPrivacyPolicy,
-        )
+        if (content != null) {
+            SettingsScreen(
+                state = content,
+                onBack = vm::onBack,
+                onPrepareMinus = vm::onPrepareMinus,
+                onPreparePlus = vm::onPreparePlus,
+                onToggleShowTotalRemaining = vm::onToggleShowTotalRemaining,
+                onToggleAutoStartNextPhase = vm::onToggleAutoStartNextPhase,
+                onOpenSound = vm::onOpenSound,
+                onOpenTheme = vm::openThemeSheet,
+                onToggleKeepScreenOn = vm::onToggleKeepScreenOn,
+                onContactSupport = vm::onContactSupport,
+                onRateApp = vm::onRateApp,
+                onOpenPrivacyPolicy = vm::onOpenPrivacyPolicy,
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsScreen(
-    state: SettingsViewModel.UiState,
+    state: SettingsViewModel.UiState.Content,
     onBack: () -> Unit,
 
     // Workout
