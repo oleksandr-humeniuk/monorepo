@@ -27,18 +27,27 @@ class HiitRootNavViewModel(
         _state.update { s -> s.copy(pendingRunWorkoutId = workoutId) }
     }
 
+    fun onPermissionSheetRequired() {
+        _state.update { s -> s.copy(showNotificationPermissionSheet = true) }
+    }
+
+    fun onPermissionSheetDismissed() {
+        _state.update { s -> s.copy(showNotificationPermissionSheet = false) }
+    }
+
     fun proceedWithPendingRun() {
         val id = _state.value.pendingRunWorkoutId ?: return
         _state.update { s ->
             s.copy(
                 pendingRunWorkoutId = null,
+                showNotificationPermissionSheet = false,
                 backStack = s.backStack + HiitRootRoute.Run(id),
             )
         }
     }
 
     fun cancelPendingRun() {
-        _state.update { s -> s.copy(pendingRunWorkoutId = null) }
+        _state.update { s -> s.copy(pendingRunWorkoutId = null, showNotificationPermissionSheet = false) }
     }
 
     private fun runWorkout(workoutId: String) {
@@ -115,6 +124,7 @@ class HiitRootNavViewModel(
     data class NavState(
         val backStack: List<HiitRootRoute> = listOf(HiitRootRoute.Tabs),
         val pendingRunWorkoutId: String? = null,
+        val showNotificationPermissionSheet: Boolean = false,
     )
 
 }

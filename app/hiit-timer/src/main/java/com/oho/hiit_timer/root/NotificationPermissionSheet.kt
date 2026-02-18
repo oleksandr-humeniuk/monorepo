@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,11 +26,11 @@ import com.oho.core.ui.theme.MonoTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationPermissionSheet(
-    sheetState: SheetState,
     onAllow: () -> Unit,
     onNotNow: () -> Unit,
 ) {
     val c = MonoTheme.colors
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
         onDismissRequest = onNotNow,
@@ -71,16 +71,6 @@ fun NotificationPermissionSheet(
 
             Spacer(Modifier.height(28.dp))
 
-            MonoPrimaryButton(
-                text = "Allow notifications",
-                onClick = onAllow,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-            )
-
-            Spacer(Modifier.height(8.dp))
-
             TextButton(
                 onClick = onNotNow,
                 modifier = Modifier.fillMaxWidth(),
@@ -91,6 +81,16 @@ fun NotificationPermissionSheet(
                     color = c.secondaryTextColor,
                 )
             }
+
+            Spacer(Modifier.height(8.dp))
+
+            MonoPrimaryButton(
+                text = "Allow notifications",
+                onClick = onAllow,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+            )
 
             Spacer(Modifier.height(8.dp))
         }

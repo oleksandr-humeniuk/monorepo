@@ -6,13 +6,9 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,36 +37,26 @@ fun HiitAppNavRoot(
         ActivityResultContracts.RequestPermission()
     ) { viewModel.proceedWithPendingRun() }
 
-    var showPermissionSheet by remember { mutableStateOf(false) }
-    val permissionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     // Whenever a run is requested, check permission first
     LaunchedEffect(state.pendingRunWorkoutId) {
         state.pendingRunWorkoutId ?: return@LaunchedEffect
         val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) !=
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED
         if (needsPermission) {
-            showPermissionSheet = true
+            viewModel.onPermissionSheetRequired()
         } else {
             viewModel.proceedWithPendingRun()
         }
     }
 
-    if (showPermissionSheet) {
+    if (state.showNotificationPermissionSheet) {
         NotificationPermissionSheet(
-            sheetState = permissionSheetState,
             onAllow = {
-                showPermissionSheet = false
+                viewModel.onPermissionSheetDismissed()
                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             },
-            onNotNow = {
-                showPermissionSheet = false
-                viewModel.proceedWithPendingRun()
-            },
+            onNotNow = { viewModel.proceedWithPendingRun() },
         )
     }
 
