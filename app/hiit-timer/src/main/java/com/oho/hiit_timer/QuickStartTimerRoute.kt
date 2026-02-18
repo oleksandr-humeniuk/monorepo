@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,7 +46,8 @@ import com.oho.utils.R as timerR
 fun QuickStartTimerRoute(
     vm: QuickStartTimerViewModel = koinViewModel(),
     onBack: () -> Unit = {},
-    runWrokout: (workoutId: String) -> Unit = { _ -> }
+    runWrokout: (workoutId: String) -> Unit = { _ -> },
+    onProClick: () -> Unit = {},
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
 
@@ -65,6 +65,7 @@ fun QuickStartTimerRoute(
         state = state,
         onBackClicked = { onBack(); vm.onBackClicked() },
         onMoreClicked = vm::onMoreClicked,
+        onProClick = onProClick,
         onSetsMinus = vm::onSetsMinus,
         onSetsPlus = vm::onSetsPlus,
         onWorkMinus = vm::onWorkMinus,
@@ -84,6 +85,7 @@ fun IntervalTimerConfigScreen(
     state: QuickStartTimerViewModel.UiState,
     onBackClicked: () -> Unit,
     onMoreClicked: () -> Unit,
+    onProClick: () -> Unit = {},
     onSetsMinus: () -> Unit,
     onSetsPlus: () -> Unit,
     onWorkMinus: () -> Unit,
@@ -110,12 +112,10 @@ fun IntervalTimerConfigScreen(
                 navigationIcon = {
                 },
                 actions = {
-//                    IconButton(onClick = onMoreClicked) {
-//                        Icon(
-//                            painterResource(R.drawable.ic_more_vert),
-//                            contentDescription = stringResource(timerR.string.more)
-//                        )
-//                    }
+                    ProBadgeButton(
+                        onClick = onProClick,
+                        modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = page,

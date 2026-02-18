@@ -47,6 +47,7 @@ import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.hiit_timer.ProBadgeButton
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,6 +58,7 @@ fun SettingsRoute(
     onContactSupport: () -> Unit,
     onRateApp: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
+    onProClick: () -> Unit = {},
     vm: SettingsViewModel = org.koin.androidx.compose.koinViewModel(),
 ) {
     val state by vm.state.collectAsState()
@@ -100,6 +102,7 @@ fun SettingsRoute(
                 onContactSupport = vm::onContactSupport,
                 onRateApp = vm::onRateApp,
                 onOpenPrivacyPolicy = vm::onOpenPrivacyPolicy,
+                onProClick = onProClick,
             )
         }
     }
@@ -128,6 +131,7 @@ private fun SettingsScreen(
     onContactSupport: () -> Unit,
     onRateApp: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
+    onProClick: () -> Unit = {},
 ) {
     val c = MonoTheme.colors
 
@@ -144,6 +148,12 @@ private fun SettingsScreen(
 
             TopAppBar(
                 title = { Text("Settings") },
+                actions = {
+                    ProBadgeButton(
+                        onClick = onProClick,
+                        modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = c.appBackground,
                     titleContentColor = c.primaryTextColor,

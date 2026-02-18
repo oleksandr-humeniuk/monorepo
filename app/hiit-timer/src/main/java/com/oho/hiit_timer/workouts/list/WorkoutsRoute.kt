@@ -47,6 +47,7 @@ import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.hiit_timer.ProBadgeButton
 import com.oho.hiit_timer.formatSec
 import org.koin.androidx.compose.koinViewModel
 import com.oho.utils.R as timerR
@@ -70,6 +71,7 @@ fun WorkoutsRoute(
     openWorkout: (workoutId: String) -> Unit,
     runWrokout: (workoutId: String) -> Unit,
     createEditWorkout: (String?) -> Unit, //workoutId null if new
+    onProClick: () -> Unit = {},
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
 
@@ -90,6 +92,7 @@ fun WorkoutsRoute(
             onWorkoutClick = vm::onWorkoutClicked,
             onStartClick = vm::onStartClicked,
             onCreateWorkout = vm::onCreateClicked,
+            onProClick = onProClick,
         )
     }
 }
@@ -100,6 +103,7 @@ private fun WorkoutsListScreen(
     onWorkoutClick: (workoutId: String) -> Unit,
     onStartClick: (workoutId: String) -> Unit,
     onCreateWorkout: () -> Unit,
+    onProClick: () -> Unit = {},
 ) {
     val c = MonoTheme.colors
 
@@ -111,6 +115,7 @@ private fun WorkoutsListScreen(
         Column(Modifier.fillMaxSize()) {
             WorkoutsTopBar(
                 title = stringResource(timerR.string.workouts_title),
+                onProClick = onProClick,
             )
 
             if (state.items.isEmpty()) {
@@ -146,11 +151,16 @@ private fun WorkoutsListScreen(
 @Composable
 private fun WorkoutsTopBar(
     title: String,
+    onProClick: () -> Unit,
 ) {
     TopAppBar(
         modifier = Modifier.statusBarsPadding(),
         title = { Text(title) },
-        navigationIcon = {
+        actions = {
+            ProBadgeButton(
+                onClick = onProClick,
+                modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
+            )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             titleContentColor = MaterialTheme.colorScheme.onBackground,
