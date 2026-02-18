@@ -2,6 +2,7 @@ package com.oho.hiit_timer.root
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.oho.hiit_timer.BillingBootstrap
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.data.TempWorkoutRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,11 +12,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class HiitRootNavViewModel(
-    private val tempWorkoutRepository: TempWorkoutRepository
+    private val tempWorkoutRepository: TempWorkoutRepository,
+    private val billingBootstrap: BillingBootstrap
 ) : ViewModel() {
     private val _state = MutableStateFlow(NavState())
     val state: StateFlow<NavState> = _state.asStateFlow()
 
+    fun bootstrapBilling() {
+        viewModelScope.launch {
+            billingBootstrap.onAppStart()
+        }
+    }
 
     fun onBack() {
         _state.update { s ->
@@ -47,7 +54,12 @@ class HiitRootNavViewModel(
     }
 
     fun cancelPendingRun() {
-        _state.update { s -> s.copy(pendingRunWorkoutId = null, showNotificationPermissionSheet = false) }
+        _state.update { s ->
+            s.copy(
+                pendingRunWorkoutId = null,
+                showNotificationPermissionSheet = false
+            )
+        }
     }
 
     private fun runWorkout(workoutId: String) {

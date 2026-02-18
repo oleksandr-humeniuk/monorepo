@@ -27,10 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.oho.core.ui.R
 import com.oho.core.ui.components.MonoCard
 import com.oho.core.ui.components.MonoDivider
+import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
@@ -230,32 +233,30 @@ private fun BenefitsBlock() {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-//        BenefitRow(
+        BenefitRow(
 //            icon = Icons.Filled.Layers,
-//            title = "Complex Sets",
-//            subtitle = "Create nested intervals & loops",
-//        )
-//        BenefitRow(
+            icon = R.drawable.ic_fitness_center,
+            title = "Complex Sets",
+            subtitle = "Create nested intervals & loops",
+        )
+        BenefitRow(
 //            icon = Icons.Filled.FitnessCenter,
-//            title = "Multiple Exercises",
-//            subtitle = "Assign specific moves to timers",
-//        )
-//        BenefitRow(
+            icon = R.drawable.ic_fitness_center,
+            title = "Multiple Exercises",
+            subtitle = "Assign specific moves to timers",
+        )
+        BenefitRow(
 //            icon = Icons.Filled.VolumeUp,
-//            title = "Custom Sounds",
-//            subtitle = "TTS & custom beeps",
-//        )
-//        BenefitRow(
-//            icon = Icons.Filled.Save,
-//            title = "Unlimited Saves",
-//            subtitle = "Keep your entire routine library",
-//        )
+            icon = R.drawable.ic_fitness_center,
+            title = "Custom Sounds",
+            subtitle = "TTS & custom beeps",
+        )
     }
 }
 
 @Composable
 private fun BenefitRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Int,
     title: String,
     subtitle: String,
 ) {
@@ -272,12 +273,12 @@ private fun BenefitRow(
                 .border(1.dp, c.cardBorderColor, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-//            MonoIcon(
-//                imageVector = icon,
-//                contentDescription = null,
-//                tint = c.primaryIconColor,
-//                modifier = Modifier.size(20.dp)
-//            )
+            MonoIcon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = c.primaryIconColor,
+                modifier = Modifier.size(20.dp)
+            )
         }
 
         Spacer(Modifier.width(14.dp))

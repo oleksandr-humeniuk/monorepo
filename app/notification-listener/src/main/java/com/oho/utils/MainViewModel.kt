@@ -38,6 +38,9 @@ class MainViewModel : ViewModel() {
         return enabled.split(':').any { it.startsWith(pkg) }
     }
 
+    fun bootstrapBilling() {
+    }
+
     data class NavState(
         val backStack: List<Routes> = listOf(Routes.Gate),
     )

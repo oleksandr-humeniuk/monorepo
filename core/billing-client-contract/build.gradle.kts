@@ -31,7 +31,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.billing)
-    implementation(libs.billing.ktx)
+    api(libs.billing)
+    api(libs.billing.ktx)
     implementation(libs.kotlinx.coroutines.core)
 }

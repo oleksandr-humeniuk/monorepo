@@ -32,6 +32,9 @@ fun HiitAppNavRoot(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.bootstrapBilling()
+    }
 
     // Permission launcher — proceed with the run regardless of grant result
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -42,7 +45,10 @@ fun HiitAppNavRoot(
     LaunchedEffect(state.pendingRunWorkoutId) {
         state.pendingRunWorkoutId ?: return@LaunchedEffect
         val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) !=
                 PackageManager.PERMISSION_GRANTED
         if (needsPermission) {
             viewModel.onPermissionSheetRequired()
