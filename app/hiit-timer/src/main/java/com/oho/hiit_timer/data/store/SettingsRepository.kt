@@ -20,6 +20,20 @@ class SettingsRepository(
     private val store: DataStore<Preferences>,
 ) {
 
+    private object Defaults {
+        const val PREPARE_SEC = 5
+        const val SHOW_TOTAL_REMAINING = true
+        const val AUTO_START_NEXT_PHASE = true
+        const val SOUND_ENABLED = true
+        const val VOLUME = 0.7f
+        const val VIBRATION_ENABLED = true
+        val WORK_SOUND = Sound.RingBell
+        val REST_SOUND = Sound.Whistle
+        val DONE_SOUND = Sound.Whistle
+        val THEME_MODE = ThemeMode.Dark
+        const val KEEP_SCREEN_ON = true
+    }
+
     private object Keys {
         val DEFAULT_PREPARE_SEC = intPreferencesKey("default_prepare_sec")
         val SHOW_TOTAL_REMAINING = booleanPreferencesKey("show_total_remaining")
@@ -39,33 +53,33 @@ class SettingsRepository(
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     val hiitPreferences: Flow<HiitPreferences> = store.data.map { prefs ->
         HiitPreferences(
-            defaultPrepareSec = prefs[Keys.DEFAULT_PREPARE_SEC] ?: 5,
-            showTotalRemaining = prefs[Keys.SHOW_TOTAL_REMAINING] ?: true,
-            autoStartNextPhase = prefs[Keys.AUTO_START_NEXT_PHASE] ?: true,
+            defaultPrepareSec = prefs[Keys.DEFAULT_PREPARE_SEC] ?: Defaults.PREPARE_SEC,
+            showTotalRemaining = prefs[Keys.SHOW_TOTAL_REMAINING] ?: Defaults.SHOW_TOTAL_REMAINING,
+            autoStartNextPhase = prefs[Keys.AUTO_START_NEXT_PHASE] ?: Defaults.AUTO_START_NEXT_PHASE,
 
-            soundEnabled = prefs[Keys.SOUND_ENABLED] ?: true,
-            volume = (prefs[Keys.VOLUME] ?: 0.7f).coerceIn(0f, 1f),
-            vibrationEnabled = prefs[Keys.VIBRATION_ENABLED] ?: true,
-            workSound = prefs[Keys.WORK_SOUND].toSoundOrDefault(Sound.RingBeLl),
-            restSound = prefs[Keys.REST_SOUND].toSoundOrDefault(Sound.Whistle),
-            doneSound = prefs[Keys.DONE_SOUND].toSoundOrDefault(Sound.Whistle),
+            soundEnabled = prefs[Keys.SOUND_ENABLED] ?: Defaults.SOUND_ENABLED,
+            volume = (prefs[Keys.VOLUME] ?: Defaults.VOLUME).coerceIn(0f, 1f),
+            vibrationEnabled = prefs[Keys.VIBRATION_ENABLED] ?: Defaults.VIBRATION_ENABLED,
+            workSound = prefs[Keys.WORK_SOUND].toSoundOrDefault(Defaults.WORK_SOUND),
+            restSound = prefs[Keys.REST_SOUND].toSoundOrDefault(Defaults.REST_SOUND),
+            doneSound = prefs[Keys.DONE_SOUND].toSoundOrDefault(Defaults.DONE_SOUND),
 
-            themeMode = prefs[Keys.THEME_MODE].toThemeModeOrDefault(ThemeMode.Dark),
-            keepScreenOn = prefs[Keys.KEEP_SCREEN_ON] ?: true,
+            themeMode = prefs[Keys.THEME_MODE].toThemeModeOrDefault(Defaults.THEME_MODE),
+            keepScreenOn = prefs[Keys.KEEP_SCREEN_ON] ?: Defaults.KEEP_SCREEN_ON,
         )
     }.stateIn(
         scope, SharingStarted.Eagerly, HiitPreferences(
-            defaultPrepareSec = 5,
-            showTotalRemaining = true,
-            autoStartNextPhase = true,
-            soundEnabled = true,
-            volume = 0.7f,
-            vibrationEnabled = true,
-            workSound = Sound.RingBeLl,
-            restSound = Sound.Whistle,
-            doneSound = Sound.Whistle,
-            themeMode = ThemeMode.Dark,
-            keepScreenOn = true
+            defaultPrepareSec = Defaults.PREPARE_SEC,
+            showTotalRemaining = Defaults.SHOW_TOTAL_REMAINING,
+            autoStartNextPhase = Defaults.AUTO_START_NEXT_PHASE,
+            soundEnabled = Defaults.SOUND_ENABLED,
+            volume = Defaults.VOLUME,
+            vibrationEnabled = Defaults.VIBRATION_ENABLED,
+            workSound = Defaults.WORK_SOUND,
+            restSound = Defaults.REST_SOUND,
+            doneSound = Defaults.DONE_SOUND,
+            themeMode = Defaults.THEME_MODE,
+            keepScreenOn = Defaults.KEEP_SCREEN_ON
         )
     )
 
@@ -97,16 +111,16 @@ class SettingsRepository(
         store.edit { it[Keys.VIBRATION_ENABLED] = value }
     }
 
-    suspend fun setWorkSound(value: String) {
-        store.edit { it[Keys.WORK_SOUND] = value }
+    suspend fun setWorkSound(value: Sound) {
+        store.edit { it[Keys.WORK_SOUND] = value.value }
     }
 
-    suspend fun setRestSound(value: String) {
-        store.edit { it[Keys.REST_SOUND] = value }
+    suspend fun setRestSound(value: Sound) {
+        store.edit { it[Keys.REST_SOUND] = value.value }
     }
 
-    suspend fun setDoneSound(value: String) {
-        store.edit { it[Keys.DONE_SOUND] = value }
+    suspend fun setDoneSound(value: Sound) {
+        store.edit { it[Keys.DONE_SOUND] = value.value }
     }
 
     suspend fun setThemeMode(value: ThemeMode) {
@@ -134,7 +148,7 @@ data class HiitPreferences(
 
 enum class Sound(val value: String) {
     Whistle("whistle"),
-    RingBeLl("ring_bell"),
+    RingBell("ring_bell"),
 }
 
 private fun String?.toThemeModeOrDefault(default: ThemeMode): ThemeMode {
