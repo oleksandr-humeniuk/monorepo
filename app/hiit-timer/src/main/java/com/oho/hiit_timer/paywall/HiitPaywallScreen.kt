@@ -1,11 +1,12 @@
 package com.oho.hiit_timer.paywall
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,12 +31,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
 import com.oho.core.ui.components.MonoCard
-import com.oho.core.ui.components.MonoDivider
 import com.oho.core.ui.components.MonoIcon
-import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
@@ -50,50 +51,38 @@ fun HiitPaywallScreen(
     onOpenPrivacy: () -> Unit,
 ) {
     val c = MonoTheme.colors
-
     val scroll = rememberScrollState()
 
-    val topGlow = remember(c.isDarkTheme, c.errorColor, c.successColor) {
-        // Subtle HIIT energy glow: red + green, very low alpha.
-        val red = c.errorColor.copy(alpha = if (c.isDarkTheme) 0.14f else 0.08f)
-        val green = c.successColor.copy(alpha = if (c.isDarkTheme) 0.10f else 0.06f)
-
+    val topGlow = remember(c.isDarkTheme, c.errorColor) {
         Brush.verticalGradient(
-            colors = listOf(red, green, Color.Transparent),
-            startY = 0f,
-            endY = 900f,
+            colorStops = arrayOf(
+                0.0f to c.errorColor.copy(alpha = if (c.isDarkTheme) 0.20f else 0.10f),
+                0.40f to Color.Transparent,
+            ),
         )
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(c.appBackground)
+            .background(c.appBackground),
     ) {
-        // Top glow background
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(topGlow)
-        )
+        Box(modifier = Modifier.fillMaxSize().background(topGlow))
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
-                .navigationBarsPadding()
+                .navigationBarsPadding(),
         ) {
-            PaywallTopBar(
-                onClose = onClose,
-                onRestore = onRestore,
-            )
+            PaywallTopBar(onClose = onClose, onRestore = onRestore)
 
+            // Scrollable benefits section
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1f)
                     .verticalScroll(scroll)
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 20.dp),
+                    .padding(horizontal = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(Modifier.height(14.dp))
@@ -114,75 +103,76 @@ fun HiitPaywallScreen(
                     textAlign = TextAlign.Center,
                 )
 
-                Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.height(24.dp))
 
                 BenefitsBlock()
 
-                Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.height(16.dp))
+            }
 
-                PlansBlock(
-                    state = state,
-                    onSelectPlan = onSelectPlan,
-                )
+            // Fixed bottom section: plans + CTA + footer
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 16.dp),
+            ) {
+                PlansBlock(state = state, onSelectPlan = onSelectPlan)
 
                 Spacer(Modifier.height(16.dp))
 
-                MonoPrimaryButton(
+                ProCtaButton(
+                    text = if (state.isBusy) "Processing..." else "Unlock Pro",
+                    onClick = onCta,
+                    enabled = !state.isBusy &&
+                        state.phase != PaywallUiPhase.Loading &&
+                        state.products.isNotEmpty(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    text = if (state.isBusy) "Processing..." else "Unlock Pro",
-                    onClick = onCta,
-                    enabled = !state.isBusy && state.phase != PaywallUiPhase.Loading && state.products.isNotEmpty(),
                 )
 
-                Spacer(Modifier.height(10.dp))
-
                 if (state.errorMessage != null) {
+                    Spacer(Modifier.height(8.dp))
                     MonoText(
                         text = state.errorMessage,
                         style = MonoTextStyle.BodySecondary,
                         color = c.errorColor,
                         textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(10.dp))
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    MonoText(
-                        text = "Cancel anytime. Google Play subscription.",
-                        style = MonoTextStyle.Label,
-                        color = c.tertiaryTextColor,
-                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
 
                 Spacer(Modifier.height(10.dp))
 
+                MonoText(
+                    text = "Cancel anytime. Google Play subscription.",
+                    style = MonoTextStyle.Label,
+                    color = c.tertiaryTextColor,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Spacer(Modifier.height(8.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     MonoText(
                         text = "Privacy",
                         style = MonoTextStyle.Label,
                         color = c.linkTextColor,
-                        modifier = Modifier.clickable { onOpenPrivacy() }
+                        modifier = Modifier.clickable { onOpenPrivacy() },
                     )
                     Spacer(Modifier.width(14.dp))
                     MonoText(
                         text = "Terms",
                         style = MonoTextStyle.Label,
                         color = c.linkTextColor,
-                        modifier = Modifier.clickable { onOpenTerms() }
+                        modifier = Modifier.clickable { onOpenTerms() },
                     )
                 }
-
-                Spacer(Modifier.height(10.dp))
             }
         }
     }
@@ -194,7 +184,6 @@ private fun PaywallTopBar(
     onRestore: () -> Unit,
 ) {
     val c = MonoTheme.colors
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -202,19 +191,7 @@ private fun PaywallTopBar(
             .padding(top = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-//        MonoIcon(
-//            imageVector = Icons.Filled.Close,
-//            contentDescription = "Close",
-//            tint = c.secondaryIconColor,
-//            modifier = Modifier
-//                .size(28.dp)
-//                .clip(CircleShape)
-//                .clickable { onClose() }
-//                .padding(4.dp)
-//        )
-
         Spacer(Modifier.weight(1f))
-
         MonoText(
             text = "RESTORE",
             style = MonoTextStyle.Label,
@@ -222,7 +199,7 @@ private fun PaywallTopBar(
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
                 .clickable { onRestore() }
-                .padding(horizontal = 10.dp, vertical = 8.dp)
+                .padding(horizontal = 10.dp, vertical = 8.dp),
         )
     }
 }
@@ -234,22 +211,24 @@ private fun BenefitsBlock() {
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         BenefitRow(
-//            icon = Icons.Filled.Layers,
-            icon = R.drawable.ic_fitness_center,
+            icon = R.drawable.ic_timer,
             title = "Complex Sets",
             subtitle = "Create nested intervals & loops",
         )
         BenefitRow(
-//            icon = Icons.Filled.FitnessCenter,
             icon = R.drawable.ic_fitness_center,
             title = "Multiple Exercises",
             subtitle = "Assign specific moves to timers",
         )
         BenefitRow(
-//            icon = Icons.Filled.VolumeUp,
-            icon = R.drawable.ic_fitness_center,
+            icon = R.drawable.ic_volume_up,
             title = "Custom Sounds",
             subtitle = "TTS & custom beeps",
+        )
+        BenefitRow(
+            icon = R.drawable.ic_push_pin,
+            title = "Unlimited Saves",
+            subtitle = "Keep your entire routine library",
         )
     }
 }
@@ -269,32 +248,23 @@ private fun BenefitRow(
             modifier = Modifier
                 .size(44.dp)
                 .clip(CircleShape)
-                .background(c.secondaryButtonBackground)
-                .border(1.dp, c.cardBorderColor, CircleShape),
-            contentAlignment = Alignment.Center
+                .background(c.secondaryButtonBackground),
+            contentAlignment = Alignment.Center,
         ) {
             MonoIcon(
                 painter = painterResource(icon),
                 contentDescription = null,
                 tint = c.primaryIconColor,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
         }
 
         Spacer(Modifier.width(14.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            MonoText(
-                text = title,
-                style = MonoTextStyle.TitleMedium,
-                color = c.primaryTextColor,
-            )
+            MonoText(text = title, style = MonoTextStyle.TitleMedium, color = c.primaryTextColor)
             Spacer(Modifier.height(2.dp))
-            MonoText(
-                text = subtitle,
-                style = MonoTextStyle.BodySecondary,
-                color = c.secondaryTextColor,
-            )
+            MonoText(text = subtitle, style = MonoTextStyle.BodySecondary, color = c.secondaryTextColor)
         }
     }
 }
@@ -305,138 +275,162 @@ private fun PlansBlock(
     onSelectPlan: (PaywallPlan) -> Unit,
 ) {
     val c = MonoTheme.colors
-
     val yearly = state.products[PaywallPlan.Yearly]
     val monthly = state.products[PaywallPlan.Monthly]
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         if (yearly != null) {
-            PlanCard(
-                title = "YEARLY",
-                price = yearly.priceText,
-                rightBadge = if (yearly.isBestValue) "BEST VALUE" else null,
-                rightChip = yearly.secondaryText,
-                crossedPrice = if (yearly.isBestValue) "$24.00" else null, // optional, can be removed
-                selected = state.selectedPlan == PaywallPlan.Yearly,
-                accent = c.errorColor, // HIIT red as highlight
-                onClick = { onSelectPlan(PaywallPlan.Yearly) }
-            )
-        }
-
-        if (monthly != null) {
-            PlanCard(
-                title = "MONTHLY",
-                price = monthly.priceText,
-                rightBadge = null,
-                rightChip = monthly.secondaryText,
-                crossedPrice = null,
-                selected = state.selectedPlan == PaywallPlan.Monthly,
-                accent = c.errorColor,
-                onClick = { onSelectPlan(PaywallPlan.Monthly) }
-            )
-        }
-    }
-
-    Spacer(Modifier.height(8.dp))
-    MonoDivider()
-}
-
-@Composable
-private fun PlanCard(
-    title: String,
-    price: String,
-    rightBadge: String?,
-    rightChip: String?,
-    crossedPrice: String?,
-    selected: Boolean,
-    accent: Color,
-    onClick: () -> Unit,
-) {
-    val c = MonoTheme.colors
-    val shape = RoundedCornerShape(18.dp)
-
-    val borderColor = if (selected) accent else c.cardBorderColor
-    val borderWidth = if (selected) 2.dp else 1.dp
-
-    MonoCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .clickable { onClick() }
-            .border(borderWidth, borderColor, shape),
-        backgroundColor = c.cardBackground,
-        shadowElevation = MonoTheme.elevation.card,
-    ) {
-        Box(modifier = Modifier.padding(16.dp)) {
-
-            if (rightBadge != null) {
-                Box(
+            // Outer box provides space for BEST VALUE badge to float above the card
+            Box(modifier = Modifier.fillMaxWidth()) {
+                val yearlySelected = state.selectedPlan == PaywallPlan.Yearly
+                MonoCard(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(accent)
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                        .fillMaxWidth()
+                        .padding(top = 14.dp)
+                        .clickable { onSelectPlan(PaywallPlan.Yearly) },
+                    border = BorderStroke(
+                        width = if (yearlySelected) 2.dp else 1.dp,
+                        color = if (yearlySelected) c.errorColor else c.cardBorderColor,
+                    ),
+                    contentPadding = PaddingValues(16.dp),
                 ) {
-                    MonoText(
-                        text = rightBadge,
-                        style = MonoTextStyle.Label,
-                        color = c.inverseTextColor,
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                MonoText(
-                    text = title,
-                    style = MonoTextStyle.Label,
-                    color = if (selected) accent else c.tertiaryTextColor,
-                )
-
-                MonoText(
-                    text = price,
-                    style = MonoTextStyle.TitleLarge,
-                    color = c.primaryTextColor,
-                )
-
-                if (rightChip != null || crossedPrice != null) {
-                    Spacer(Modifier.height(6.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (rightChip != null) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(accent.copy(alpha = 0.12f))
-                                    .padding(horizontal = 10.dp, vertical = 6.dp)
-                            ) {
-                                MonoText(
-                                    text = rightChip,
-                                    style = MonoTextStyle.Label,
-                                    color = accent,
+                        Column(modifier = Modifier.weight(1f)) {
+                            MonoText(
+                                text = "YEARLY",
+                                style = MonoTextStyle.Label,
+                                color = if (yearlySelected) c.errorColor else c.tertiaryTextColor,
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            MonoText(
+                                text = yearly.priceText,
+                                style = MonoTextStyle.TitleLarge,
+                                color = c.primaryTextColor,
+                            )
+                        }
+                        if (yearly.secondaryText != null) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(c.errorColor.copy(alpha = 0.15f))
+                                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                                ) {
+                                    MonoText(
+                                        text = yearly.secondaryText,
+                                        style = MonoTextStyle.Label,
+                                        color = c.errorColor,
+                                    )
+                                }
+                                Spacer(Modifier.height(4.dp))
+                                // Crossed-out reference price (monthly × 12)
+                                Text(
+                                    text = computeMonthlyAnnualPrice(state),
+                                    style = MonoTheme.typography.label,
+                                    color = c.tertiaryTextColor,
+                                    textDecoration = TextDecoration.LineThrough,
                                 )
                             }
                         }
+                    }
+                }
 
-                        Spacer(Modifier.weight(1f))
-
-                        if (crossedPrice != null) {
-                            MonoText(
-                                text = crossedPrice,
-                                style = MonoTextStyle.Label,
-                                color = c.tertiaryTextColor,
-                            )
-                        }
+                // BEST VALUE badge floating above the card
+                if (yearly.isBestValue) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(end = 16.dp)
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(c.errorColor)
+                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                    ) {
+                        MonoText(
+                            text = "BEST VALUE",
+                            style = MonoTextStyle.Label,
+                            color = Color.White,
+                        )
                     }
                 }
             }
         }
+
+        if (monthly != null) {
+            val monthlySelected = state.selectedPlan == PaywallPlan.Monthly
+            MonoCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onSelectPlan(PaywallPlan.Monthly) },
+                border = BorderStroke(
+                    width = if (monthlySelected) 2.dp else 1.dp,
+                    color = if (monthlySelected) c.errorColor else c.cardBorderColor,
+                ),
+                contentPadding = PaddingValues(16.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        MonoText(
+                            text = "MONTHLY",
+                            style = MonoTextStyle.Label,
+                            color = if (monthlySelected) c.errorColor else c.tertiaryTextColor,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        MonoText(
+                            text = monthly.priceText,
+                            style = MonoTextStyle.TitleLarge,
+                            color = c.primaryTextColor,
+                        )
+                    }
+                    if (monthly.secondaryText != null) {
+                        MonoText(
+                            text = monthly.secondaryText,
+                            style = MonoTextStyle.BodySecondary,
+                            color = c.secondaryTextColor,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Derives the annual-if-paying-monthly reference price from the monthly product price text. */
+private fun computeMonthlyAnnualPrice(state: HiitPaywallUiState): String {
+    val monthlyText = state.products[PaywallPlan.Monthly]?.priceText ?: return ""
+    // priceText is like "$2 / month" — extract the part before " /"
+    val priceOnly = monthlyText.substringBefore(" /").trim()
+    return "$priceOnly × 12"
+}
+
+@Composable
+private fun ProCtaButton(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val c = MonoTheme.colors
+    val shape = RoundedCornerShape(16.dp)
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(if (enabled) c.errorColor else c.disabledButtonBackground)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        MonoText(
+            text = text,
+            style = MonoTextStyle.Button,
+            color = if (enabled) Color.White else c.disabledButtonText,
+        )
     }
 }
