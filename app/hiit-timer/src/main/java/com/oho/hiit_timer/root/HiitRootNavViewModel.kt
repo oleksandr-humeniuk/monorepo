@@ -23,7 +23,25 @@ class HiitRootNavViewModel(
         }
     }
 
-    fun runWorkout(workoutId: String) {
+    fun requestRunWorkout(workoutId: String) {
+        _state.update { s -> s.copy(pendingRunWorkoutId = workoutId) }
+    }
+
+    fun proceedWithPendingRun() {
+        val id = _state.value.pendingRunWorkoutId ?: return
+        _state.update { s ->
+            s.copy(
+                pendingRunWorkoutId = null,
+                backStack = s.backStack + HiitRootRoute.Run(id),
+            )
+        }
+    }
+
+    fun cancelPendingRun() {
+        _state.update { s -> s.copy(pendingRunWorkoutId = null) }
+    }
+
+    private fun runWorkout(workoutId: String) {
         _state.update { s ->
             s.copy(backStack = s.backStack + HiitRootRoute.Run(workoutId))
         }
@@ -96,6 +114,7 @@ class HiitRootNavViewModel(
 
     data class NavState(
         val backStack: List<HiitRootRoute> = listOf(HiitRootRoute.Tabs),
+        val pendingRunWorkoutId: String? = null,
     )
 
 }

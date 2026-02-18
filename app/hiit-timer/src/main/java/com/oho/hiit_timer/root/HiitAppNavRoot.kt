@@ -1,7 +1,20 @@
 package com.oho.hiit_timer.root
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -15,11 +28,51 @@ import com.oho.hiit_timer.workouts.add_block.CreateEditIntrervalRoute
 import com.oho.hiit_timer.workouts.workout_details.WorkoutDetailsRoute
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HiitAppNavRoot(
     viewModel: HiitRootNavViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    // Permission launcher — proceed with the run regardless of grant result
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { viewModel.proceedWithPendingRun() }
+
+    var showPermissionSheet by remember { mutableStateOf(false) }
+    val permissionSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    // Whenever a run is requested, check permission first
+    LaunchedEffect(state.pendingRunWorkoutId) {
+        state.pendingRunWorkoutId ?: return@LaunchedEffect
+        val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) !=
+                PackageManager.PERMISSION_GRANTED
+        if (needsPermission) {
+            showPermissionSheet = true
+        } else {
+            viewModel.proceedWithPendingRun()
+        }
+    }
+
+    if (showPermissionSheet) {
+        NotificationPermissionSheet(
+            sheetState = permissionSheetState,
+            onAllow = {
+                showPermissionSheet = false
+                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            },
+            onNotNow = {
+                showPermissionSheet = false
+                viewModel.proceedWithPendingRun()
+            },
+        )
+    }
 
     NavDisplay(
         backStack = state.backStack,
@@ -31,25 +84,15 @@ fun HiitAppNavRoot(
         entryProvider = { key ->
             when (key) {
                 is HiitRootRoute.Run -> NavEntry(key) {
-                    HiitRunRoute(
-                        workoutId = key.workoutId,
-                    )
+                    HiitRunRoute(workoutId = key.workoutId)
                 }
 
                 HiitRootRoute.Tabs -> NavEntry(key) {
                     HiitTabHost(
-                        runWorkout = { workoutId ->
-                            viewModel.runWorkout(workoutId)
-                        },
-                        createWorkout = { workoutId ->
-                            viewModel.createWorkout()
-                        },
-                        openDetails = { workoutId ->
-                            viewModel.openWorkoutDetails(workoutId)
-                        },
-                        openSoundSettings = {
-                            viewModel.openSoundSettings()
-                        }
+                        runWorkout = { viewModel.requestRunWorkout(it) },
+                        createWorkout = { viewModel.createWorkout() },
+                        openDetails = { viewModel.openWorkoutDetails(it) },
+                        openSoundSettings = { viewModel.openSoundSettings() },
                     )
                 }
 
@@ -57,12 +100,8 @@ fun HiitAppNavRoot(
                     CreateEditWorkoutRoute(
                         workoutId = key.workoutId,
                         onBack = { viewModel.onBack() },
-                        onAddBlock = {
-                            viewModel.onAddBlock()
-                        },
-                        onEditExercise = { exerciseId ->
-                            viewModel.onEditExercise(exerciseId = exerciseId)
-                        }
+                        onAddBlock = { viewModel.onAddBlock() },
+                        onEditExercise = { viewModel.onEditExercise(exerciseId = it) },
                     )
                 }
 
@@ -70,7 +109,7 @@ fun HiitAppNavRoot(
                     CreateEditIntrervalRoute(
                         exerciseId = key.id,
                         onBack = { viewModel.onBack() },
-                        onSaved = { viewModel.onBack() }
+                        onSaved = { viewModel.onBack() },
                     )
                 }
 
@@ -78,7 +117,7 @@ fun HiitAppNavRoot(
                     WorkoutDetailsRoute(
                         workoutId = key.id,
                         onBack = { viewModel.onBack() },
-                        onStartWorkout = { viewModel.runWorkout(workoutId = it) },
+                        onStartWorkout = { viewModel.requestRunWorkout(it) },
                         onEditWorkout = { viewModel.onEditWorkout(workoutId = it) },
                         onDuplicateWorkout = { viewModel.openDuplicatedWorkout() },
                     )
@@ -86,11 +125,8 @@ fun HiitAppNavRoot(
 
                 HiitRootRoute.SoundSettings -> NavEntry(key) {
                     SoundSettingsRoute(
-                        onBack = {
-                            viewModel.onBack()
-                        },
-                        onPickSound = {
-                        }
+                        onBack = { viewModel.onBack() },
+                        onPickSound = {},
                     )
                 }
             }
