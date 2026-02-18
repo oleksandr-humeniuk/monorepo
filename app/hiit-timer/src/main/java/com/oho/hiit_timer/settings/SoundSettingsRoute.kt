@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.oho.hiit_timer.data.store.Sound
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -48,25 +49,32 @@ fun SoundSettingsRoute(
         }
     }
 
+    val content = state as? SoundSettingsViewModel.UiState.Content
+
     MonoScaffold(Modifier.Companion.fillMaxSize()) {
-        SoundSettingsScreen(
-            state = state,
-            onBack = vm::onBack,
-            onToggleSound = vm::onToggleSoundEnabled,
-            onVolumeChange = vm::onVolumeChange,
-            onToggleVibration = vm::onToggleVibration,
-            onPickWork = { vm.onPickSound(SoundKind.Work) },
-            onPickRest = { vm.onPickSound(SoundKind.Rest) },
-            onPickDone = { vm.onPickSound(SoundKind.Done) },
-        )
+        if (content != null) {
+            SoundSettingsScreen(
+                state = content,
+                onBack = vm::onBack,
+                onToggleSound = vm::onToggleSoundEnabled,
+                onVolumeChange = vm::onVolumeChange,
+                onToggleVibration = vm::onToggleVibration,
+                onPickWork = { vm.onPickSound(SoundKind.Work) },
+                onPickRest = { vm.onPickSound(SoundKind.Rest) },
+                onPickDone = { vm.onPickSound(SoundKind.Done) },
+            )
+        }
     }
 }
 
 
+private fun Sound.toDisplayName(): String =
+    name.replace(Regex("(?<=[a-z])(?=[A-Z])"), " ")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SoundSettingsScreen(
-    state: SoundSettingsViewModel.UiState,
+    state: SoundSettingsViewModel.UiState.Content,
     onBack: () -> Unit,
     onToggleSound: () -> Unit,
     onVolumeChange: (Float) -> Unit,
@@ -135,11 +143,11 @@ private fun SoundSettingsScreen(
                                 value = state.volume,
                                 onValueChange = onVolumeChange,
                             )
-                            RowNav("Work sound", value = state.workSound, onClick = onPickWork)
-                            RowNav("Rest sound", value = state.restSound, onClick = onPickRest)
+                            RowNav("Work sound", value = state.workSound.toDisplayName(), onClick = onPickWork)
+                            RowNav("Rest sound", value = state.restSound.toDisplayName(), onClick = onPickRest)
                             RowNav(
                                 "Done sound",
-                                value = state.doneSound,
+                                value = state.doneSound.toDisplayName(),
                                 onClick = onPickDone,
                                 isLast = true
                             )
