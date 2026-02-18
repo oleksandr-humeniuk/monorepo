@@ -11,6 +11,7 @@ import com.oho.hiit_timer.data.storage.policyFromDb
 import com.oho.hiit_timer.data.storage.toDb
 import com.oho.hiit_timer.domain.HiitExercise
 import com.oho.hiit_timer.domain.HiitWorkout
+import com.oho.hiit_timer.data.store.SettingsRepository
 import com.oho.hiit_timer.domain.QuickStartMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -50,7 +51,8 @@ interface HiitWorkoutsRepository {
 class HiitWorkoutsRepositoryImpl(
     private val dao: HiitWorkoutsDao,
     private val nowMs: () -> Long,
-    private val context: Context
+    private val context: Context,
+    private val settingsRepository: SettingsRepository,
 ) : HiitWorkoutsRepository {
     override suspend fun ensureQuickStart(defaultState: QuickStartTimerViewModel.UiState) {
         val existing = dao.getWorkout(QuickStartMapper.QUICK_START_ID)
@@ -68,7 +70,7 @@ class HiitWorkoutsRepositoryImpl(
 
     override fun observeWorkout(id: String): Flow<HiitWorkout?> {
         return dao.observeWorkout(id).map { row ->
-            row?.toDomain()
+            row?.toDomain(settingsRepository.hiitPreferences.value.defaultPrepareSec)
         }
     }
 
@@ -91,13 +93,13 @@ class HiitWorkoutsRepositoryImpl(
     }
 
     override suspend fun getWorkout(workoutId: String): HiitWorkout? {
-        return dao.getWorkout(workoutId)?.toDomain()
+        return dao.getWorkout(workoutId)?.toDomain(settingsRepository.hiitPreferences.value.defaultPrepareSec)
     }
 
     override fun observerWorkouts(source: HiitWorkoutsRepository.Source): Flow<List<HiitWorkout>> {
         return dao.observeWorkouts()
             .map { workouts ->
-                workouts.map { workout -> workout.toDomain() }
+                workouts.map { workout -> workout.toDomain(settingsRepository.hiitPreferences.value.defaultPrepareSec) }
             }
     }
 
@@ -194,7 +196,7 @@ fun HiitExercise.toDb(
     )
 }
 
-private fun WorkoutWithExercises.toDomain(prepareSec: Int = 10): HiitWorkout {
+private fun WorkoutWithExercises.toDomain(prepareSec: Int): HiitWorkout {
     val sorted = exercises.sortedBy { it.orderInWorkout }
     return HiitWorkout(
         id = workout.id,

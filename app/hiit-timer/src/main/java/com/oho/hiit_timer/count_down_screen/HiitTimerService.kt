@@ -8,6 +8,8 @@ import com.oho.hiit_timer.HiitActivity
 import com.oho.hiit_timer.count_down_screen.NotificationHelper.Action
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.data.storage.HiitRunSessionDao
+import com.oho.hiit_timer.data.store.SettingsRepository
+import com.oho.hiit_timer.data.store.Sound
 import com.oho.hiit_timer.data.storage.HiitRunSessionEntity
 import com.oho.hiit_timer.domain.HiitPlanner
 import com.oho.hiit_timer.domain.HiitSegment
@@ -32,6 +34,7 @@ class HiitRunService : Service(), KoinComponent {
 
     private val workoutsRepo: HiitWorkoutsRepository by inject()
     private val sessionDao: HiitRunSessionDao by inject()
+    private val settingsRepository: SettingsRepository by inject()
 
     private val binder = LocalBinder()
 
@@ -110,14 +113,15 @@ class HiitRunService : Service(), KoinComponent {
     private var restTotalByExercise: Map<String, Int> = emptyMap()
 
     private val soundController by lazy {
+        val prefs = settingsRepository.hiitPreferences.value
         HiitSoundController(
             context = applicationContext,
             config = HiitSoundController.Config(
-                workStartRes = R.raw.boxing_bell,
-                restStartRes = R.raw.whistle,
-                workoutFinishedRes = R.raw.whistle,
-                volume = 0.8f,
-                enabled = true,
+                workStartRes = prefs.workSound.toRawRes(),
+                restStartRes = prefs.restSound.toRawRes(),
+                workoutFinishedRes = prefs.doneSound.toRawRes(),
+                volume = prefs.volume,
+                enabled = prefs.soundEnabled,
                 countdown = HiitSoundController.Config.Countdown(
                     beepRes = R.raw.countdown_tick,
                     seconds = setOf(3, 2, 1),
@@ -126,6 +130,11 @@ class HiitRunService : Service(), KoinComponent {
                 )
             )
         )
+    }
+
+    private fun Sound.toRawRes(): Int = when (this) {
+        Sound.Whistle -> R.raw.whistle
+        Sound.RingBell -> R.raw.boxing_bell
     }
 
     // --------------------------------
@@ -435,7 +444,11 @@ class HiitRunService : Service(), KoinComponent {
             )
 
             if (!r.isPaused && remSec <= 0) {
-                handleNext(manual = false)
+                if (settingsRepository.hiitPreferences.value.autoStartNextPhase) {
+                    handleNext(manual = false)
+                } else {
+                    handlePauseResume()
+                }
             } else {
                 renderFromRuntime(r, nowEpochMs = now)
                 notifyIfNeeded(force = false)

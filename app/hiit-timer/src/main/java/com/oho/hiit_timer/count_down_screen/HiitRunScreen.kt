@@ -63,12 +63,14 @@ fun HiitRunRoute(
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     MonoScaffold(Modifier.fillMaxSize()) {
-        when (val state = uiState) {
-            ViewState.Idle -> {}
+        when (val viewState = uiState) {
+            HiitRunViewModel.RunViewState.Idle -> {}
 
-            is ViewState.Loaded -> {
+            is HiitRunViewModel.RunViewState.Ready -> {
                 HiitRunScreen(
-                    state = state.runUiState,
+                    state = viewState.runUiState,
+                    showTotalRemaining = viewState.showTotalRemaining,
+                    vibrationEnabled = viewState.vibrationEnabled,
                     onPauseResume = viewModel::onPauseResume,
                     onNext = viewModel::onNext,
                     onPrevious = viewModel::onPrevious,
@@ -85,6 +87,8 @@ fun HiitRunRoute(
 @Composable
 private fun HiitRunScreen(
     state: HiitRunUiState,
+    showTotalRemaining: Boolean,
+    vibrationEnabled: Boolean,
     onPauseResume: () -> Unit,
     onNext: () -> Unit,
     onPrevious: () -> Unit,
@@ -118,7 +122,7 @@ private fun HiitRunScreen(
     val onPhaseCardPrimary = c.inverseTextColor
     val onPhaseCardSecondary = c.inverseTextColor.copy(alpha = 0.75f)
 
-    LaunchTimerHapticks(state)
+    if (vibrationEnabled) LaunchTimerHapticks(state)
 
     BoxWithConstraints(
         modifier = modifier
@@ -151,6 +155,7 @@ private fun HiitRunScreen(
             ) {
                 RunTopBar(
                     totalRemaining = state.totalRemaining,
+                    showTotalRemaining = showTotalRemaining,
                     onClose = onClose,
                 )
 
@@ -210,6 +215,7 @@ private fun LaunchTimerHapticks(state: HiitRunUiState) {
 @Composable
 private fun RunTopBar(
     totalRemaining: Int,
+    showTotalRemaining: Boolean,
     onClose: () -> Unit,
 ) {
     val c = MonoTheme.colors
@@ -231,25 +237,27 @@ private fun RunTopBar(
 
         Spacer(Modifier.weight(1f))
 
-        Column(
-            modifier = Modifier
-                .padding(end = 24.dp + 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            MonoText(
-                text = stringResource(timerR.string.timer_run_total_remaining),
-                style = MonoTextStyle.Label,
-                color = c.secondaryTextColor,
-            )
+        if (showTotalRemaining) {
+            Column(
+                modifier = Modifier
+                    .padding(end = 24.dp + 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                MonoText(
+                    text = stringResource(timerR.string.timer_run_total_remaining),
+                    style = MonoTextStyle.Label,
+                    color = c.secondaryTextColor,
+                )
 
-            Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(4.dp))
 
-            AnimatedNumberText(
-                text = formatSec(totalRemaining),
-                style = MonoTheme.typography.titleLarge,
-                color = c.primaryTextColor,
-                intRepresentation = totalRemaining
-            )
+                AnimatedNumberText(
+                    text = formatSec(totalRemaining),
+                    style = MonoTheme.typography.titleLarge,
+                    color = c.primaryTextColor,
+                    intRepresentation = totalRemaining
+                )
+            }
         }
         Spacer(Modifier.weight(1f))
     }

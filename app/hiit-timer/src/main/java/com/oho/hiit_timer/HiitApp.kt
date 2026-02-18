@@ -69,7 +69,8 @@ private val appModule = module {
         HiitWorkoutsRepositoryImpl(
             dao = get(),
             nowMs = { System.currentTimeMillis() },
-            context = get()
+            context = get(),
+            settingsRepository = get(),
         )
     } bind HiitWorkoutsRepository::class
 
