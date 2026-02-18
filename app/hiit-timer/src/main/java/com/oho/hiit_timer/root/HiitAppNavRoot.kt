@@ -77,15 +77,10 @@ fun HiitAppNavRoot(
                 is HiitRootRoute.WorkoutDetails -> NavEntry(key) {
                     WorkoutDetailsRoute(
                         workoutId = key.id,
-                        onBack = {
-                            viewModel.onBack()
-                        },
-                        onStartWorkout = {
-                            viewModel.runWorkout(workoutId = it)
-                        },
-                        onEditWorkout = {
-                            viewModel.onEditWorkout(workoutId = it)
-                        }
+                        onBack = { viewModel.onBack() },
+                        onStartWorkout = { viewModel.runWorkout(workoutId = it) },
+                        onEditWorkout = { viewModel.onEditWorkout(workoutId = it) },
+                        onDuplicateWorkout = { viewModel.openDuplicatedWorkout() },
                     )
                 }
 

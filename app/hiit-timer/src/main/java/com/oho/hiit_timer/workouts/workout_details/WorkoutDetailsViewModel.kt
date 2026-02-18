@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
+import com.oho.hiit_timer.data.TempWorkoutRepository
 import com.oho.hiit_timer.domain.HiitWorkout
 import com.oho.hiit_timer.domain.totalDurationWithoutPrepareSec
 import com.oho.hiit_timer.workouts.add.WorkoutBlockSpec
@@ -17,18 +18,18 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class WorkoutDetailsViewModel(
     private val workoutId: String,
-    private val repository: HiitWorkoutsRepository
+    private val repository: HiitWorkoutsRepository,
+    private val tempWorkoutRepository: TempWorkoutRepository
 ) : ViewModel() {
 
     private val _events = Channel<Event>(capacity = Channel.Factory.BUFFERED)
     val events: Flow<Event> = _events.receiveAsFlow()
 
     sealed interface Event {
-        data object Back : Event
+        data object Duplicate : Event
 
         data class Edit(val workoutId: String) : Event
     }
@@ -59,12 +60,8 @@ class WorkoutDetailsViewModel(
     fun onDuplicate() {
         hideSheet()
         viewModelScope.launch {
-            repository.duplicateWorkout(
-                workoutId = workoutId,
-                newId = UUID.randomUUID().toString(),
-                source = HiitWorkoutsRepository.SOURCE_USER
-            )
-            _events.send(Event.Back)
+            tempWorkoutRepository.duplicateToTemp(workoutId = workoutId)
+            _events.send(Event.Duplicate)
         }
     }
 
@@ -72,7 +69,7 @@ class WorkoutDetailsViewModel(
         hideSheet()
         viewModelScope.launch {
             repository.deleteWorkout(workoutId)
-            _events.send(Event.Back)
+            _events.send(Event.Duplicate)
         }
 
     }

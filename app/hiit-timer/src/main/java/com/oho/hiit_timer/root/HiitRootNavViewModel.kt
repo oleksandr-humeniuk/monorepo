@@ -75,6 +75,17 @@ class HiitRootNavViewModel(
         }
     }
 
+    fun openDuplicatedWorkout() {
+        _state.update { s ->
+            val trimmed = s.backStack.dropLast(1)
+            s.copy(
+                backStack = trimmed + HiitRootRoute.CreateEditWorkout(
+                    workoutId = HiitWorkoutsRepository.TEMP_WORKOUT_ID
+                )
+            )
+        }
+    }
+
     fun openSoundSettings() {
         _state.update { s ->
             s.copy(

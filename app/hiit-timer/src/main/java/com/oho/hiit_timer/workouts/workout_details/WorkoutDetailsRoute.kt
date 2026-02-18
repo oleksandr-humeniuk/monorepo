@@ -60,7 +60,8 @@ fun WorkoutDetailsRoute(
     workoutId: String,
     onBack: () -> Unit,
     onStartWorkout: (String) -> Unit,
-    onEditWorkout: (String) -> Unit
+    onEditWorkout: (String) -> Unit,
+    onDuplicateWorkout: () -> Unit,
 ) {
     val vm: WorkoutDetailsViewModel = koinViewModel {
         parametersOf(workoutId)
@@ -105,7 +106,7 @@ fun WorkoutDetailsRoute(
     LaunchedEffect(Unit) {
         vm.events.collect { e ->
             when (e) {
-                WorkoutDetailsViewModel.Event.Back -> onBack()
+                WorkoutDetailsViewModel.Event.Duplicate -> onDuplicateWorkout()
                 is WorkoutDetailsViewModel.Event.Edit -> onEditWorkout(e.workoutId)
             }
         }
