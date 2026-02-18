@@ -14,7 +14,13 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel : ViewModel() {
 
-    enum class ThemeMode { System, Light, Dark }
+    enum class ThemeMode(
+        val value: String
+    ) {
+        System("system"),
+        Light("light"),
+        Dark("dark")
+    }
 
     @Immutable
     data class UiState(

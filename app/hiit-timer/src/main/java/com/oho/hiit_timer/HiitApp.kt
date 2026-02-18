@@ -8,6 +8,8 @@ import com.oho.hiit_timer.data.HiitWorkoutsRepositoryImpl
 import com.oho.hiit_timer.data.QuickStartRepository
 import com.oho.hiit_timer.data.TempWorkoutRepository
 import com.oho.hiit_timer.data.storage.HiitDatabase
+import com.oho.hiit_timer.data.store.SettingsPreferences
+import com.oho.hiit_timer.data.store.SettingsRepository
 import com.oho.hiit_timer.root.HiitRootNavViewModel
 import com.oho.hiit_timer.settings.SettingsViewModel
 import com.oho.hiit_timer.settings.SoundSettingsViewModel
@@ -74,6 +76,9 @@ private val appModule = module {
     factoryOf(::QuickStartRepository)
     factoryOf(::TempWorkoutRepository)
 
-
+    single { SettingsPreferences(get()).dataStore }
+    single {
+        SettingsRepository(store = get())
+    }
 }
 //TODO: reset min for rest and work to 0

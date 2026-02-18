@@ -174,7 +174,7 @@ private val Tab.title
     @Composable
     get() = when (this.route) {
         HiitTabRoute.Challenges -> stringResource(timerR.string.tab_challenges)
-        HiitTabRoute.Settings -> stringResource(timerR.string.tab_history)
+        HiitTabRoute.Settings -> stringResource(timerR.string.tab_settings)
         HiitTabRoute.Quick -> stringResource(timerR.string.tab_quick)
         HiitTabRoute.Workouts -> stringResource(timerR.string.tab_workouts)
     }

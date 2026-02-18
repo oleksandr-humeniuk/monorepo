@@ -79,5 +79,6 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
     implementation(libs.reorderable)
+    implementation(libs.datastore)
 
 }
