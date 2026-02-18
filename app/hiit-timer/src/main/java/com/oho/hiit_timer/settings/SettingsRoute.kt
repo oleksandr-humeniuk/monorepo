@@ -299,11 +299,11 @@ fun RowToggle(
             onCheckedChange = { onToggle() },
             colors = SwitchDefaults.colors(
                 checkedTrackColor = c.primaryButtonBackground,
-                checkedThumbColor = c.primaryTextColor,
-                uncheckedTrackColor = c.modalBackground.copy(alpha = 0.55f),
+                checkedThumbColor = c.inverseTextColor,
+                checkedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                uncheckedTrackColor = c.disabledButtonBackground,
                 uncheckedThumbColor = c.secondaryTextColor,
-                uncheckedBorderColor = c.cardBorderColor.copy(alpha = 0.55f),
-                checkedBorderColor = c.cardBorderColor.copy(alpha = 0.55f),
+                uncheckedBorderColor = c.inputBorderColor,
             )
         )
     }
