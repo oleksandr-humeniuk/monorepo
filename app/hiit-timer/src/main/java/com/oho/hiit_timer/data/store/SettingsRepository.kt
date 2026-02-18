@@ -11,8 +11,8 @@ import com.oho.hiit_timer.settings.SettingsViewModel.ThemeMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -51,7 +51,7 @@ class SettingsRepository(
     }
 
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
-    val hiitPreferences: Flow<HiitPreferences> = store.data.map { prefs ->
+    val hiitPreferences: StateFlow<HiitPreferences> = store.data.map { prefs ->
         HiitPreferences(
             defaultPrepareSec = prefs[Keys.DEFAULT_PREPARE_SEC] ?: Defaults.PREPARE_SEC,
             showTotalRemaining = prefs[Keys.SHOW_TOTAL_REMAINING] ?: Defaults.SHOW_TOTAL_REMAINING,
