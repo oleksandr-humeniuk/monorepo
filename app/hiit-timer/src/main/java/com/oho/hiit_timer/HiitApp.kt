@@ -83,3 +83,5 @@ private val appModule = module {
     }
 }
 //TODO: reset min for rest and work to 0
+
+//TODO: wheel picker https://github.com/commandiron/WheelPickerCompose

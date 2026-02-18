@@ -121,6 +121,12 @@ class HiitRootNavViewModel(
         }
     }
 
+    fun openPaywall() {
+        _state.update { s ->
+            s.copy(backStack = s.backStack + HiitRootRoute.Paywall)
+        }
+    }
+
     data class NavState(
         val backStack: List<HiitRootRoute> = listOf(HiitRootRoute.Tabs),
         val pendingRunWorkoutId: String? = null,

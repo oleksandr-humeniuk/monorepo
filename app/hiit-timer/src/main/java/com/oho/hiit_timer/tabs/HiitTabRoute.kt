@@ -47,6 +47,7 @@ fun HiitTabHost(
     openDetails: (String) -> Unit,
     createWorkout: (String?) -> Unit,
     openSoundSettings: () -> Unit,
+    openPaywall: () -> Unit,
     viewModel: TabsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -72,7 +73,8 @@ fun HiitTabHost(
                 when (tab) {
                     HiitTabRoute.Quick -> NavEntry(tab) {
                         QuickStartTimerRoute(
-                            runWrokout = runWorkout
+                            runWrokout = runWorkout,
+                            onProClick = openPaywall,
                         )
                     }
 
@@ -85,6 +87,7 @@ fun HiitTabHost(
                             onContactSupport = {},
                             onOpenSound = openSoundSettings,
                             onOpenPrivacyPolicy = { },
+                            onProClick = openPaywall,
                             vm = koinViewModel(),
                         )
                     }
@@ -96,7 +99,8 @@ fun HiitTabHost(
                         WorkoutsRoute(
                             createEditWorkout = createWorkout,
                             runWrokout = runWorkout,
-                            openWorkout = openDetails
+                            openWorkout = openDetails,
+                            onProClick = openPaywall,
                         )
                     }
                 }

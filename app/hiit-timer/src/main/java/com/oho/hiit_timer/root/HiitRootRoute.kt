@@ -15,4 +15,5 @@ sealed interface HiitRootRoute {
     ) : HiitRootRoute
 
     data object SoundSettings : HiitRootRoute
+    data object Paywall : HiitRootRoute
 }

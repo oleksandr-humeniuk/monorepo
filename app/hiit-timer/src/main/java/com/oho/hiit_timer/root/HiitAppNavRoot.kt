@@ -17,6 +17,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.oho.hiit_timer.count_down_screen.HiitRunRoute
+import com.oho.hiit_timer.paywall.HiitPaywallRoute
 import com.oho.hiit_timer.settings.SoundSettingsRoute
 import com.oho.hiit_timer.tabs.HiitTabHost
 import com.oho.hiit_timer.workouts.add.CreateEditWorkoutRoute
@@ -79,6 +80,7 @@ fun HiitAppNavRoot(
                         createWorkout = { viewModel.createWorkout() },
                         openDetails = { viewModel.openWorkoutDetails(it) },
                         openSoundSettings = { viewModel.openSoundSettings() },
+                        openPaywall = { viewModel.openPaywall() },
                     )
                 }
 
@@ -113,6 +115,12 @@ fun HiitAppNavRoot(
                     SoundSettingsRoute(
                         onBack = { viewModel.onBack() },
                         onPickSound = {},
+                    )
+                }
+
+                HiitRootRoute.Paywall -> NavEntry(key) {
+                    HiitPaywallRoute(
+                        onClose = { viewModel.onBack() },
                     )
                 }
             }
