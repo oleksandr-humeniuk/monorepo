@@ -67,6 +67,7 @@ import com.oho.utils.R as timerR
  */
 @Composable
 fun WorkoutsRoute(
+    isPro: Boolean = false,
     vm: WorkoutsListViewModel = koinViewModel(),
     openWorkout: (workoutId: String) -> Unit,
     runWrokout: (workoutId: String) -> Unit,
@@ -89,6 +90,7 @@ fun WorkoutsRoute(
     MonoScaffold(Modifier.fillMaxSize()) {
         WorkoutsListScreen(
             state = state,
+            isPro = isPro,
             onWorkoutClick = vm::onWorkoutClicked,
             onStartClick = vm::onStartClicked,
             onCreateWorkout = vm::onCreateClicked,
@@ -100,6 +102,7 @@ fun WorkoutsRoute(
 @Composable
 private fun WorkoutsListScreen(
     state: WorkoutsListViewModel.UiState,
+    isPro: Boolean = false,
     onWorkoutClick: (workoutId: String) -> Unit,
     onStartClick: (workoutId: String) -> Unit,
     onCreateWorkout: () -> Unit,
@@ -115,6 +118,7 @@ private fun WorkoutsListScreen(
         Column(Modifier.fillMaxSize()) {
             WorkoutsTopBar(
                 title = stringResource(timerR.string.workouts_title),
+                isPro = isPro,
                 onProClick = onProClick,
             )
 
@@ -151,16 +155,19 @@ private fun WorkoutsListScreen(
 @Composable
 private fun WorkoutsTopBar(
     title: String,
+    isPro: Boolean = false,
     onProClick: () -> Unit,
 ) {
     TopAppBar(
         modifier = Modifier.statusBarsPadding(),
         title = { Text(title) },
         actions = {
-            ProBadgeButton(
-                onClick = onProClick,
-                modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
-            )
+            if (!isPro) {
+                ProBadgeButton(
+                    onClick = onProClick,
+                    modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
+                )
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             titleContentColor = MaterialTheme.colorScheme.onBackground,

@@ -31,6 +31,7 @@ fun HiitAppNavRoot(
     viewModel: HiitRootNavViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val isPro by viewModel.isPro.collectAsStateWithLifecycle()
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.bootstrapBilling()
@@ -85,6 +86,7 @@ fun HiitAppNavRoot(
 
                 HiitRootRoute.Tabs -> NavEntry(key) {
                     HiitTabHost(
+                        isPro = isPro,
                         runWorkout = { viewModel.requestRunWorkout(it) },
                         createWorkout = { viewModel.createWorkout() },
                         openDetails = { viewModel.openWorkoutDetails(it) },

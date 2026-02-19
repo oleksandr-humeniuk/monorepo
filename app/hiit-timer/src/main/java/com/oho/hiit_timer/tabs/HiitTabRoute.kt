@@ -43,6 +43,7 @@ sealed interface HiitTabRoute {
 
 @Composable
 fun HiitTabHost(
+    isPro: Boolean = false,
     runWorkout: (String) -> Unit,
     openDetails: (String) -> Unit,
     createWorkout: (String?) -> Unit,
@@ -73,6 +74,7 @@ fun HiitTabHost(
                 when (tab) {
                     HiitTabRoute.Quick -> NavEntry(tab) {
                         QuickStartTimerRoute(
+                            isPro = isPro,
                             runWrokout = runWorkout,
                             onProClick = openPaywall,
                         )
@@ -80,6 +82,7 @@ fun HiitTabHost(
 
                     HiitTabRoute.Settings -> NavEntry(tab) {
                         SettingsRoute(
+                            isPro = isPro,
                             onBack = {
                                 viewModel.onBack()
                             },
@@ -97,6 +100,7 @@ fun HiitTabHost(
 
                     HiitTabRoute.Workouts -> NavEntry(tab) {
                         WorkoutsRoute(
+                            isPro = isPro,
                             createEditWorkout = createWorkout,
                             runWrokout = runWorkout,
                             openWorkout = openDetails,

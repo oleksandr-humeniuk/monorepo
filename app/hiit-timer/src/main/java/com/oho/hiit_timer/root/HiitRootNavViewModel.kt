@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.oho.hiit_timer.BillingBootstrap
 import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.data.TempWorkoutRepository
+import com.oho.hiit_timer.data.store.SubscriptionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,10 +14,12 @@ import kotlinx.coroutines.launch
 
 class HiitRootNavViewModel(
     private val tempWorkoutRepository: TempWorkoutRepository,
-    private val billingBootstrap: BillingBootstrap
+    private val billingBootstrap: BillingBootstrap,
+    private val subscriptionRepo: SubscriptionRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(NavState())
     val state: StateFlow<NavState> = _state.asStateFlow()
+    val isPro: StateFlow<Boolean> = subscriptionRepo.isPro
 
     fun bootstrapBilling() {
         viewModelScope.launch {
@@ -134,6 +137,7 @@ class HiitRootNavViewModel(
     }
 
     fun openPaywall() {
+        if (subscriptionRepo.isPro.value) return
         _state.update { s ->
             s.copy(backStack = s.backStack + HiitRootRoute.Paywall)
         }

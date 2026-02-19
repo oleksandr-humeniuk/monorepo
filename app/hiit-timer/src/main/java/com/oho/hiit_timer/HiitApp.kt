@@ -12,6 +12,7 @@ import com.oho.hiit_timer.data.TempWorkoutRepository
 import com.oho.hiit_timer.data.storage.HiitDatabase
 import com.oho.hiit_timer.data.store.SettingsPreferences
 import com.oho.hiit_timer.data.store.SettingsRepository
+import com.oho.hiit_timer.data.store.SubscriptionRepository
 import com.oho.hiit_timer.paywall.HiitPaywallViewModel
 import com.oho.hiit_timer.root.HiitRootNavViewModel
 import com.oho.hiit_timer.settings.SettingsViewModel
@@ -96,6 +97,9 @@ private val appModule = module {
     single { SettingsPreferences(get()).dataStore }
     single {
         SettingsRepository(store = get())
+    }
+    single {
+        SubscriptionRepository(billing = get(), store = get(), appScope = get())
     }
 }
 //TODO: reset min for rest and work to 0

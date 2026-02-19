@@ -53,6 +53,7 @@ import com.oho.hiit_timer.ProBadgeButton
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsRoute(
+    isPro: Boolean = false,
     onBack: () -> Unit,
     onOpenSound: () -> Unit,
     onContactSupport: () -> Unit,
@@ -91,6 +92,7 @@ fun SettingsRoute(
         if (content != null) {
             SettingsScreen(
                 state = content,
+                isPro = isPro,
                 onBack = vm::onBack,
                 onPrepareMinus = vm::onPrepareMinus,
                 onPreparePlus = vm::onPreparePlus,
@@ -112,6 +114,7 @@ fun SettingsRoute(
 @Composable
 private fun SettingsScreen(
     state: SettingsViewModel.UiState.Content,
+    isPro: Boolean = false,
     onBack: () -> Unit,
 
     // Workout
@@ -149,10 +152,12 @@ private fun SettingsScreen(
             TopAppBar(
                 title = { Text("Settings") },
                 actions = {
-                    ProBadgeButton(
-                        onClick = onProClick,
-                        modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
-                    )
+                    if (!isPro) {
+                        ProBadgeButton(
+                            onClick = onProClick,
+                            modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = c.appBackground,

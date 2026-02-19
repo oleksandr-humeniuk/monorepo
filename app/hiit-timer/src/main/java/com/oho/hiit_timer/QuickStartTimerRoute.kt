@@ -44,6 +44,7 @@ import com.oho.utils.R as timerR
 
 @Composable
 fun QuickStartTimerRoute(
+    isPro: Boolean = false,
     vm: QuickStartTimerViewModel = koinViewModel(),
     onBack: () -> Unit = {},
     runWrokout: (workoutId: String) -> Unit = { _ -> },
@@ -63,6 +64,7 @@ fun QuickStartTimerRoute(
 
     IntervalTimerConfigScreen(
         state = state,
+        isPro = isPro,
         onBackClicked = { onBack(); vm.onBackClicked() },
         onMoreClicked = vm::onMoreClicked,
         onProClick = onProClick,
@@ -83,6 +85,7 @@ fun QuickStartTimerRoute(
 @Composable
 fun IntervalTimerConfigScreen(
     state: QuickStartTimerViewModel.UiState,
+    isPro: Boolean = false,
     onBackClicked: () -> Unit,
     onMoreClicked: () -> Unit,
     onProClick: () -> Unit = {},
@@ -112,10 +115,12 @@ fun IntervalTimerConfigScreen(
                 navigationIcon = {
                 },
                 actions = {
-                    ProBadgeButton(
-                        onClick = onProClick,
-                        modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
-                    )
+                    if (!isPro) {
+                        ProBadgeButton(
+                            onClick = onProClick,
+                            modifier = Modifier.padding(end = 12.dp).align(Alignment.CenterVertically),
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = page,
