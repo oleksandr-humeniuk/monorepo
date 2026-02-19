@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -83,6 +84,7 @@ class WorkoutDetailsViewModel(
         val showMoreSheet: Boolean = false,
         val domainWorkout: HiitWorkout? = null,
         val isFirstWorkout: Boolean = false,
+        val hasMultipleWorkouts: Boolean = false,
     )
 
     private val _state = MutableStateFlow(UiState())
@@ -113,6 +115,13 @@ class WorkoutDetailsViewModel(
             repository.observeFirstUserWorkoutId().collect { firstId ->
                 _state.update { s -> s.copy(isFirstWorkout = workoutId == firstId) }
             }
+        }
+        viewModelScope.launch {
+            repository.observerWorkouts(HiitWorkoutsRepository.Source.User)
+                .map { it.size > 1 }
+                .collect { multiple ->
+                    _state.update { s -> s.copy(hasMultipleWorkouts = multiple) }
+                }
         }
     }
 }

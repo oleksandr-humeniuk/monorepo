@@ -114,5 +114,6 @@
     <string name="timer_run_congrats_title">Workout complete! 💪🔥</string>
     <string name="timer_run_congrats_body">You crushed it. Every rep counts — keep showing up! 🏆</string>
     <string name="timer_run_congrats_cta">Done</string>
-
+    <string name="pro_banner_title">Stay hard</string>
+    <string name="pro_banner_subtitle">Unlock unlimited presets with premium</string>
 </resources>

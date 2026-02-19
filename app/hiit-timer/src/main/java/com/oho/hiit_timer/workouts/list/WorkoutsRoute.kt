@@ -48,6 +48,7 @@ import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.ProBadgeButton
+import com.oho.hiit_timer.ProUpgradeBanner
 import com.oho.hiit_timer.formatSec
 import org.koin.androidx.compose.koinViewModel
 import com.oho.utils.R as timerR
@@ -198,6 +199,11 @@ private fun WorkoutsList(
         ),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        if (!isPro && items.size > 1) {
+            item(key = "pro_banner") {
+                ProUpgradeBanner(onClick = onProClick)
+            }
+        }
         items(items, key = { it.id }) { item ->
             val needsPro = !isPro && !item.isFreeWorkout
             WorkoutRowCard(

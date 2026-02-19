@@ -45,6 +45,7 @@ import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.hiit_timer.ProUpgradeBanner
 import com.oho.hiit_timer.formatSec
 import com.oho.hiit_timer.workouts.add.MenuBottomSheet
 import com.oho.hiit_timer.workouts.add.TotalChip
@@ -104,6 +105,7 @@ fun WorkoutDetailsRoute(
     MonoScaffold(Modifier.fillMaxSize()) {
         WorkoutDetailsScreen(
             state = state,
+            showProBanner = !isPro && state.hasMultipleWorkouts,
             onBack = onBack,
             onStart = {
                 if (!isPro && !state.isFirstWorkout) {
@@ -114,7 +116,8 @@ fun WorkoutDetailsRoute(
             },
             onMoreClicked = {
                 vm.onMoreClicked()
-            }
+            },
+            onProBannerClick = onOpenPaywall,
         )
     }
 
@@ -133,9 +136,11 @@ fun WorkoutDetailsRoute(
 @Composable
 private fun WorkoutDetailsScreen(
     state: WorkoutDetailsViewModel.UiState,
+    showProBanner: Boolean = false,
     onBack: () -> Unit,
     onStart: () -> Unit,
-    onMoreClicked: () -> Unit
+    onMoreClicked: () -> Unit,
+    onProBannerClick: () -> Unit = {},
 ) {
     val c = MonoTheme.colors
 
@@ -187,6 +192,11 @@ private fun WorkoutDetailsScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                if (showProBanner) {
+                    item(key = "pro_banner") {
+                        ProUpgradeBanner(onClick = onProBannerClick)
+                    }
+                }
                 items(state.blocks, key = { it.id }) { block ->
                     WorkoutDetailsBlockCard(block)
                 }
