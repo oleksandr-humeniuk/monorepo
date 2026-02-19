@@ -108,6 +108,7 @@ fun WorkoutDetailsRoute(
             when (e) {
                 WorkoutDetailsViewModel.Event.Duplicate -> onDuplicateWorkout()
                 is WorkoutDetailsViewModel.Event.Edit -> onEditWorkout(e.workoutId)
+                WorkoutDetailsViewModel.Event.Close -> onBack()
             }
         }
     }

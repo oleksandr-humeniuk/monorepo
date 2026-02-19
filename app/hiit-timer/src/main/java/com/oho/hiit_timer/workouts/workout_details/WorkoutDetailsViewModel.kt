@@ -32,6 +32,7 @@ class WorkoutDetailsViewModel(
         data object Duplicate : Event
 
         data class Edit(val workoutId: String) : Event
+        data object Close : Event
     }
 
     fun onMoreClicked() {
@@ -69,7 +70,7 @@ class WorkoutDetailsViewModel(
         hideSheet()
         viewModelScope.launch {
             repository.deleteWorkout(workoutId)
-            _events.send(Event.Duplicate)
+            _events.send(Event.Close)
         }
 
     }
