@@ -57,13 +57,15 @@ fun ProUpgradeBanner(
 ) {
     val c = MonoTheme.colors
 
+    val shape = RoundedCornerShape(14.dp)
     MonoCard(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(shape)
             .clickable(onClick = onClick),
         backgroundColor = ProRed.copy(alpha = 0.08f),
         border = BorderStroke(1.dp, ProRed.copy(alpha = 0.25f)),
-        shape = RoundedCornerShape(14.dp),
+        shape = shape,
         shadowElevation = 0.dp,
     ) {
         Row(
