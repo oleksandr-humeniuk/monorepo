@@ -21,6 +21,7 @@ koin-bom = "4.2.0-RC1"
 reorderable = "3.0.0"
 kotlinxCoroutines = "1.9.0"
 dataStore = "1.2.0"
+splashscreen = "1.0.1"
 
 
 [libraries]
@@ -44,6 +45,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "dataStore" }
+androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
 
 # Room libraries

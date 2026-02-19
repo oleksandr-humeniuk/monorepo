@@ -125,7 +125,7 @@ class HiitRunService : Service(), KoinComponent {
                 countdown = HiitSoundController.Config.Countdown(
                     beepRes = R.raw.countdown_tick,
                     seconds = setOf(3, 2, 1),
-                    volumeMultiplier = 0.6f,
+                    volumeMultiplier = prefs.volume,
                     includePrepare = false,
                 )
             )
