@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -37,21 +38,22 @@ class WorkoutsListViewModel(
 
     init {
         viewModelScope.launch {
-            repository.observerWorkouts(HiitWorkoutsRepository.Source.User)
-                .collect { workouts ->
-                    _state.update {
-                        it.copy(
-                            items = workouts.map { workout ->
-                                WorkoutListItemUi(
-                                    id = workout.id,
-                                    name = workout.name,
-                                    blocksCount = workout.exercises.size,
-                                    totalDurationSec = workout.totalDurationWithoutPrepareSec()
-                                )
-                            }
-                        )
-                    }
+            combine(
+                repository.observerWorkouts(HiitWorkoutsRepository.Source.User),
+                repository.observeFirstUserWorkoutId(),
+            ) { workouts, firstId ->
+                workouts.map { workout ->
+                    WorkoutListItemUi(
+                        id = workout.id,
+                        name = workout.name,
+                        blocksCount = workout.exercises.size,
+                        totalDurationSec = workout.totalDurationWithoutPrepareSec(),
+                        isFreeWorkout = workout.id == firstId,
+                    )
                 }
+            }.collect { items ->
+                _state.update { it.copy(items = items) }
+            }
         }
     }
 

@@ -132,8 +132,10 @@ private fun WorkoutsListScreen(
             } else {
                 WorkoutsList(
                     items = state.items,
+                    isPro = isPro,
                     onWorkoutClick = onWorkoutClick,
                     onStartClick = onStartClick,
+                    onProClick = onProClick,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -180,8 +182,10 @@ private fun WorkoutsTopBar(
 @Composable
 private fun WorkoutsList(
     items: List<WorkoutListItemUi>,
+    isPro: Boolean,
     onWorkoutClick: (workoutId: String) -> Unit,
     onStartClick: (workoutId: String) -> Unit,
+    onProClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -195,10 +199,13 @@ private fun WorkoutsList(
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         items(items, key = { it.id }) { item ->
+            val needsPro = !isPro && !item.isFreeWorkout
             WorkoutRowCard(
                 item = item,
+                showProBadge = needsPro,
                 onClick = { onWorkoutClick(item.id) },
-                onStartClick = { onStartClick(item.id) },
+                onStartClick = { if (needsPro) onProClick() else onStartClick(item.id) },
+                onProClick = onProClick,
             )
         }
     }
@@ -207,8 +214,10 @@ private fun WorkoutsList(
 @Composable
 private fun WorkoutRowCard(
     item: WorkoutListItemUi,
+    showProBadge: Boolean = false,
     onClick: () -> Unit,
     onStartClick: () -> Unit,
+    onProClick: () -> Unit = {},
 ) {
     val colors = MonoTheme.colors
 
@@ -219,7 +228,6 @@ private fun WorkoutRowCard(
             .clickable(onClick = onClick),
         backgroundColor = colors.cardBackground,
         shadowElevation = 0.dp,
-        // If your MonoCard supports borderColor:
         border = BorderStroke(
             width = 1.dp,
             color = colors.cardBorderColor.copy(alpha = 0.70f)
@@ -231,18 +239,24 @@ private fun WorkoutRowCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f)) {
-                MonoText(
-                    text = item.name,
-                    style = MonoTextStyle.TitleMedium,
-                    color = colors.primaryTextColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MonoText(
+                        text = item.name,
+                        style = MonoTextStyle.TitleMedium,
+                        color = colors.primaryTextColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    if (showProBadge) {
+                        Spacer(Modifier.size(8.dp))
+                        ProBadgeButton(onClick = onProClick)
+                    }
+                }
 
                 Spacer(Modifier.height(8.dp))
 
                 MonoText(
-                    // per your decision: no icon, just "blocks"
                     text = buildMetaText(item.blocksCount, item.totalDurationSec),
                     style = MonoTextStyle.BodySecondary,
                     color = colors.secondaryTextColor,

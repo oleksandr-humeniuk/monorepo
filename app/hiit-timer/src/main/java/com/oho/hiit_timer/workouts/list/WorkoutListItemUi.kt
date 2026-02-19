@@ -8,4 +8,5 @@ data class WorkoutListItemUi(
     val name: String,
     val blocksCount: Int,
     val totalDurationSec: Int,
+    val isFreeWorkout: Boolean = false,
 )

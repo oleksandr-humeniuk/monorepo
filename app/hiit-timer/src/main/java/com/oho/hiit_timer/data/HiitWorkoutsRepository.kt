@@ -25,6 +25,7 @@ interface HiitWorkoutsRepository {
     suspend fun getWorkout(workoutId: String): HiitWorkout?
 
     fun observerWorkouts(source: Source): Flow<List<HiitWorkout>>
+    fun observeFirstUserWorkoutId(): Flow<String?>
     suspend fun deleteExercise(exerciseId: String)
     suspend fun duplicateExercise(exerciseId: String, workoutId: String)
     suspend fun getExercise(exerciseId: String): HiitExercise?
@@ -95,6 +96,8 @@ class HiitWorkoutsRepositoryImpl(
     override suspend fun getWorkout(workoutId: String): HiitWorkout? {
         return dao.getWorkout(workoutId)?.toDomain(settingsRepository.hiitPreferences.value.defaultPrepareSec)
     }
+
+    override fun observeFirstUserWorkoutId(): Flow<String?> = dao.observeFirstUserWorkoutId()
 
     override fun observerWorkouts(source: HiitWorkoutsRepository.Source): Flow<List<HiitWorkout>> {
         return dao.observeWorkouts()

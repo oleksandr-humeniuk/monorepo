@@ -29,6 +29,7 @@ import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.hiit_timer.ProBadgeButton
 import com.oho.utils.R as timerR
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,6 +40,7 @@ fun MenuBottomSheet(
     onEdit: () -> Unit,
     onDuplicate: () -> Unit,
     onDelete: () -> Unit,
+    showDeleteProBadge: Boolean = false,
     title: String = stringResource(timerR.string.set_actions)
 ) {
     val c = MonoTheme.colors
@@ -97,6 +99,7 @@ fun MenuBottomSheet(
                 iconRes = R.drawable.ic_delete,
                 onClick = onDelete,
                 isDestructive = true,
+                showProBadge = showDeleteProBadge,
             )
         }
     }
@@ -108,6 +111,7 @@ private fun ActionRow(
     iconRes: Int,
     onClick: () -> Unit,
     isDestructive: Boolean = false,
+    showProBadge: Boolean = false,
 ) {
     val c = MonoTheme.colors
 
@@ -151,12 +155,16 @@ private fun ActionRow(
                 modifier = Modifier.weight(1f)
             )
 
-            MonoIcon(
-                painter = painterResource(R.drawable.ic_navigate_next),
-                contentDescription = null,
-                tint = c.secondaryIconColor.copy(alpha = 0.6f),
-                modifier = Modifier.size(18.dp),
-            )
+            if (showProBadge) {
+                ProBadgeButton(onClick = onClick)
+            } else {
+                MonoIcon(
+                    painter = painterResource(R.drawable.ic_navigate_next),
+                    contentDescription = null,
+                    tint = c.secondaryIconColor.copy(alpha = 0.6f),
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
     }
 }

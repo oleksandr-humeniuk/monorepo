@@ -115,10 +115,12 @@ fun HiitAppNavRoot(
                 is HiitRootRoute.WorkoutDetails -> NavEntry(key) {
                     WorkoutDetailsRoute(
                         workoutId = key.id,
+                        isPro = isPro,
                         onBack = { viewModel.onBack() },
                         onStartWorkout = { viewModel.requestRunWorkout(it) },
                         onEditWorkout = { viewModel.onEditWorkout(workoutId = it) },
                         onDuplicateWorkout = { viewModel.openDuplicatedWorkout() },
+                        onOpenPaywall = { viewModel.openPaywall() },
                     )
                 }
 

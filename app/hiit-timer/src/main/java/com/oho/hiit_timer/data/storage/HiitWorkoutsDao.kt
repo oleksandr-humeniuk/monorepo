@@ -15,6 +15,9 @@ interface HiitWorkoutsDao {
     @Query("SELECT * FROM hiit_workouts WHERE source = 1 AND isDeleted = 0 ORDER BY source ASC, updatedAt DESC")
     fun observeWorkouts(): Flow<List<WorkoutWithExercises>>
 
+    @Query("SELECT id FROM hiit_workouts WHERE source = 1 AND isDeleted = 0 ORDER BY createdAt ASC LIMIT 1")
+    fun observeFirstUserWorkoutId(): Flow<String?>
+
     @Transaction
     @Query("SELECT * FROM hiit_workouts WHERE id = :id LIMIT 1")
     suspend fun getWorkout(id: String): WorkoutWithExercises?

@@ -81,7 +81,8 @@ class WorkoutDetailsViewModel(
         val blocks: List<WorkoutBlockUi> = emptyList(),
         val totalDurationSec: Int = 0,
         val showMoreSheet: Boolean = false,
-        val domainWorkout: HiitWorkout? = null
+        val domainWorkout: HiitWorkout? = null,
+        val isFirstWorkout: Boolean = false,
     )
 
     private val _state = MutableStateFlow(UiState())
@@ -92,19 +93,26 @@ class WorkoutDetailsViewModel(
             repository.observeWorkout(workoutId)
                 .filterNotNull()
                 .collect { workout ->
-                    _state.value = UiState(
-                        domainWorkout = workout,
-                        title = workout.name,
-                        totalDurationSec = workout.totalDurationWithoutPrepareSec(),
-                        blocks = workout.exercises.map {
-                            WorkoutBlockUi(
-                                id = it.id,
-                                name = it.name,
-                                spec = WorkoutBlockSpec.fromExercise(it)
-                            )
-                        }
-                    )
+                    _state.update { s ->
+                        s.copy(
+                            domainWorkout = workout,
+                            title = workout.name,
+                            totalDurationSec = workout.totalDurationWithoutPrepareSec(),
+                            blocks = workout.exercises.map {
+                                WorkoutBlockUi(
+                                    id = it.id,
+                                    name = it.name,
+                                    spec = WorkoutBlockSpec.fromExercise(it)
+                                )
+                            }
+                        )
+                    }
                 }
+        }
+        viewModelScope.launch {
+            repository.observeFirstUserWorkoutId().collect { firstId ->
+                _state.update { s -> s.copy(isFirstWorkout = workoutId == firstId) }
+            }
         }
     }
 }

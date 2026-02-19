@@ -58,10 +58,12 @@ import com.oho.utils.R as timerR
 @Composable
 fun WorkoutDetailsRoute(
     workoutId: String,
+    isPro: Boolean = false,
     onBack: () -> Unit,
     onStartWorkout: (String) -> Unit,
     onEditWorkout: (String) -> Unit,
     onDuplicateWorkout: () -> Unit,
+    onOpenPaywall: () -> Unit = {},
 ) {
     val vm: WorkoutDetailsViewModel = koinViewModel {
         parametersOf(workoutId)
@@ -74,6 +76,7 @@ fun WorkoutDetailsRoute(
     )
 
     if (state.showMoreSheet) {
+        val deleteIsProGated = !isPro && state.isFirstWorkout
         MenuBottomSheet(
             title = state.title,
             sheetState = sheetState,
@@ -87,8 +90,14 @@ fun WorkoutDetailsRoute(
                 vm.onDuplicate()
             },
             onDelete = {
-                vm.onDelete()
+                if (deleteIsProGated) {
+                    vm.onMoreDismissed()
+                    onOpenPaywall()
+                } else {
+                    vm.onDelete()
+                }
             },
+            showDeleteProBadge = deleteIsProGated,
         )
     }
 
@@ -96,7 +105,13 @@ fun WorkoutDetailsRoute(
         WorkoutDetailsScreen(
             state = state,
             onBack = onBack,
-            onStart = { onStartWorkout(workoutId) },
+            onStart = {
+                if (!isPro && !state.isFirstWorkout) {
+                    onOpenPaywall()
+                } else {
+                    onStartWorkout(workoutId)
+                }
+            },
             onMoreClicked = {
                 vm.onMoreClicked()
             }
