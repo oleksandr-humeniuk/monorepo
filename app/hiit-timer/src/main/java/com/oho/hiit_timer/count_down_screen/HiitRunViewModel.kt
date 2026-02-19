@@ -44,6 +44,7 @@ class HiitRunViewModel(
     private var controller: HiitRunService.HiitRunController? = null
     private var bound: Boolean = false
     private var pausedBySheet: Boolean = false
+    private var cancelled: Boolean = false
     private val _showCancelSheet = MutableStateFlow(false)
     private val _showCongratsSheet = MutableStateFlow(false)
 
@@ -80,7 +81,7 @@ class HiitRunViewModel(
 
             viewModelScope.launch {
                 ctrl.state.collect { svcState ->
-                    if (svcState is ViewState.Loaded && svcState.runUiState.phase == HiitPhase.Done) {
+                    if (svcState is ViewState.Loaded && svcState.runUiState.phase == HiitPhase.Done && !cancelled) {
                         _showCongratsSheet.value = true
                     }
                 }
@@ -128,6 +129,7 @@ class HiitRunViewModel(
     }
 
     fun onConfirmCancel() {
+        cancelled = true
         controller?.send(HiitRunService.Cmd.Stop)
         pausedBySheet = false
         _showCancelSheet.value = false
