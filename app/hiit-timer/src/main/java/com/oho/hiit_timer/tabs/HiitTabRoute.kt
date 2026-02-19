@@ -11,10 +11,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -81,15 +84,31 @@ fun HiitTabHost(
                     }
 
                     HiitTabRoute.Settings -> NavEntry(tab) {
+                        val context = LocalContext.current
                         SettingsRoute(
                             isPro = isPro,
                             onBack = {
                                 viewModel.onBack()
                             },
-                            onRateApp = {},
-                            onContactSupport = {},
+                            onRateApp = {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.aoh.hiit.tabata.timer"))
+                                runCatching { context.startActivity(intent) }.onFailure {
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.aoh.hiit.tabata.timer")))
+                                }
+                            },
+                            onContactSupport = {
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = Uri.parse("mailto:support@aohstd.com")
+                                }
+                                context.startActivity(intent)
+                            },
                             onOpenSound = openSoundSettings,
-                            onOpenPrivacyPolicy = { },
+                            onOpenPrivacyPolicy = {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://aohstd.com/privacy")))
+                            },
+                            onOpenTerms = {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://aohstd.com/terms")))
+                            },
                             onProClick = openPaywall,
                             vm = koinViewModel(),
                         )

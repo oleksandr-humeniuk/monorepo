@@ -1,6 +1,8 @@
 package com.oho.hiit_timer.paywall
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,8 +23,12 @@ fun HiitPaywallRoute(
         vm.events.collect { event ->
             when (event) {
                 HiitPaywallNavEvent.Close -> onClose()
-                HiitPaywallNavEvent.OpenTerms -> { /* TODO: open terms URL */ }
-                HiitPaywallNavEvent.OpenPrivacy -> { /* TODO: open privacy URL */ }
+                HiitPaywallNavEvent.OpenTerms -> {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://aohstd.com/terms")))
+                }
+                HiitPaywallNavEvent.OpenPrivacy -> {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://aohstd.com/privacy")))
+                }
             }
         }
     }

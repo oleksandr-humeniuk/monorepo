@@ -60,6 +60,7 @@ fun SettingsRoute(
     onContactSupport: () -> Unit,
     onRateApp: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
+    onOpenTerms: () -> Unit = {},
     onProClick: () -> Unit = {},
     vm: SettingsViewModel = org.koin.androidx.compose.koinViewModel(),
 ) {
@@ -73,6 +74,7 @@ fun SettingsRoute(
                 SettingsNavEvent.ContactSupport -> onContactSupport()
                 SettingsNavEvent.RateApp -> onRateApp()
                 SettingsNavEvent.OpenPrivacyPolicy -> onOpenPrivacyPolicy()
+                SettingsNavEvent.OpenTerms -> onOpenTerms()
             }
         }
     }
@@ -105,6 +107,7 @@ fun SettingsRoute(
                 onContactSupport = vm::onContactSupport,
                 onRateApp = vm::onRateApp,
                 onOpenPrivacyPolicy = vm::onOpenPrivacyPolicy,
+                onOpenTerms = vm::onOpenTerms,
                 onProClick = onProClick,
             )
         }
@@ -135,6 +138,7 @@ private fun SettingsScreen(
     onContactSupport: () -> Unit,
     onRateApp: () -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
+    onOpenTerms: () -> Unit = {},
     onProClick: () -> Unit = {},
 ) {
     val c = MonoTheme.colors
@@ -225,7 +229,8 @@ private fun SettingsScreen(
                 SettingsCard {
                     RowAction("Contact support", onClick = onContactSupport)
                     RowAction("Rate app", onClick = onRateApp)
-                    RowAction("Privacy policy", onClick = onOpenPrivacyPolicy, isLast = true)
+                    RowAction("Privacy policy", onClick = onOpenPrivacyPolicy)
+                    RowAction("Terms of use", onClick = onOpenTerms, isLast = true)
                 }
 
                 Spacer(Modifier.height(10.dp))

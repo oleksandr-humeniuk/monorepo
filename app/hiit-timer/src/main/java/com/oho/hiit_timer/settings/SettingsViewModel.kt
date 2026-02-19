@@ -111,6 +111,7 @@ class SettingsViewModel(
     fun onContactSupport() = emit(SettingsNavEvent.ContactSupport)
     fun onRateApp() = emit(SettingsNavEvent.RateApp)
     fun onOpenPrivacyPolicy() = emit(SettingsNavEvent.OpenPrivacyPolicy)
+    fun onOpenTerms() = emit(SettingsNavEvent.OpenTerms)
 
     private inline fun withContent(block: (UiState.Content) -> Unit) {
         val content = _state.value as? UiState.Content ?: return
@@ -128,4 +129,5 @@ sealed interface SettingsNavEvent {
     data object ContactSupport : SettingsNavEvent
     data object RateApp : SettingsNavEvent
     data object OpenPrivacyPolicy : SettingsNavEvent
+    data object OpenTerms : SettingsNavEvent
 }
