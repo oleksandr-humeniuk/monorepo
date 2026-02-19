@@ -153,7 +153,11 @@ private fun CreateEditIntervalScreen(
             .fillMaxSize()
             .background(page)
     ) {
-        Column(Modifier.fillMaxSize()) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
                 title = { Text(title) },
@@ -179,7 +183,7 @@ private fun CreateEditIntervalScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 120.dp),
+                    .padding(top = 8.dp, bottom = 8.dp),
             ) {
                 SectionTitle(stringResource(timerR.string.set_name))
                 SurfaceCard(shape = RoundedCornerShape(12.dp)) {
@@ -260,15 +264,13 @@ private fun CreateEditIntervalScreen(
                     }
                 }
             }
+            BottomBar(
+                totalTime = state.totalDurationSec,
+                onSaveClicked = onSaveClicked,
+                saveCta = saveCta,
+                saveEnabled = state.saveEnabled
+            )
         }
-
-        BottomBar(
-            totalTime = state.totalDurationSec,
-            onSaveClicked = onSaveClicked,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            saveCta = saveCta,
-            saveEnabled = state.saveEnabled
-        )
     }
 }
 
@@ -398,8 +400,7 @@ private fun BottomBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 24.dp, vertical = 18.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(horizontal = 24.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
