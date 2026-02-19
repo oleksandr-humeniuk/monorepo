@@ -33,6 +33,7 @@ class HiitRunViewModel(
             val runUiState: HiitRunUiState,
             val showTotalRemaining: Boolean,
             val vibrationEnabled: Boolean,
+            val showCancelSheet: Boolean = false,
         ) : RunViewState
     }
 
@@ -41,6 +42,8 @@ class HiitRunViewModel(
 
     private var controller: HiitRunService.HiitRunController? = null
     private var bound: Boolean = false
+    private var pausedBySheet: Boolean = false
+    private val _showCancelSheet = MutableStateFlow(false)
 
     private val conn = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
@@ -50,13 +53,18 @@ class HiitRunViewModel(
             ctrl.send(HiitRunService.Cmd.Start(workoutId))
 
             viewModelScope.launch {
-                combine(ctrl.state, settingsRepository.hiitPreferences) { svcState, prefs ->
+                combine(
+                    ctrl.state,
+                    settingsRepository.hiitPreferences,
+                    _showCancelSheet,
+                ) { svcState, prefs, showSheet ->
                     when (svcState) {
                         ViewState.Idle -> RunViewState.Idle
                         is ViewState.Loaded -> RunViewState.Ready(
                             runUiState = svcState.runUiState,
                             showTotalRemaining = prefs.showTotalRemaining,
                             vibrationEnabled = prefs.vibrationEnabled,
+                            showCancelSheet = showSheet,
                         )
                     }
                 }.collect { _state.value = it }
@@ -90,5 +98,32 @@ class HiitRunViewModel(
     fun onPauseResume() = controller?.send(HiitRunService.Cmd.PauseResume)
     fun onNext() = controller?.send(HiitRunService.Cmd.Next)
     fun onPrevious() = controller?.send(HiitRunService.Cmd.Previous)
-    fun onClose() = controller?.send(HiitRunService.Cmd.Stop)
+
+    fun onRequestClose(onClose: () -> Unit) {
+        val current = _state.value
+        if (current is RunViewState.Ready && current.runUiState.phase == HiitPhase.Done) {
+            controller?.send(HiitRunService.Cmd.Stop)
+            onClose()
+            return
+        }
+        if (current is RunViewState.Ready && !current.runUiState.isPaused) {
+            controller?.send(HiitRunService.Cmd.PauseResume)
+            pausedBySheet = true
+        }
+        _showCancelSheet.value = true
+    }
+
+    fun onConfirmCancel() {
+        controller?.send(HiitRunService.Cmd.Stop)
+        pausedBySheet = false
+        _showCancelSheet.value = false
+    }
+
+    fun onDismissCancel() {
+        if (pausedBySheet) {
+            controller?.send(HiitRunService.Cmd.PauseResume)
+            pausedBySheet = false
+        }
+        _showCancelSheet.value = false
+    }
 }

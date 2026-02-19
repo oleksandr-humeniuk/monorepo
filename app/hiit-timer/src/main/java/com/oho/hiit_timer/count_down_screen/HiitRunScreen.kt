@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,11 +58,15 @@ import com.oho.utils.R as timerR
 
 @Composable
 fun HiitRunRoute(
-    workoutId: String
+    workoutId: String,
+    onBack: () -> Unit,
 ) {
     val viewModel: HiitRunViewModel = koinViewModel { parametersOf(workoutId) }
 
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    BackHandler { viewModel.onRequestClose(onBack) }
+
     MonoScaffold(Modifier.fillMaxSize()) {
         when (val viewState = uiState) {
             HiitRunViewModel.RunViewState.Idle -> {}
@@ -74,13 +79,22 @@ fun HiitRunRoute(
                     onPauseResume = viewModel::onPauseResume,
                     onNext = viewModel::onNext,
                     onPrevious = viewModel::onPrevious,
-                    onClose = viewModel::onClose,
+                    onClose = { viewModel.onRequestClose(onBack) },
                     modifier = Modifier
                 )
+
+                if (viewState.showCancelSheet) {
+                    CancelWorkoutBottomSheet(
+                        onResume = { viewModel.onDismissCancel() },
+                        onCancel = {
+                            viewModel.onConfirmCancel()
+                            onBack()
+                        },
+                    )
+                }
             }
         }
     }
-
 }
 
 

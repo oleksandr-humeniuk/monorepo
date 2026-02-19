@@ -222,6 +222,9 @@ class HiitRunService : Service(), KoinComponent {
         renderFromRuntime(requireNotNull(runtime), nowEpochMs = System.currentTimeMillis())
 
         ensureForeground() // must happen after render so notif text is correct
+
+        tickJob?.cancel()
+        tickJob = scope.launch { tickerLoop() }
     }
 
     // ---------------------------------------
@@ -335,6 +338,7 @@ class HiitRunService : Service(), KoinComponent {
         notifyIfNeeded(force = true)
 
         if (finished) {
+            tickJob?.cancel()
             // show Done briefly in notification, then clear session to avoid next-open blink
             NotificationHelper.notify(
                 ctx = this,
@@ -379,6 +383,7 @@ class HiitRunService : Service(), KoinComponent {
     }
 
     private suspend fun handleStop() {
+        tickJob?.cancel()
         sessionDao.clear()
         runtime = null
 

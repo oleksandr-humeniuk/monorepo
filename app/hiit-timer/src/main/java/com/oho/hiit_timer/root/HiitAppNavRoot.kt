@@ -77,7 +77,10 @@ fun HiitAppNavRoot(
         entryProvider = { key ->
             when (key) {
                 is HiitRootRoute.Run -> NavEntry(key) {
-                    HiitRunRoute(workoutId = key.workoutId)
+                    HiitRunRoute(
+                        workoutId = key.workoutId,
+                        onBack = { viewModel.onBack() },
+                    )
                 }
 
                 HiitRootRoute.Tabs -> NavEntry(key) {
