@@ -9,7 +9,6 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.oho.hiit_timer.HiitActivity
-import com.oho.utils.R
 
 object NotificationHelper {
 
@@ -42,7 +41,7 @@ object NotificationHelper {
         actions: List<Action>,
     ): Notification {
         val builder = NotificationCompat.Builder(ctx, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // <-- replace with your icon
+            .setSmallIcon(com.oho.core.ui.R.drawable.ic_notifications) // <-- replace with your icon
             .setContentTitle(title)
             .setContentText(text)
             .setOngoing(ongoing)

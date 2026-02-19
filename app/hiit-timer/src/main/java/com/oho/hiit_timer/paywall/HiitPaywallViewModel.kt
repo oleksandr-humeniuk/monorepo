@@ -83,7 +83,12 @@ class HiitPaywallViewModel(
                 productId = productId,
                 offerSelection = OfferSelection.BestPrice,
             ).onFailure {
-                _state.update { it.copy(isBusy = false, errorMessage = "Purchase failed. Try again.") }
+                _state.update {
+                    it.copy(
+                        isBusy = false,
+                        errorMessage = "Purchase failed. Try again."
+                    )
+                }
             }.onSuccess {
                 _state.update { it.copy(isBusy = false) }
             }
@@ -94,7 +99,14 @@ class HiitPaywallViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isBusy = true, errorMessage = null) }
             billing.restorePurchases()
-                .onFailure { _state.update { it.copy(isBusy = false, errorMessage = "Restore failed. Try again.") } }
+                .onFailure {
+                    _state.update {
+                        it.copy(
+                            isBusy = false,
+                            errorMessage = "Restore failed. Try again."
+                        )
+                    }
+                }
                 .onSuccess { _state.update { it.copy(isBusy = false) } }
         }
     }
@@ -125,7 +137,7 @@ class HiitPaywallViewModel(
             result[PaywallPlan.Monthly] = PaywallProduct(
                 plan = PaywallPlan.Monthly,
                 priceText = "${monthlyPhase.formattedPrice} / month",
-                secondaryText = "Flexible access",
+                secondaryText = null,
                 isBestValue = false,
             )
         }
@@ -134,7 +146,10 @@ class HiitPaywallViewModel(
             result[PaywallPlan.Yearly] = PaywallProduct(
                 plan = PaywallPlan.Yearly,
                 priceText = "${yearlyPhase.formattedPrice} / year",
-                secondaryText = computeSavings(monthlyPhase?.priceAmountMicros, yearlyPhase.priceAmountMicros)
+                secondaryText = computeSavings(
+                    monthlyPhase?.priceAmountMicros,
+                    yearlyPhase.priceAmountMicros
+                )
                     ?: "Best value",
                 isBestValue = true,
             )
