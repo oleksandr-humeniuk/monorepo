@@ -34,6 +34,7 @@ class HiitRunViewModel(
             val showTotalRemaining: Boolean,
             val vibrationEnabled: Boolean,
             val showCancelSheet: Boolean = false,
+            val showCongratsSheet: Boolean = false,
         ) : RunViewState
     }
 
@@ -44,6 +45,7 @@ class HiitRunViewModel(
     private var bound: Boolean = false
     private var pausedBySheet: Boolean = false
     private val _showCancelSheet = MutableStateFlow(false)
+    private val _showCongratsSheet = MutableStateFlow(false)
 
     private val conn = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
@@ -57,17 +59,31 @@ class HiitRunViewModel(
                     ctrl.state,
                     settingsRepository.hiitPreferences,
                     _showCancelSheet,
-                ) { svcState, prefs, showSheet ->
+                    _showCongratsSheet,
+                ) { values ->
+                    val svcState = values[0] as ViewState
+                    val prefs = values[1] as com.oho.hiit_timer.data.store.HiitPreferences
+                    val showCancel = values[2] as Boolean
+                    val showCongrats = values[3] as Boolean
                     when (svcState) {
                         ViewState.Idle -> RunViewState.Idle
                         is ViewState.Loaded -> RunViewState.Ready(
                             runUiState = svcState.runUiState,
                             showTotalRemaining = prefs.showTotalRemaining,
                             vibrationEnabled = prefs.vibrationEnabled,
-                            showCancelSheet = showSheet,
+                            showCancelSheet = showCancel,
+                            showCongratsSheet = showCongrats,
                         )
                     }
                 }.collect { _state.value = it }
+            }
+
+            viewModelScope.launch {
+                ctrl.state.collect { svcState ->
+                    if (svcState is ViewState.Loaded && svcState.runUiState.phase == HiitPhase.Done) {
+                        _showCongratsSheet.value = true
+                    }
+                }
             }
         }
 
@@ -102,9 +118,7 @@ class HiitRunViewModel(
     fun onRequestClose(onClose: () -> Unit) {
         val current = _state.value
         if (current is RunViewState.Ready && current.runUiState.phase == HiitPhase.Done) {
-            controller?.send(HiitRunService.Cmd.Stop)
-            onClose()
-            return
+            return // congrats sheet is already showing
         }
         if (current is RunViewState.Ready && !current.runUiState.isPaused) {
             controller?.send(HiitRunService.Cmd.PauseResume)
@@ -125,5 +139,10 @@ class HiitRunViewModel(
             pausedBySheet = false
         }
         _showCancelSheet.value = false
+    }
+
+    fun onDismissCongrats() {
+        controller?.send(HiitRunService.Cmd.Stop)
+        _showCongratsSheet.value = false
     }
 }

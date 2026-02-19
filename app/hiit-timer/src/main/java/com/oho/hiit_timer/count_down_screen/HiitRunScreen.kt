@@ -92,6 +92,15 @@ fun HiitRunRoute(
                         },
                     )
                 }
+
+                if (viewState.showCongratsSheet) {
+                    WorkoutCompleteBottomSheet(
+                        onDone = {
+                            viewModel.onDismissCongrats()
+                            onBack()
+                        },
+                    )
+                }
             }
         }
     }
