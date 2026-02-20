@@ -116,4 +116,65 @@
     <string name="timer_run_congrats_cta">Done</string>
     <string name="pro_banner_title">Stay hard</string>
     <string name="pro_banner_subtitle">Unlock unlimited presets with premium</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_workout">Workout</string>
+    <string name="settings_default_prepare_time">Default prepare time</string>
+    <string name="settings_show_total_remaining">Show total remaining time</string>
+    <string name="settings_auto_start_next_phase">Auto-start next phase</string>
+    <string name="settings_section_sound">Sound</string>
+    <string name="settings_sound_vibration">Sound &amp; vibration</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_keep_screen_on">Keep screen on</string>
+    <string name="settings_section_support">Support</string>
+    <string name="settings_contact_support">Contact support</string>
+    <string name="settings_rate_app">Rate app</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_terms_of_use">Terms of use</string>
+
+    <!-- Sound settings -->
+    <string name="sound_settings_sound_enabled">Sound enabled</string>
+    <string name="sound_settings_volume">Volume</string>
+    <string name="sound_settings_work_sound">Work sound</string>
+    <string name="sound_settings_rest_sound">Rest sound</string>
+    <string name="sound_settings_done_sound">Done sound</string>
+    <string name="sound_settings_section_vibration">Vibration</string>
+    <string name="sound_settings_vibration">Vibration</string>
+
+    <!-- Theme bottom sheet -->
+    <string name="theme_title">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_system_subtitle">Follow device settings</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
+    <!-- Notification permission -->
+    <string name="notification_permission_title">Timer runs in background</string>
+    <string name="notification_permission_body">Allow notifications so the timer keeps running and you get countdown alerts when your screen is off.</string>
+    <string name="notification_permission_not_now">Not now</string>
+    <string name="notification_permission_allow">Allow notifications</string>
+
+    <!-- Paywall -->
+    <string name="paywall_title">Unlock full\nworkout control</string>
+    <string name="paywall_subtitle">Build advanced workouts and\ncustomize your training</string>
+    <string name="paywall_processing">Processing…</string>
+    <string name="paywall_unlock_pro">Unlock Pro</string>
+    <string name="paywall_disclaimer">Cancel anytime. Google Play subscription.</string>
+    <string name="paywall_privacy">Privacy</string>
+    <string name="paywall_terms">Terms</string>
+    <string name="paywall_restore">RESTORE</string>
+    <string name="paywall_yearly">YEARLY</string>
+    <string name="paywall_monthly">MONTHLY</string>
+    <string name="paywall_best_value">BEST VALUE</string>
+    <string name="paywall_benefit_complex_sets">Complex Sets</string>
+    <string name="paywall_benefit_complex_sets_desc">Create nested intervals &amp; loops</string>
+    <string name="paywall_benefit_multiple_exercises">Multiple Exercises</string>
+    <string name="paywall_benefit_multiple_exercises_desc">Assign specific moves to timers</string>
+    <string name="paywall_benefit_custom_sounds">Custom Sounds</string>
+    <string name="paywall_benefit_custom_sounds_desc">TTS &amp; custom beeps</string>
+    <string name="paywall_benefit_unlimited_saves">Unlimited Saves</string>
+    <string name="paywall_benefit_unlimited_saves_desc">Keep your entire routine library</string>
+
 </resources>

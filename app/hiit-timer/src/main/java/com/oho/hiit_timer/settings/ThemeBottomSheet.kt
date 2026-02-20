@@ -21,12 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.components.MonoCard
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.utils.R as timerR
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,28 +72,28 @@ fun ThemeBottomSheet(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             MonoText(
-                text = "Theme",
+                text = stringResource(timerR.string.theme_title),
                 style = MonoTextStyle.TitleMedium,
                 color = c.primaryTextColor,
                 modifier = Modifier.padding(top = 6.dp, bottom = 4.dp)
             )
 
             ThemeRow(
-                title = "System",
-                subtitle = "Follow device settings",
+                title = stringResource(timerR.string.theme_system),
+                subtitle = stringResource(timerR.string.theme_system_subtitle),
                 selected = selected == SettingsViewModel.ThemeMode.System,
                 onClick = { onSelect(SettingsViewModel.ThemeMode.System) }
             )
 
             ThemeRow(
-                title = "Light",
+                title = stringResource(timerR.string.theme_light),
                 subtitle = null,
                 selected = selected == SettingsViewModel.ThemeMode.Light,
                 onClick = { onSelect(SettingsViewModel.ThemeMode.Light) }
             )
 
             ThemeRow(
-                title = "Dark",
+                title = stringResource(timerR.string.theme_dark),
                 subtitle = null,
                 selected = selected == SettingsViewModel.ThemeMode.Dark,
                 onClick = { onSelect(SettingsViewModel.ThemeMode.Dark) }

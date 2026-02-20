@@ -25,8 +25,10 @@ import androidx.compose.runtime.getValue
 import com.oho.hiit_timer.data.store.Sound
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
+import com.oho.utils.R as timerR
 import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoScaffold
 import com.oho.core.ui.theme.MonoTheme
@@ -93,7 +95,7 @@ private fun SoundSettingsScreen(
         Column(Modifier.fillMaxSize()) {
 
             CenterAlignedTopAppBar(
-                title = { Text("Sound & vibration") },
+                title = { Text(stringResource(timerR.string.settings_sound_vibration)) },
                 navigationIcon = {
                     Box(
                         modifier = Modifier
@@ -103,7 +105,7 @@ private fun SoundSettingsScreen(
                     ) {
                         MonoIcon(
                             painter = androidx.compose.ui.res.painterResource(R.drawable.ic_navigate_before),
-                            contentDescription = "Back",
+                            contentDescription = stringResource(timerR.string.back),
                             tint = c.primaryIconColor,
                             modifier = Modifier.size(22.dp)
                         )
@@ -124,10 +126,10 @@ private fun SoundSettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
 
-                SectionHeader("Sound")
+                SectionHeader(stringResource(timerR.string.settings_section_sound))
                 SettingsCard {
                     RowToggle(
-                        title = "Sound enabled",
+                        title = stringResource(timerR.string.sound_settings_sound_enabled),
                         checked = state.soundEnabled,
                         onToggle = onToggleSound,
                     )
@@ -139,14 +141,14 @@ private fun SoundSettingsScreen(
                     ) {
                         Column {
                             RowMonoSlider(
-                                title = "Volume",
+                                title = stringResource(timerR.string.sound_settings_volume),
                                 value = state.volume,
                                 onValueChange = onVolumeChange,
                             )
-                            RowNav("Work sound", value = state.workSound.toDisplayName(), onClick = onPickWork)
-                            RowNav("Rest sound", value = state.restSound.toDisplayName(), onClick = onPickRest)
+                            RowNav(stringResource(timerR.string.sound_settings_work_sound), value = state.workSound.toDisplayName(), onClick = onPickWork)
+                            RowNav(stringResource(timerR.string.sound_settings_rest_sound), value = state.restSound.toDisplayName(), onClick = onPickRest)
                             RowNav(
-                                "Done sound",
+                                stringResource(timerR.string.sound_settings_done_sound),
                                 value = state.doneSound.toDisplayName(),
                                 onClick = onPickDone,
                                 isLast = true
@@ -160,10 +162,10 @@ private fun SoundSettingsScreen(
                     }
                 }
 
-                SectionHeader("Vibration")
+                SectionHeader(stringResource(timerR.string.sound_settings_section_vibration))
                 SettingsCard {
                     RowToggle(
-                        title = "Vibration",
+                        title = stringResource(timerR.string.sound_settings_vibration),
                         checked = state.vibrationEnabled,
                         onToggle = onToggleVibration,
                         isLast = true,

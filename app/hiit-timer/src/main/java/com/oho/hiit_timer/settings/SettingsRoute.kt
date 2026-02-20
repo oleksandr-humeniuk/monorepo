@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
 import com.oho.hiit_timer.ProBadgeButton
+import com.oho.utils.R as timerR
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -155,7 +157,7 @@ private fun SettingsScreen(
         ) {
 
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(timerR.string.settings_title)) },
                 actions = {
                     if (!isPro) {
                         ProBadgeButton(
@@ -178,59 +180,59 @@ private fun SettingsScreen(
                     .navigationBarsPadding(),
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
-                SectionHeader("Workout")
+                SectionHeader(stringResource(timerR.string.settings_section_workout))
                 SettingsCard {
                     RowStepperCenteredValue(
-                        title = "Default prepare time",
+                        title = stringResource(timerR.string.settings_default_prepare_time),
                         value = "${state.defaultPrepareSec}s",
                         onMinus = onPrepareMinus,
                         onPlus = onPreparePlus,
                     )
                     RowToggle(
-                        title = "Show total remaining time",
+                        title = stringResource(timerR.string.settings_show_total_remaining),
                         checked = state.showTotalRemaining,
                         onToggle = onToggleShowTotalRemaining,
                     )
                     RowToggle(
-                        title = "Auto-start next phase",
+                        title = stringResource(timerR.string.settings_auto_start_next_phase),
                         checked = state.autoStartNextPhase,
                         onToggle = onToggleAutoStartNextPhase,
                         isLast = true,
                     )
                 }
 
-                SectionHeader("Sound")
+                SectionHeader(stringResource(timerR.string.settings_section_sound))
                 SettingsCard {
                     RowNav(
-                        title = "Sound & vibration",
+                        title = stringResource(timerR.string.settings_sound_vibration),
                         value = null,
                         onClick = onOpenSound,
                         isLast = true,
                     )
                 }
 
-                SectionHeader("General")
+                SectionHeader(stringResource(timerR.string.settings_section_general))
                 SettingsCard {
                     RowNav(
-                        title = "Theme",
+                        title = stringResource(timerR.string.settings_theme),
                         value = state.themeMode.name.lowercase()
                             .replaceFirstChar { it.uppercase() },
                         onClick = onOpenTheme,
                     )
                     RowToggle(
-                        title = "Keep screen on",
+                        title = stringResource(timerR.string.settings_keep_screen_on),
                         checked = state.keepScreenOn,
                         onToggle = onToggleKeepScreenOn,
                         isLast = true,
                     )
                 }
 
-                SectionHeader("Support")
+                SectionHeader(stringResource(timerR.string.settings_section_support))
                 SettingsCard {
-                    RowAction("Contact support", onClick = onContactSupport)
-                    RowAction("Rate app", onClick = onRateApp)
-                    RowAction("Privacy policy", onClick = onOpenPrivacyPolicy)
-                    RowAction("Terms of use", onClick = onOpenTerms, isLast = true)
+                    RowAction(stringResource(timerR.string.settings_contact_support), onClick = onContactSupport)
+                    RowAction(stringResource(timerR.string.settings_rate_app), onClick = onRateApp)
+                    RowAction(stringResource(timerR.string.settings_privacy_policy), onClick = onOpenPrivacyPolicy)
+                    RowAction(stringResource(timerR.string.settings_terms_of_use), onClick = onOpenTerms, isLast = true)
                 }
 
                 Spacer(Modifier.height(10.dp))

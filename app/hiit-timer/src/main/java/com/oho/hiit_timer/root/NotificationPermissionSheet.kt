@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
 import com.oho.core.ui.components.MonoIcon
@@ -22,6 +23,7 @@ import com.oho.core.ui.components.MonoPrimaryButton
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.utils.R as timerR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +58,7 @@ fun NotificationPermissionSheet(
             Spacer(Modifier.height(16.dp))
 
             MonoText(
-                text = "Timer runs in background",
+                text = stringResource(timerR.string.notification_permission_title),
                 style = MonoTextStyle.TitleLarge,
                 color = c.primaryTextColor,
             )
@@ -64,7 +66,7 @@ fun NotificationPermissionSheet(
             Spacer(Modifier.height(8.dp))
 
             MonoText(
-                text = "Allow notifications so the timer keeps running and you get countdown alerts when your screen is off.",
+                text = stringResource(timerR.string.notification_permission_body),
                 style = MonoTextStyle.BodySecondary,
                 color = c.secondaryTextColor,
             )
@@ -76,7 +78,7 @@ fun NotificationPermissionSheet(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 MonoText(
-                    text = "Not now",
+                    text = stringResource(timerR.string.notification_permission_not_now),
                     style = MonoTextStyle.BodyPrimary,
                     color = c.secondaryTextColor,
                 )
@@ -85,7 +87,7 @@ fun NotificationPermissionSheet(
             Spacer(Modifier.height(8.dp))
 
             MonoPrimaryButton(
-                text = "Allow notifications",
+                text = stringResource(timerR.string.notification_permission_allow),
                 onClick = onAllow,
                 modifier = Modifier
                     .fillMaxWidth()

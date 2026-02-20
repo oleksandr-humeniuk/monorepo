@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,7 @@ import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoText
 import com.oho.core.ui.components.MonoTextStyle
 import com.oho.core.ui.theme.MonoTheme
+import com.oho.utils.R as timerR
 
 @Composable
 fun HiitPaywallScreen(
@@ -89,7 +91,7 @@ fun HiitPaywallScreen(
                 Spacer(Modifier.height(14.dp))
 
                 MonoText(
-                    text = "Unlock full\nworkout control",
+                    text = stringResource(timerR.string.paywall_title),
                     style = MonoTextStyle.TitleLarge,
                     color = c.primaryTextColor,
                     textAlign = TextAlign.Center,
@@ -98,7 +100,7 @@ fun HiitPaywallScreen(
                 Spacer(Modifier.height(10.dp))
 
                 MonoText(
-                    text = "Build advanced workouts and\ncustomize your training",
+                    text = stringResource(timerR.string.paywall_subtitle),
                     style = MonoTextStyle.BodySecondary,
                     color = c.secondaryTextColor,
                     textAlign = TextAlign.Center,
@@ -123,7 +125,7 @@ fun HiitPaywallScreen(
                 Spacer(Modifier.height(16.dp))
 
                 ProCtaButton(
-                    text = if (state.isBusy) "Processing..." else "Unlock Pro",
+                    text = if (state.isBusy) stringResource(timerR.string.paywall_processing) else stringResource(timerR.string.paywall_unlock_pro),
                     onClick = onCta,
                     enabled = !state.isBusy &&
                         state.phase != PaywallUiPhase.Loading &&
@@ -147,7 +149,7 @@ fun HiitPaywallScreen(
                 Spacer(Modifier.height(10.dp))
 
                 MonoText(
-                    text = "Cancel anytime. Google Play subscription.",
+                    text = stringResource(timerR.string.paywall_disclaimer),
                     style = MonoTextStyle.Label,
                     color = c.tertiaryTextColor,
                     textAlign = TextAlign.Center,
@@ -161,14 +163,14 @@ fun HiitPaywallScreen(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     MonoText(
-                        text = "Privacy",
+                        text = stringResource(timerR.string.paywall_privacy),
                         style = MonoTextStyle.Label,
                         color = c.linkTextColor,
                         modifier = Modifier.clickable { onOpenPrivacy() },
                     )
                     Spacer(Modifier.width(14.dp))
                     MonoText(
-                        text = "Terms",
+                        text = stringResource(timerR.string.paywall_terms),
                         style = MonoTextStyle.Label,
                         color = c.linkTextColor,
                         modifier = Modifier.clickable { onOpenTerms() },
@@ -194,7 +196,7 @@ private fun PaywallTopBar(
     ) {
         Spacer(Modifier.weight(1f))
         MonoText(
-            text = "RESTORE",
+            text = stringResource(timerR.string.paywall_restore),
             style = MonoTextStyle.Label,
             color = c.secondaryTextColor,
             modifier = Modifier
@@ -213,23 +215,23 @@ private fun BenefitsBlock() {
     ) {
         BenefitRow(
             icon = R.drawable.ic_timer,
-            title = "Complex Sets",
-            subtitle = "Create nested intervals & loops",
+            title = stringResource(timerR.string.paywall_benefit_complex_sets),
+            subtitle = stringResource(timerR.string.paywall_benefit_complex_sets_desc),
         )
         BenefitRow(
             icon = R.drawable.ic_fitness_center,
-            title = "Multiple Exercises",
-            subtitle = "Assign specific moves to timers",
+            title = stringResource(timerR.string.paywall_benefit_multiple_exercises),
+            subtitle = stringResource(timerR.string.paywall_benefit_multiple_exercises_desc),
         )
         BenefitRow(
             icon = R.drawable.ic_volume_up,
-            title = "Custom Sounds",
-            subtitle = "TTS & custom beeps",
+            title = stringResource(timerR.string.paywall_benefit_custom_sounds),
+            subtitle = stringResource(timerR.string.paywall_benefit_custom_sounds_desc),
         )
         BenefitRow(
             icon = R.drawable.ic_push_pin,
-            title = "Unlimited Saves",
-            subtitle = "Keep your entire routine library",
+            title = stringResource(timerR.string.paywall_benefit_unlimited_saves),
+            subtitle = stringResource(timerR.string.paywall_benefit_unlimited_saves_desc),
         )
     }
 }
@@ -304,7 +306,7 @@ private fun PlansBlock(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             MonoText(
-                                text = "YEARLY",
+                                text = stringResource(timerR.string.paywall_yearly),
                                 style = MonoTextStyle.Label,
                                 color = if (yearlySelected) c.errorColor else c.tertiaryTextColor,
                             )
@@ -353,7 +355,7 @@ private fun PlansBlock(
                             .padding(horizontal = 10.dp, vertical = 4.dp),
                     ) {
                         MonoText(
-                            text = "BEST VALUE",
+                            text = stringResource(timerR.string.paywall_best_value),
                             style = MonoTextStyle.Label,
                             color = Color.White,
                         )
@@ -380,7 +382,7 @@ private fun PlansBlock(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         MonoText(
-                            text = "MONTHLY",
+                            text = stringResource(timerR.string.paywall_monthly),
                             style = MonoTextStyle.Label,
                             color = if (monthlySelected) c.errorColor else c.tertiaryTextColor,
                         )
