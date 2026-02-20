@@ -102,4 +102,8 @@
     <string name="run_notification_work_next_format">%1$s %2$s</string>
     <string name="run_notification_rest_next_format">Pause %1$s</string>
 
+    <string name="sound_settings_mode">Modus</string>
+    <string name="sound_mode_sound">Ton</string>
+    <string name="sound_mode_tts">Stimme</string>
+
 </resources>

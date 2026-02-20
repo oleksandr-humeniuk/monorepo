@@ -23,11 +23,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.oho.hiit_timer.data.store.Sound
+import com.oho.hiit_timer.data.store.SoundMode
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.oho.core.ui.R
+import com.oho.core.ui.components.MonoText
+import com.oho.core.ui.components.MonoTextStyle
 import com.oho.utils.R as timerR
 import com.oho.core.ui.components.MonoIcon
 import com.oho.core.ui.components.MonoScaffold
@@ -64,6 +75,7 @@ fun SoundSettingsRoute(
                 onPickWork = { vm.onPickSound(SoundKind.Work) },
                 onPickRest = { vm.onPickSound(SoundKind.Rest) },
                 onPickDone = { vm.onPickSound(SoundKind.Done) },
+                onSoundModeChange = vm::onSoundModeChange,
             )
         }
     }
@@ -84,6 +96,7 @@ private fun SoundSettingsScreen(
     onPickWork: () -> Unit,
     onPickRest: () -> Unit,
     onPickDone: () -> Unit,
+    onSoundModeChange: (SoundMode) -> Unit,
 ) {
     val c = MonoTheme.colors
 
@@ -140,19 +153,34 @@ private fun SoundSettingsScreen(
                         exit = fadeOut() + shrinkVertically(),
                     ) {
                         Column {
+                            RowSoundModePicker(
+                                selected = state.soundMode,
+                                onSelect = onSoundModeChange,
+                            )
                             RowMonoSlider(
                                 title = stringResource(timerR.string.sound_settings_volume),
                                 value = state.volume,
                                 onValueChange = onVolumeChange,
                             )
-                            RowNav(stringResource(timerR.string.sound_settings_work_sound), value = state.workSound.toDisplayName(), onClick = onPickWork)
-                            RowNav(stringResource(timerR.string.sound_settings_rest_sound), value = state.restSound.toDisplayName(), onClick = onPickRest)
-                            RowNav(
-                                stringResource(timerR.string.sound_settings_done_sound),
-                                value = state.doneSound.toDisplayName(),
-                                onClick = onPickDone,
-                                isLast = true
-                            )
+                            AnimatedVisibility(
+                                visible = state.soundMode == SoundMode.Sound,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically(),
+                            ) {
+                                Column {
+                                    RowNav(stringResource(timerR.string.sound_settings_work_sound), value = state.workSound.toDisplayName(), onClick = onPickWork)
+                                    RowNav(stringResource(timerR.string.sound_settings_rest_sound), value = state.restSound.toDisplayName(), onClick = onPickRest)
+                                    RowNav(
+                                        stringResource(timerR.string.sound_settings_done_sound),
+                                        value = state.doneSound.toDisplayName(),
+                                        onClick = onPickDone,
+                                        isLast = true
+                                    )
+                                }
+                            }
+                            if (state.soundMode == SoundMode.TTS) {
+                                DividerLine(isLast = true)
+                            }
                         }
                     }
 
@@ -174,4 +202,76 @@ private fun SoundSettingsScreen(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RowSoundModePicker(
+    selected: SoundMode,
+    onSelect: (SoundMode) -> Unit,
+) {
+    val c = MonoTheme.colors
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        MonoText(
+            text = stringResource(timerR.string.sound_settings_mode),
+            style = MonoTextStyle.BodyPrimary,
+            color = c.primaryTextColor,
+            modifier = Modifier.weight(1f),
+        )
+
+        FilterChip(
+            selected = selected == SoundMode.Sound,
+            onClick = { onSelect(SoundMode.Sound) },
+            label = {
+                MonoText(
+                    text = stringResource(timerR.string.sound_mode_sound),
+                    style = MonoTextStyle.BodySecondary,
+                    color = if (selected == SoundMode.Sound) c.inverseTextColor else c.secondaryTextColor,
+                )
+            },
+            shape = RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp),
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = c.primaryButtonBackground,
+                containerColor = c.cardBackground,
+            ),
+            border = FilterChipDefaults.filterChipBorder(
+                borderColor = c.cardBorderColor,
+                selectedBorderColor = c.primaryButtonBackground,
+                enabled = true,
+                selected = selected == SoundMode.Sound,
+            ),
+        )
+
+        Spacer(Modifier.width((-1).dp))
+
+        FilterChip(
+            selected = selected == SoundMode.TTS,
+            onClick = { onSelect(SoundMode.TTS) },
+            label = {
+                MonoText(
+                    text = stringResource(timerR.string.sound_mode_tts),
+                    style = MonoTextStyle.BodySecondary,
+                    color = if (selected == SoundMode.TTS) c.inverseTextColor else c.secondaryTextColor,
+                )
+            },
+            shape = RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp),
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = c.primaryButtonBackground,
+                containerColor = c.cardBackground,
+            ),
+            border = FilterChipDefaults.filterChipBorder(
+                borderColor = c.cardBorderColor,
+                selectedBorderColor = c.primaryButtonBackground,
+                enabled = true,
+                selected = selected == SoundMode.TTS,
+            ),
+        )
+    }
+    DividerLine()
 }

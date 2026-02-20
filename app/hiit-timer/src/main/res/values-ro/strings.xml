@@ -103,4 +103,8 @@
     <string name="run_notification_work_next_format">%1$s %2$s</string>
     <string name="run_notification_rest_next_format">Pauză %1$s</string>
 
+    <string name="sound_settings_mode">Mod</string>
+    <string name="sound_mode_sound">Sunet</string>
+    <string name="sound_mode_tts">Voce</string>
+
 </resources>

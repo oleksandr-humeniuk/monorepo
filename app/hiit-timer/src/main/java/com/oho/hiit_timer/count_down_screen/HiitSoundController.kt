@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class HiitSoundController(
     context: Context,
     private val config: Config,
-) {
+) : HiitAudioController {
 
     data class Config(
         @RawRes val workStartRes: Int,
@@ -94,7 +94,7 @@ class HiitSoundController(
         loadJob = scope.launch { preload() }
     }
 
-    suspend fun preload() {
+    override suspend fun preload() {
         if (!config.enabled) return
         mutex.withLock {
             if (loaded.get()) return
@@ -121,7 +121,7 @@ class HiitSoundController(
      *
      * @param next next segment (non-null)
      */
-    fun onSegmentChanged(
+    override fun onSegmentChanged(
         nextIndex: Int,
         next: HiitSegment,
         isPaused: Boolean,
@@ -158,7 +158,7 @@ class HiitSoundController(
      * Optional: call from your ticker to support countdown beeps (3-2-1).
      * Safe to call every 100ms.
      */
-    fun onTick(
+    override fun onTick(
         currentIndex: Int,
         currentSegment: HiitSegment,
         phaseRemainingSec: Int,
@@ -197,14 +197,14 @@ class HiitSoundController(
      * Call this when you start a new run (e.g. new workout).
      * If you reuse the controller across runs, you must reset the "finished" latch.
      */
-    fun resetForNewRun() {
+    override fun resetForNewRun() {
         finishedPlayedForRun = false
         lastIndex = -1
         lastPhaseRemainingSec = null
         lastSecondBeeped = null
     }
 
-    fun release() {
+    override fun release() {
         loadJob?.cancel()
         scope.cancel()
         soundPool.release()

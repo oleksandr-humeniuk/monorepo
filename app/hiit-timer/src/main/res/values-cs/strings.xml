@@ -105,4 +105,8 @@
     <string name="run_notification_work_next_format">%1$s %2$s</string>
     <string name="run_notification_rest_next_format">Odpočinek %1$s</string>
 
+    <string name="sound_settings_mode">Režim</string>
+    <string name="sound_mode_sound">Zvuk</string>
+    <string name="sound_mode_tts">Hlas</string>
+
 </resources>

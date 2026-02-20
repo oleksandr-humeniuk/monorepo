@@ -103,4 +103,8 @@
     <string name="run_notification_work_next_format">%1$s %2$s</string>
     <string name="run_notification_rest_next_format">বিশ্রাম %1$s</string>
 
+    <string name="sound_settings_mode">মোড</string>
+    <string name="sound_mode_sound">শব্দ</string>
+    <string name="sound_mode_tts">ভয়েস</string>
+
 </resources>

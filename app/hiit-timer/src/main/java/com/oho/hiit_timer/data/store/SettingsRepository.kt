@@ -30,6 +30,7 @@ class SettingsRepository(
         val WORK_SOUND = Sound.RingBell
         val REST_SOUND = Sound.Whistle
         val DONE_SOUND = Sound.Whistle
+        val SOUND_MODE = SoundMode.Sound
         val THEME_MODE = ThemeMode.Dark
         const val KEEP_SCREEN_ON = true
     }
@@ -45,6 +46,7 @@ class SettingsRepository(
         val WORK_SOUND = stringPreferencesKey("work_sound")
         val REST_SOUND = stringPreferencesKey("rest_sound")
         val DONE_SOUND = stringPreferencesKey("done_sound")
+        val SOUND_MODE = stringPreferencesKey("sound_mode")
 
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
@@ -63,6 +65,7 @@ class SettingsRepository(
             workSound = prefs[Keys.WORK_SOUND].toSoundOrDefault(Defaults.WORK_SOUND),
             restSound = prefs[Keys.REST_SOUND].toSoundOrDefault(Defaults.REST_SOUND),
             doneSound = prefs[Keys.DONE_SOUND].toSoundOrDefault(Defaults.DONE_SOUND),
+            soundMode = prefs[Keys.SOUND_MODE].toSoundModeOrDefault(Defaults.SOUND_MODE),
 
             themeMode = prefs[Keys.THEME_MODE].toThemeModeOrDefault(Defaults.THEME_MODE),
             keepScreenOn = prefs[Keys.KEEP_SCREEN_ON] ?: Defaults.KEEP_SCREEN_ON,
@@ -78,6 +81,7 @@ class SettingsRepository(
             workSound = Defaults.WORK_SOUND,
             restSound = Defaults.REST_SOUND,
             doneSound = Defaults.DONE_SOUND,
+            soundMode = Defaults.SOUND_MODE,
             themeMode = Defaults.THEME_MODE,
             keepScreenOn = Defaults.KEEP_SCREEN_ON
         )
@@ -123,6 +127,10 @@ class SettingsRepository(
         store.edit { it[Keys.DONE_SOUND] = value.value }
     }
 
+    suspend fun setSoundMode(value: SoundMode) {
+        store.edit { it[Keys.SOUND_MODE] = value.value }
+    }
+
     suspend fun setThemeMode(value: ThemeMode) {
         store.edit { it[Keys.THEME_MODE] = value.value }
     }
@@ -142,6 +150,7 @@ data class HiitPreferences(
     val workSound: Sound,
     val restSound: Sound,
     val doneSound: Sound,
+    val soundMode: SoundMode,
     val themeMode: ThemeMode,
     val keepScreenOn: Boolean,
 )
@@ -151,10 +160,19 @@ enum class Sound(val value: String) {
     RingBell("ring_bell"),
 }
 
+enum class SoundMode(val value: String) {
+    Sound("sound"),
+    TTS("tts"),
+}
+
 private fun String?.toThemeModeOrDefault(default: ThemeMode): ThemeMode {
     return runCatching { ThemeMode.entries.first { it.value == this } }.getOrDefault(default)
 }
 
 private fun String?.toSoundOrDefault(default: Sound): Sound {
     return runCatching { Sound.entries.first { it.value == this } }.getOrDefault(default)
+}
+
+private fun String?.toSoundModeOrDefault(default: SoundMode): SoundMode {
+    return runCatching { SoundMode.entries.first { it.value == this } }.getOrDefault(default)
 }

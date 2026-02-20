@@ -10,6 +10,7 @@ import com.oho.hiit_timer.data.HiitWorkoutsRepository
 import com.oho.hiit_timer.data.storage.HiitRunSessionDao
 import com.oho.hiit_timer.data.store.SettingsRepository
 import com.oho.hiit_timer.data.store.Sound
+import com.oho.hiit_timer.data.store.SoundMode
 import com.oho.hiit_timer.data.storage.HiitRunSessionEntity
 import com.oho.hiit_timer.domain.HiitPlanner
 import com.oho.hiit_timer.domain.HiitSegment
@@ -112,24 +113,31 @@ class HiitRunService : Service(), KoinComponent {
     private var restOrdinalInExercise: IntArray = IntArray(0)
     private var restTotalByExercise: Map<String, Int> = emptyMap()
 
-    private val soundController by lazy {
+    private val soundController: HiitAudioController by lazy {
         val prefs = settingsRepository.hiitPreferences.value
-        HiitSoundController(
-            context = applicationContext,
-            config = HiitSoundController.Config(
-                workStartRes = prefs.workSound.toRawRes(),
-                restStartRes = prefs.restSound.toRawRes(),
-                workoutFinishedRes = prefs.doneSound.toRawRes(),
+        when (prefs.soundMode) {
+            SoundMode.TTS -> HiitTtsController(
+                context = applicationContext,
                 volume = prefs.volume,
                 enabled = prefs.soundEnabled,
-                countdown = HiitSoundController.Config.Countdown(
-                    beepRes = R.raw.countdown_tick,
-                    seconds = setOf(3, 2, 1),
-                    volumeMultiplier = prefs.volume,
-                    includePrepare = false,
+            )
+            SoundMode.Sound -> HiitSoundController(
+                context = applicationContext,
+                config = HiitSoundController.Config(
+                    workStartRes = prefs.workSound.toRawRes(),
+                    restStartRes = prefs.restSound.toRawRes(),
+                    workoutFinishedRes = prefs.doneSound.toRawRes(),
+                    volume = prefs.volume,
+                    enabled = prefs.soundEnabled,
+                    countdown = HiitSoundController.Config.Countdown(
+                        beepRes = R.raw.countdown_tick,
+                        seconds = setOf(3, 2, 1),
+                        volumeMultiplier = prefs.volume,
+                        includePrepare = false,
+                    )
                 )
             )
-        )
+        }
     }
 
     private fun Sound.toRawRes(): Int = when (this) {

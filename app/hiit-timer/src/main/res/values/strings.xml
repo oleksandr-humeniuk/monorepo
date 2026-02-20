@@ -140,6 +140,9 @@
     <string name="sound_settings_work_sound">Work sound</string>
     <string name="sound_settings_rest_sound">Rest sound</string>
     <string name="sound_settings_done_sound">Done sound</string>
+    <string name="sound_settings_mode">Mode</string>
+    <string name="sound_mode_sound">Sound</string>
+    <string name="sound_mode_tts">Voice</string>
     <string name="sound_settings_section_vibration">Vibration</string>
     <string name="sound_settings_vibration">Vibration</string>
 

@@ -103,4 +103,8 @@
     <string name="run_notification_work_next_format">%1$s %2$s</string>
     <string name="run_notification_rest_next_format">आराम %1$s</string>
 
+    <string name="sound_settings_mode">मोड</string>
+    <string name="sound_mode_sound">ध्वनि</string>
+    <string name="sound_mode_tts">आवाज़</string>
+
 </resources>

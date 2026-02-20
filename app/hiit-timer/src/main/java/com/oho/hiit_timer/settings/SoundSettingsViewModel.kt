@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.oho.hiit_timer.data.store.SettingsRepository
 import com.oho.hiit_timer.data.store.Sound
+import com.oho.hiit_timer.data.store.SoundMode
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,7 @@ class SoundSettingsViewModel(
             val workSound: Sound,
             val restSound: Sound,
             val doneSound: Sound,
+            val soundMode: SoundMode,
         ) : UiState
     }
 
@@ -47,6 +49,7 @@ class SoundSettingsViewModel(
                     workSound = prefs.workSound,
                     restSound = prefs.restSound,
                     doneSound = prefs.doneSound,
+                    soundMode = prefs.soundMode,
                 )
             }
         }
@@ -67,6 +70,10 @@ class SoundSettingsViewModel(
 
     fun onToggleVibration() = withContent { content ->
         viewModelScope.launch { repository.setVibrationEnabled(!content.vibrationEnabled) }
+    }
+
+    fun onSoundModeChange(mode: SoundMode) {
+        viewModelScope.launch { repository.setSoundMode(mode) }
     }
 
     fun onPickSound(kind: SoundKind) = emit(SoundNavEvent.PickSound(kind))
