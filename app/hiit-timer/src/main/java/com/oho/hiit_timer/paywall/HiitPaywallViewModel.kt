@@ -49,7 +49,9 @@ class HiitPaywallViewModel(
                 val products = buildProducts(productsState.products)
                 val phase = when {
                     entitlements.hasActiveSubscription() -> PaywallUiPhase.Completed
-                    productsState.isRefreshing || products.isEmpty() -> PaywallUiPhase.Loading
+                    productsState.isRefreshing -> PaywallUiPhase.Loading
+                    products.isEmpty() && productsState.lastError != null -> PaywallUiPhase.Failed
+                    products.isEmpty() -> PaywallUiPhase.Loading
                     else -> PaywallUiPhase.Ready
                 }
                 val current = _state.value
@@ -108,6 +110,12 @@ class HiitPaywallViewModel(
                     }
                 }
                 .onSuccess { _state.update { it.copy(isBusy = false) } }
+        }
+    }
+
+    fun onRetryLoadProducts() {
+        viewModelScope.launch {
+            billing.refreshProducts(setOf(MONTHLY_ID, YEARLY_ID))
         }
     }
 
@@ -191,7 +199,7 @@ data class HiitPaywallUiState(
     val errorMessage: String? = null,
 )
 
-enum class PaywallUiPhase { Loading, Ready, Completed }
+enum class PaywallUiPhase { Loading, Ready, Failed, Completed }
 
 enum class PaywallPlan { Monthly, Yearly }
 

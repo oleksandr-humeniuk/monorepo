@@ -50,6 +50,7 @@ fun HiitPaywallScreen(
     onSelectPlan: (PaywallPlan) -> Unit,
     onCta: () -> Unit,
     onRestore: () -> Unit,
+    onRetry: () -> Unit,
     onOpenTerms: () -> Unit,
     onOpenPrivacy: () -> Unit,
 ) {
@@ -120,30 +121,34 @@ fun HiitPaywallScreen(
                     .padding(horizontal = 20.dp)
                     .padding(bottom = 16.dp),
             ) {
-                PlansBlock(state = state, onSelectPlan = onSelectPlan)
+                when (state.phase) {
+                    PaywallUiPhase.Loading -> PlansLoadingBlock()
+                    PaywallUiPhase.Failed -> PlansErrorBlock(onRetry = onRetry)
+                    else -> {
+                        PlansBlock(state = state, onSelectPlan = onSelectPlan)
 
-                Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(16.dp))
 
-                ProCtaButton(
-                    text = if (state.isBusy) stringResource(timerR.string.paywall_processing) else stringResource(timerR.string.paywall_unlock_pro),
-                    onClick = onCta,
-                    enabled = !state.isBusy &&
-                        state.phase != PaywallUiPhase.Loading &&
-                        state.products.isNotEmpty(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                )
+                        ProCtaButton(
+                            text = if (state.isBusy) stringResource(timerR.string.paywall_processing) else stringResource(timerR.string.paywall_unlock_pro),
+                            onClick = onCta,
+                            enabled = !state.isBusy && state.products.isNotEmpty(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                        )
 
-                if (state.errorMessage != null) {
-                    Spacer(Modifier.height(8.dp))
-                    MonoText(
-                        text = state.errorMessage,
-                        style = MonoTextStyle.BodySecondary,
-                        color = c.errorColor,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                        if (state.errorMessage != null) {
+                            Spacer(Modifier.height(8.dp))
+                            MonoText(
+                                text = state.errorMessage,
+                                style = MonoTextStyle.BodySecondary,
+                                color = c.errorColor,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(10.dp))
@@ -406,6 +411,78 @@ private fun PlansBlock(
     }
 }
 
+@Composable
+private fun PlansLoadingBlock() {
+    val c = MonoTheme.colors
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        repeat(2) { index ->
+            MonoCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .let { mod -> if (index == 0) mod.padding(top = 14.dp) else mod },
+                contentPadding = PaddingValues(16.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 60.dp, height = 12.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(c.secondaryButtonBackground),
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(width = 120.dp, height = 20.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(c.secondaryButtonBackground),
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(width = 70.dp, height = 24.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(c.secondaryButtonBackground),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlansErrorBlock(onRetry: () -> Unit) {
+    val c = MonoTheme.colors
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        MonoText(
+            text = stringResource(timerR.string.paywall_load_error),
+            style = MonoTextStyle.BodySecondary,
+            color = c.secondaryTextColor,
+        )
+        MonoText(
+            text = stringResource(timerR.string.paywall_retry),
+            style = MonoTextStyle.Label,
+            color = c.linkTextColor,
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .clickable { onRetry() }
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        )
+    }
+}
+
 /** Derives the annual-if-paying-monthly reference price from the monthly product price text. */
 private fun computeMonthlyAnnualPrice(state: HiitPaywallUiState): String {
     val monthlyText = state.products[PaywallPlan.Monthly]?.priceText ?: return ""
@@ -465,6 +542,7 @@ private fun HiitPaywallScreenPreview() {
             onSelectPlan = {},
             onCta = {},
             onRestore = {},
+            onRetry = {},
             onOpenTerms = {},
             onOpenPrivacy = {},
         )
@@ -498,6 +576,7 @@ private fun HiitPaywallScreenMonthlyPreview() {
             onSelectPlan = {},
             onCta = {},
             onRestore = {},
+            onRetry = {},
             onOpenTerms = {},
             onOpenPrivacy = {},
         )
@@ -514,6 +593,24 @@ private fun HiitPaywallScreenLoadingPreview() {
             onSelectPlan = {},
             onCta = {},
             onRestore = {},
+            onRetry = {},
+            onOpenTerms = {},
+            onOpenPrivacy = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Paywall – Failed")
+@Composable
+private fun HiitPaywallScreenFailedPreview() {
+    MonoTheme {
+        HiitPaywallScreen(
+            state = HiitPaywallUiState(phase = PaywallUiPhase.Failed),
+            onClose = {},
+            onSelectPlan = {},
+            onCta = {},
+            onRestore = {},
+            onRetry = {},
             onOpenTerms = {},
             onOpenPrivacy = {},
         )

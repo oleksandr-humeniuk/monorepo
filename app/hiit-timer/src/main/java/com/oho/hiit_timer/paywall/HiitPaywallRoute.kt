@@ -39,6 +39,7 @@ fun HiitPaywallRoute(
         onSelectPlan = vm::onSelectPlan,
         onCta = { vm.onCtaClicked(ActivityProvider { context as Activity }) },
         onRestore = vm::onRestoreClicked,
+        onRetry = vm::onRetryLoadProducts,
         onOpenTerms = vm::onOpenTerms,
         onOpenPrivacy = vm::onOpenPrivacy,
     )

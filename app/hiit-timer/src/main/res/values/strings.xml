@@ -176,5 +176,7 @@
     <string name="paywall_benefit_custom_sounds_desc">TTS &amp; custom beeps</string>
     <string name="paywall_benefit_unlimited_saves">Unlimited Saves</string>
     <string name="paywall_benefit_unlimited_saves_desc">Keep your entire routine library</string>
+    <string name="paywall_load_error">Couldn\'t load plans</string>
+    <string name="paywall_retry">Try again</string>
 
 </resources>
